@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1022
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "stripper_qmm", "stripper_qmm.vcxproj", "{529BA967-2B46-4A19-A779-12B69E411F0F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug JK2|x86 = Debug JK2|x86
+		Debug JKA|x86 = Debug JKA|x86
+		Debug RTCWET|x86 = Debug RTCWET|x86
+		Debug RTCWMP|x86 = Debug RTCWMP|x86
+		Debug RTCWSP|x86 = Debug RTCWSP|x86
+		Debug|x86 = Debug|x86
+		Release JK2|x86 = Release JK2|x86
+		Release JKA|x86 = Release JKA|x86
+		Release RTCWET|x86 = Release RTCWET|x86
+		Release RTCWMP|x86 = Release RTCWMP|x86
+		Release RTCWSP|x86 = Release RTCWSP|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{529BA967-2B46-4A19-A779-12B69E411F0F}.Debug JK2|x86.ActiveCfg = Debug JK2|Win32
+		{529BA967-2B46-4A19-A779-12B69E411F0F}.Debug JK2|x86.Build.0 = Debug JK2|Win32
+		{529BA967-2B46-4A19-A779-12B69E411F0F}.Debug JKA|x86.ActiveCfg = Debug JKA|Win32
+		{529BA967-2B46-4A19-A779-12B69E411F0F}.Debug JKA|x86.Build.0 = Debug JKA|Win32
+		{529BA967-2B46-4A19-A779-12B69E411F0F}.Debug RTCWET|x86.ActiveCfg = Debug RTCWET|Win32
+		{529BA967-2B46-4A19-A779-12B69E411F0F}.Debug RTCWET|x86.Build.0 = Debug RTCWET|Win32
+		{529BA967-2B46-4A19-A779-12B69E411F0F}.Debug RTCWMP|x86.ActiveCfg = Debug RTCWMP|Win32
+		{529BA967-2B46-4A19-A779-12B69E411F0F}.Debug RTCWMP|x86.Build.0 = Debug RTCWMP|Win32
+		{529BA967-2B46-4A19-A779-12B69E411F0F}.Debug RTCWSP|x86.ActiveCfg = Debug RTCWSP|Win32
+		{529BA967-2B46-4A19-A779-12B69E411F0F}.Debug RTCWSP|x86.Build.0 = Debug RTCWSP|Win32
+		{529BA967-2B46-4A19-A779-12B69E411F0F}.Debug|x86.ActiveCfg = Debug|Win32
+		{529BA967-2B46-4A19-A779-12B69E411F0F}.Debug|x86.Build.0 = Debug|Win32
+		{529BA967-2B46-4A19-A779-12B69E411F0F}.Release JK2|x86.ActiveCfg = Release JK2|Win32
+		{529BA967-2B46-4A19-A779-12B69E411F0F}.Release JK2|x86.Build.0 = Release JK2|Win32
+		{529BA967-2B46-4A19-A779-12B69E411F0F}.Release JKA|x86.ActiveCfg = Release JKA|Win32
+		{529BA967-2B46-4A19-A779-12B69E411F0F}.Release JKA|x86.Build.0 = Release JKA|Win32
+		{529BA967-2B46-4A19-A779-12B69E411F0F}.Release RTCWET|x86.ActiveCfg = Release RTCWET|Win32
+		{529BA967-2B46-4A19-A779-12B69E411F0F}.Release RTCWET|x86.Build.0 = Release RTCWET|Win32
+		{529BA967-2B46-4A19-A779-12B69E411F0F}.Release RTCWMP|x86.ActiveCfg = Release RTCWMP|Win32
+		{529BA967-2B46-4A19-A779-12B69E411F0F}.Release RTCWMP|x86.Build.0 = Release RTCWMP|Win32
+		{529BA967-2B46-4A19-A779-12B69E411F0F}.Release RTCWSP|x86.ActiveCfg = Release RTCWSP|Win32
+		{529BA967-2B46-4A19-A779-12B69E411F0F}.Release RTCWSP|x86.Build.0 = Release RTCWSP|Win32
+		{529BA967-2B46-4A19-A779-12B69E411F0F}.Release|x86.ActiveCfg = Release|Win32
+		{529BA967-2B46-4A19-A779-12B69E411F0F}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3757AE93-C4D9-416A-8F78-B641ADA4756D}
+	EndGlobalSection
+EndGlobal
