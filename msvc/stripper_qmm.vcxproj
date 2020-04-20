@@ -245,12 +245,10 @@
     <ClCompile>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <FunctionLevelLinking>false</FunctionLevelLinking>
       <Optimization>Disabled</Optimization>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level3</WarningLevel>
-      <MinimalRebuild>true</MinimalRebuild>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DebugInformationFormat></DebugInformationFormat>
       <AdditionalIncludeDirectories>..\..\qmm_sdks\rtcwsp\game;..\..\qmm1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GAME_RTCWSP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Debug_RTCWSP\</AssemblerListingLocation>
@@ -281,19 +279,17 @@
       <SubSystem>Console</SubSystem>
       <OutputFile>.\Debug_RTCWSP\stripper_qmm.dll</OutputFile>
       <ImportLibrary>.\Debug_RTCWSP\stripper_qmm.lib</ImportLibrary>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug RTCWMP|Win32'">
     <ClCompile>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <FunctionLevelLinking>false</FunctionLevelLinking>
       <Optimization>Disabled</Optimization>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level3</WarningLevel>
-      <MinimalRebuild>true</MinimalRebuild>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DebugInformationFormat></DebugInformationFormat>
       <AdditionalIncludeDirectories>..\..\qmm_sdks\rtcwmp\game;..\..\qmm1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GAME_RTCWMP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Debug_RTCWMP\</AssemblerListingLocation>
@@ -324,19 +320,17 @@
       <SubSystem>Console</SubSystem>
       <OutputFile>.\Debug_RTCWMP\stripper_qmm.dll</OutputFile>
       <ImportLibrary>.\Debug_RTCWMP\stripper_qmm.lib</ImportLibrary>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug JK2|Win32'">
     <ClCompile>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <FunctionLevelLinking>false</FunctionLevelLinking>
       <Optimization>Disabled</Optimization>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level3</WarningLevel>
-      <MinimalRebuild>true</MinimalRebuild>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DebugInformationFormat></DebugInformationFormat>
       <AdditionalIncludeDirectories>..\..\qmm_sdks\jk2\game;..\..\qmm1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GAME_JK2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Debug_JK2\</AssemblerListingLocation>
@@ -367,19 +361,17 @@
       <SubSystem>Console</SubSystem>
       <OutputFile>.\Debug_JK2\stripper_qmm.dll</OutputFile>
       <ImportLibrary>.\Debug_JK2\stripper_qmm.lib</ImportLibrary>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug JKA|Win32'">
     <ClCompile>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <FunctionLevelLinking>false</FunctionLevelLinking>
       <Optimization>Disabled</Optimization>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level3</WarningLevel>
-      <MinimalRebuild>true</MinimalRebuild>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DebugInformationFormat></DebugInformationFormat>
       <AdditionalIncludeDirectories>..\..\qmm_sdks\jka\game;..\..\qmm1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GAME_JKA;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Debug_JKA\</AssemblerListingLocation>
@@ -410,7 +402,7 @@
       <SubSystem>Console</SubSystem>
       <OutputFile>.\Debug_JKA\stripper_qmm.dll</OutputFile>
       <ImportLibrary>.\Debug_JKA\stripper_qmm.lib</ImportLibrary>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -450,19 +442,17 @@
       <SubSystem>Console</SubSystem>
       <OutputFile>.\Release\stripper_qmm.dll</OutputFile>
       <ImportLibrary>.\Release\stripper_qmm.lib</ImportLibrary>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug RTCWET|Win32'">
     <ClCompile>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <FunctionLevelLinking>false</FunctionLevelLinking>
       <Optimization>Disabled</Optimization>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level3</WarningLevel>
-      <MinimalRebuild>true</MinimalRebuild>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DebugInformationFormat></DebugInformationFormat>
       <AdditionalIncludeDirectories>..\..\qmm_sdks\rtcwet\game;..\..\qmm1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GAME_RTCWET;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Debug_RTCWET\</AssemblerListingLocation>
@@ -493,7 +483,7 @@
       <SubSystem>Console</SubSystem>
       <OutputFile>.\Debug_RTCWET\stripper_qmm.dll</OutputFile>
       <ImportLibrary>.\Debug_RTCWET\stripper_qmm.lib</ImportLibrary>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release JK2|Win32'">
@@ -533,7 +523,7 @@
       <SubSystem>Console</SubSystem>
       <OutputFile>.\Release_JK2\stripper_qmm.dll</OutputFile>
       <ImportLibrary>.\Release_JK2\stripper_qmm.lib</ImportLibrary>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release JKA|Win32'">
@@ -573,7 +563,7 @@
       <SubSystem>Console</SubSystem>
       <OutputFile>.\Release_JKA\stripper_qmm.dll</OutputFile>
       <ImportLibrary>.\Release_JKA\stripper_qmm.lib</ImportLibrary>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release RTCWSP|Win32'">
@@ -613,7 +603,7 @@
       <SubSystem>Console</SubSystem>
       <OutputFile>.\Release_RTCWSP\stripper_qmm.dll</OutputFile>
       <ImportLibrary>.\Release_RTCWSP\stripper_qmm.lib</ImportLibrary>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release RTCWMP|Win32'">
@@ -653,7 +643,7 @@
       <SubSystem>Console</SubSystem>
       <OutputFile>.\Release_RTCWMP\stripper_qmm.dll</OutputFile>
       <ImportLibrary>.\Release_RTCWMP\stripper_qmm.lib</ImportLibrary>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release RTCWET|Win32'">
@@ -693,19 +683,17 @@
       <SubSystem>Console</SubSystem>
       <OutputFile>.\Release_RTCWET\stripper_qmm.dll</OutputFile>
       <ImportLibrary>.\Release_RTCWET\stripper_qmm.lib</ImportLibrary>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <FunctionLevelLinking>false</FunctionLevelLinking>
       <Optimization>Disabled</Optimization>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level3</WarningLevel>
-      <MinimalRebuild>true</MinimalRebuild>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DebugInformationFormat></DebugInformationFormat>
       <AdditionalIncludeDirectories>..\..\qmm_sdks\q3a\game;..\..\qmm1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GAME_Q3A;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Debug\</AssemblerListingLocation>
@@ -736,7 +724,7 @@
       <SubSystem>Console</SubSystem>
       <OutputFile>.\Debug\stripper_qmm.dll</OutputFile>
       <ImportLibrary>.\Debug\stripper_qmm.lib</ImportLibrary>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -749,9 +737,6 @@
     <ClInclude Include="..\ent.h" />
     <ClInclude Include="..\util.h" />
     <ClInclude Include="..\version.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="stripper_qmm.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
