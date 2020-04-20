@@ -1,26 +1,26 @@
 /*
 
 Stripper - Dynamic Map Entity Modification
-Copyright QMM Team 2005
-http://www.q3mm.org/
+Copyright QMM Team 2020
+http://github.com/thecybermind/stripper_qmm/
 
 Licensing:
-    QMM is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+	QMM is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
 
-    QMM is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	QMM is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with QMM; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+	You should have received a copy of the GNU General Public License
+	along with QMM; if not, write to the Free Software
+	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 Created By:
-    Kevin Masterson a.k.a. CyberMind <cybermind@users.sourceforge.net>
+	Kevin Masterson a.k.a. CyberMind <cybermind@gmail.com>
 
 */
 
@@ -40,12 +40,10 @@ Created By:
 
 //this stores all the ents loaded from the map
 CLinkList<ent_t> g_mapents;
-int g_nummapents = 0;
 
 //this stores all the ents that should be passed to the mod
 //this consists of all g_mapents that aren't stripped as well as all added ents
 CLinkList<ent_t> g_modents;
-int g_nummodents = 0;
 
 //this stores all info for entities that should be replaced
 //the first node is grabbed and removed from the list when a "with" entity is found
@@ -94,8 +92,6 @@ void get_entity_tokens() {
 			g_mapents.add(ent2);
 			ent = NULL;
 			ent2 = NULL;
-			++g_nummodents;
-			++g_nummapents;
 			continue;
 		}
 
@@ -112,15 +108,15 @@ void get_entity_tokens() {
 		if (!isval) {
 			keyval = new keyval_t;
 			keyval2 = new keyval_t;
-			keyval->key = strdup(str);
-			keyval2->key = strdup(str);
+			keyval->key = _strdup(str);
+			keyval2->key = _strdup(str);
 		//this is a val
 		} else {
-			keyval->val = strdup(str);
-			keyval2->val = strdup(str);
+			keyval->val = _strdup(str);
+			keyval2->val = _strdup(str);
 			if (!strcmp(keyval->key, "classname")) {
-				ent->classname = strdup(str);
-				ent2->classname = strdup(str);
+				ent->classname = _strdup(str);
+				ent2->classname = _strdup(str);
 			}
 			ent->keyvals.add(keyval);
 			ent2->keyvals.add(keyval2);
@@ -154,14 +150,13 @@ bool match_ent(ent_t* ent, ent_t* matchent) {
 	return flag;
 }
 
-//removes all matching entities from g_modents
+//removes all matching entities from list
 void filter_ent(ent_t* filterent) {
 	CLinkNode<ent_t>* modnode = g_modents.first();
 	while (modnode) {
 		if (match_ent(modnode->data(), filterent)) {
 			CLinkNode<ent_t>* q = modnode->next();
 			g_modents.del(modnode);
-			--g_nummodents;
 			modnode = q;
 			continue;
 		}
@@ -170,14 +165,13 @@ void filter_ent(ent_t* filterent) {
 	}
 }
 
-//adds an entity to g_modents (puts worldspawn at the beginning)
+//adds an entity to list (puts worldspawn at the beginning)
 void add_ent(ent_t* addent) {
 	if (!strcmp(addent->classname, "worldspawn")) g_modents.insert(addent, NULL);
 	else g_modents.add(addent);
-	++g_nummodents;
 }
 
-//finds all entities matching all replaceents and replaces with a withent
+//finds all entities in list matching all replaceents and replaces with a withent
 void replace_ent(ent_t* withent) {
 	CLinkNode<ent_t>* replacenode = g_replaceents.first();
 	while (replacenode) {
@@ -202,7 +196,7 @@ void with_ent(ent_t* replaceent, ent_t* withent) {
 		const char* withval = withent->get_val(replacekeyval->data()->key);
 		if (withval) {
 			free(replacekeyval->data()->val);
-			replacekeyval->data()->val = strdup(withval);
+			replacekeyval->data()->val = _strdup(withval);
 		}
 
 		replacekeyval = replacekeyval->next();
@@ -256,16 +250,16 @@ void load_config(const char* file) {
 			continue;
 
 		//only pay attention to tags while outside of entities
-		if (!strcasecmp(str, "filter:")) {
+		if (!_stricmp(str, "filter:")) {
 			if (!insideent) mode = Mode_Filter;
 			else continue;
-		} else if (!strcasecmp(str, "add:")) {
+		} else if (!_stricmp(str, "add:")) {
 			if (!insideent) mode = Mode_Add;
 			else continue;
-		} else if (!strcasecmp(str, "replace:")) {
+		} else if (!_stricmp(str, "replace:")) {
 			if (!insideent) mode = Mode_Replace;
 			else continue;
-		} else if (!strcasecmp(str, "with:")) {
+		} else if (!_stricmp(str, "with:")) {
 			if (!insideent) mode = Mode_With;
 			else continue;
 		}
@@ -316,14 +310,14 @@ void load_config(const char* file) {
 
 		//its a key/val pair line or something else
 		if (insideent) {
-			char* eq = strstr(str, "=");
+			char* eq = (char*)strstr(str, "=");
 			if (eq) {
 				*eq = '\0';
 				keyval = new keyval_t;
-				keyval->key = strdup(str);
-				keyval->val = strdup(eq+1);
+				keyval->key = _strdup(str);
+				keyval->val = _strdup(eq+1);
 				if (!strcmp(keyval->key, "classname"))
-					ent->classname = strdup(keyval->val);
+					ent->classname = _strdup(keyval->val);
 				ent->keyvals.add(keyval);
 			}
 		}
@@ -353,7 +347,7 @@ int get_next_entity_token(char* str, int len) {
 	static bool isval = 0;		//0 = expecting key, 1 = expecting val
 
 	//if we have sent all the entities, delete lists and send an EOF
-	if (numents == g_nummodents) {
+	if (numents == g_modents.num()) {
 		g_modents.empty();
 		g_replaceents.empty(); //just to be safe
 		//save g_mapents for the stripper_dump command

@@ -1,26 +1,26 @@
 /*
 
 Stripper - Dynamic Map Entity Modification
-Copyright QMM Team 2005
-http://www.q3mm.org/
+Copyright QMM Team 2020
+http://github.com/thecybermind/stripper_qmm/
 
 Licensing:
-    QMM is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+	QMM is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
 
-    QMM is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	QMM is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with QMM; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+	You should have received a copy of the GNU General Public License
+	along with QMM; if not, write to the Free Software
+	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 Created By:
-    Kevin Masterson a.k.a. CyberMind <cybermind@users.sourceforge.net>
+	Kevin Masterson a.k.a. CyberMind <cybermind@gmail.com>
 
 */
 
@@ -29,10 +29,7 @@ Created By:
 #ifndef __ENT_H__
 #define __ENT_H__
 
-#ifdef WIN32
- #define strcasecmp stricmp
-#endif
-
+#include <q_shared.h>
 #include "CLinkList.h"
 
 //this represents a single key/value pair
@@ -66,12 +63,10 @@ struct ent_t {
 
 //this stores all the ents loaded from the map
 extern CLinkList<ent_t> g_mapents;
-extern int g_nummapents;
 
 //this stores all the ents that should be passed to the mod
 //this consists of all g_mapents that aren't stripped as well as all added ents
 extern CLinkList<ent_t> g_modents;
-extern int g_nummodents;
 
 //this stores all info for entities that should be replaced
 //the first node is grabbed and removed from the list when a "with" entity is found
@@ -81,17 +76,17 @@ extern CLinkList<ent_t> g_replaceents;
 //and stores them in a list
 void get_entity_tokens();
 
-//removes all matching entities from g_modents
+//removes all matching entities from list
 void filter_ent(ent_t* filterent);
-//adds an entity to g_modents (puts worldspawn at the beginning)
+//adds an entity to list (puts worldspawn at the beginning)
 void add_ent(ent_t* addent);
-//finds all entities matching all stored replaceents and replaces with a withent
+//finds all entities in list matching all stored replaceents and replaces with a withent
 void replace_ent(ent_t* withent);
 //replaces all applicable keyvals on an ent
 void with_ent(ent_t* replaceent, ent_t* withent);
 
 //load and parse config file into delent and addent lists
-void load_config(const char*);
+void load_config(const char* file);
 
 //passes the next entity token to the mod
 int get_next_entity_token(char*, int);

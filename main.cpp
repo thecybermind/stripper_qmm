@@ -1,26 +1,26 @@
 /*
 
 Stripper - Dynamic Map Entity Modification
-Copyright QMM Team 2005
-http://www.q3mm.org/
+Copyright QMM Team 2020
+http://github.com/thecybermind/stripper_qmm/
 
 Licensing:
-    QMM is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+	QMM is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
 
-    QMM is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	QMM is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with QMM; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+	You should have received a copy of the GNU General Public License
+	along with QMM; if not, write to the Free Software
+	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 Created By:
-    Kevin Masterson a.k.a. CyberMind <cybermind@users.sourceforge.net>
+	Kevin Masterson a.k.a. CyberMind <cybermind@gmail.com>
 
 */
 
@@ -99,11 +99,18 @@ C_DLLEXPORT int QMM_vmMain(int cmd, int arg0, int arg1, int arg2, int arg3, int 
 	QMM_RET_IGNORED(1);
 }
 
+static int insubbsp = 0;
+
 C_DLLEXPORT int QMM_syscall(int cmd, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11, int arg12) {
 
 	//loop through the ent list and return a single token
 	if (cmd == G_GET_ENTITY_TOKEN) {
-		QMM_RET_SUPERCEDE(get_next_entity_token((char*)arg0, arg1));
+		//just pass it through if we are in a sub bsp
+		if (!insubbsp) {
+			char* entity = (char*)arg0;
+			int length = arg1;
+			QMM_RET_SUPERCEDE(get_next_entity_token(entity, length));
+		}
 	}
 
 	QMM_RET_IGNORED(1);
@@ -114,5 +121,20 @@ C_DLLEXPORT int QMM_vmMain_Post(int cmd, int arg0, int arg1, int arg2, int arg3,
 }
 
 C_DLLEXPORT int QMM_syscall_Post(int cmd, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11, int arg12) {
+#ifdef GAME_JKA
+	/* Jedi Academy has a feature where a "misc_bsp" map entity can have the engine load an entire map and load it into another map
+	   this then triggers another round of G_GET_ENTITY_TOKEN which we must handle
+	   the mod tells the engine that it should load a map with the trap_SetActiveSubBSP function:
+
+	   void trap_SetActiveSubBSP(int index)
+	   'index' is a unique value for each sub bsp to be loaded (it represents the index of the first model from this sub bsp in the global models list, it retrieves this from the engine)
+
+	   For now, just to verify it works, we will store whether or not we are working with a sub bsp and if so, just pass G_GET_ENTITY_TOKEN calls onto the engine
+	*/
+	if (cmd == G_SET_ACTIVE_SUBBSP) {
+		insubbsp = (arg0 != -1);
+	}
+#endif //GAME_JKA
+
 	QMM_RET_IGNORED(1);
 }

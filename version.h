@@ -1,8 +1,8 @@
 /*
 
 Stripper - Dynamic Map Entity Modification
-Copyright QMM Team 2005
-http://www.q3mm.org/
+Copyright QMM Team 2020
+http://github.com/thecybermind/stripper_qmm/
 
 Licensing:
     QMM is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@ Licensing:
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 Created By:
-    Kevin Masterson a.k.a. CyberMind <cybermind@users.sourceforge.net>
+    Kevin Masterson a.k.a. CyberMind <cybermind@gmail.com>
 
 */
 
@@ -29,9 +29,12 @@ Created By:
 #ifndef __VERSION_H__
 #define __VERSION_H__
 
-#define STRIPPER_QMM_VERSION			"1.2.0"
-#define STRIPPER_QMM_VERSION_DWORD		1,2,0,0
+#define STRIPPER_QMM_VERSION			"1.2.1"
+#define STRIPPER_QMM_VERSION_DWORD		1,2,1,0
 #define STRIPPER_QMM_COMPILE			__TIME__ " " __DATE__
 #define STRIPPER_QMM_BUILDER			"CyberMind"
+
+#pragma warning(disable:4091)
+#define _CRT_SECURE_NO_WARNINGS
 
 #endif //__VERSION_H__

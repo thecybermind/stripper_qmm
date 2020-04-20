@@ -1,26 +1,26 @@
 /*
 
 Stripper - Dynamic Map Entity Modification
-Copyright QMM Team 2005
-http://www.q3mm.org/
+Copyright QMM Team 2020
+http://github.com/thecybermind/stripper_qmm/
 
 Licensing:
-    QMM is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+	QMM is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
 
-    QMM is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	QMM is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with QMM; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+	You should have received a copy of the GNU General Public License
+	along with QMM; if not, write to the Free Software
+	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 Created By:
-    Kevin Masterson a.k.a. CyberMind <cybermind@users.sourceforge.net>
+	Kevin Masterson a.k.a. CyberMind <cybermind@gmail.com>
 
 */
 
@@ -67,8 +67,12 @@ class CLinkList {
 
 		inline CLinkNode<T>* first();
 
-	private:
+		int num();
+
+private:
 		CLinkNode<T>* _first;
+		int _num;
+
 };
 
 //==============
@@ -111,6 +115,7 @@ T* CLinkNode<T>::data() {
 template <typename T>
 CLinkList<T>::CLinkList() {
 	this->_first = NULL;
+	this->_num = 0;
 }
 
 template <typename T>
@@ -140,6 +145,8 @@ CLinkNode<T>* CLinkList<T>::add(T* data, int del) {
 	p->_data = data;
 	p->_del = del;
 
+	this->_num++;
+
 	return p;
 }
 
@@ -168,6 +175,8 @@ CLinkNode<T>* CLinkList<T>::insert(T* data, CLinkNode<T>* after, int del) {
 	r->_data = data;
 	r->_del = del;
 
+	this->_num++;
+
 	return r;
 }
 
@@ -184,6 +193,8 @@ void CLinkList<T>::del(CLinkNode<T>* node) {
 	if (n) n->_prev = p;
 
 	delete node;
+
+	this->_num--;
 }
 
 template <typename T>
@@ -198,11 +209,17 @@ void CLinkList<T>::empty() {
 	}
 
 	this->_first = NULL;
+	this->_num = 0;
 }
 
 template <typename T>
 CLinkNode<T>* CLinkList<T>::first() {
 	return this->_first;
+}
+
+template <typename T>
+int CLinkList<T>::num() {
+	return this->_num;
 }
 
 #endif //__CLINKLIST_H__
