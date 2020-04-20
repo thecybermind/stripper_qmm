@@ -99,18 +99,21 @@ C_DLLEXPORT int QMM_vmMain(int cmd, int arg0, int arg1, int arg2, int arg3, int 
 	QMM_RET_IGNORED(1);
 }
 
+#ifdef GAME_JKA
 static int insubbsp = 0;
+#endif //GAME_JKA
 
 C_DLLEXPORT int QMM_syscall(int cmd, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11, int arg12) {
 
 	//loop through the ent list and return a single token
-	if (cmd == G_GET_ENTITY_TOKEN) {
-		//just pass it through if we are in a sub bsp
-		if (!insubbsp) {
-			char* entity = (char*)arg0;
-			int length = arg1;
-			QMM_RET_SUPERCEDE(get_next_entity_token(entity, length));
-		}
+	if (cmd == G_GET_ENTITY_TOKEN
+#ifdef GAME_JKA
+		&& !insubbsp
+#endif //GAME_JKA
+		) {
+		char* entity = (char*)arg0;
+		int length = arg1;
+		QMM_RET_SUPERCEDE(get_next_entity_token(entity, length));
 	}
 
 	QMM_RET_IGNORED(1);
