@@ -1,13 +1,10 @@
 Stripper - Dynamic Map Entity Modification
-Copyright QMM Team 2020
-http://github.com/thecybermind/stripper_qmm/
-
-Stripper is a dynamic map entity modifier. It can strip out most entities from a map (a complete list for any
-map can be obtained with the stripper_dump command below) and also add new entities. The map itself is not
-modified, this is all accomplished while the map entity information is being loaded.
+Copyright 2004-2024
+https://github.com/thecybermind/stripper_qmm/
+3-clause BSD license: https://opensource.org/license/bsd-3-clause
 
 Created By:
-    Kevin Masterson a.k.a. CyberMind <cybermind@gmail.com>
+    Kevin Masterson < cybermind@gmail.com >
 
 Win32 Installation:
 	1. Install QMM

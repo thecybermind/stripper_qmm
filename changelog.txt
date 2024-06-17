@@ -1,9 +1,10 @@
-Stripper
-Copyright QMM Team 2005
-http://www.q3mm.org/
+Stripper - Dynamic Map Entity Modification
+Copyright 2004-2024
+https://github.com/thecybermind/stripper_qmm/
+3-clause BSD license: https://opensource.org/license/bsd-3-clause
 
 Created By:
-    Kevin Masterson a.k.a. CyberMind <kevinm@planetquake.com>
+    Kevin Masterson < cybermind@gmail.com >
 
 CHANGE LOG
 Version: 1.2.0 (02//06)
