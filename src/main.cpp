@@ -19,16 +19,16 @@ Created By:
 
 pluginres_t* g_result = NULL;
 plugininfo_t g_plugininfo = {
-	"Stripper",				//name of plugin
-	STRIPPER_QMM_VERSION,			//version of plugin
-	"Add/delete entities in the map",	//description of plugin
-	STRIPPER_QMM_BUILDER,			//author of plugin
-	"http://www.q3mm.org/",			//website of plugin
-	1,					//can this plugin be paused?
-	0,					//can this plugin be loaded via cmd
-	1,					//can this plugin be unloaded via cmd
-	QMM_PIFV_MAJOR,				//plugin interface version major
-	QMM_PIFV_MINOR				//plugin interface version minor
+	"Stripper",							//name of plugin
+	STRIPPER_QMM_VERSION,				//version of plugin
+	"Change map entities during load",	//description of plugin
+	STRIPPER_QMM_BUILDER,				//author of plugin
+	"http://www.q3mm.org/",				//website of plugin
+	1,									//can this plugin be paused?
+	0,									//can this plugin be loaded via cmd
+	1,									//can this plugin be unloaded via cmd
+	QMM_PIFV_MAJOR,						//plugin interface version major
+	QMM_PIFV_MINOR						//plugin interface version minor
 };
 eng_syscall_t g_syscall = NULL;
 mod_vmMain_t g_vmMain = NULL;
