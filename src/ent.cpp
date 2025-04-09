@@ -9,14 +9,14 @@ Created By:
 
 */
 
+#define _CRT_SECURE_NO_WARNINGS 1
 #include "version.h"
-#include <q_shared.h>
-#include <g_local.h>
 #include <qmmapi.h>
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 
+#include "game.h"
 #include "ent.h"
 #include "CLinkList.h"
 #include "util.h"
@@ -52,9 +52,11 @@ void get_entity_tokens() {
 
 	//go through every token
 	while (1) {
+#if !defined(GAME_STEF2) && !defined(GAME_MOHAA) && !defined(GAME_MOHSH) && !defined(GAME_MOHBT)
 		//get token, check for EOF
 		if (!g_syscall(G_GET_ENTITY_TOKEN, str, sizeof(str)))
 			break;
+#endif
 
 		//got an opening brace while already inside an entity, error
 		if (str[0] == '{' && insideent)
@@ -97,12 +99,14 @@ void get_entity_tokens() {
 		} else {
 			keyval->val = _strdup(str);
 			keyval2->val = _strdup(str);
-			if (!strcmp(keyval->key, "classname")) {
+			if (!strcmp(keyval->key, "classname") && ent) {
 				ent->classname = _strdup(str);
 				ent2->classname = _strdup(str);
 			}
-			ent->keyvals.add(keyval);
-			ent2->keyvals.add(keyval2);
+			if (ent) {
+				ent->keyvals.add(keyval);
+				ent2->keyvals.add(keyval2);
+			}
 			keyval = NULL;
 			keyval2 = NULL;
 		}
@@ -260,7 +264,7 @@ void load_config(const char* file) {
 			insideent = 0;
 			
 			//don't actually add the entity if it's empty
-			if (!ent->keyvals.first()) {
+			if (ent && !ent->keyvals.first()) {
 				delete ent;
 				ent = NULL;
 				continue;

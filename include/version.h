@@ -9,15 +9,36 @@ Created By:
 
 */
 
-#ifndef __VERSION_H__
-#define __VERSION_H__
+#ifndef __STRIPPER_QMM_VERSION_H__
+#define __STRIPPER_QMM_VERSION_H__
 
-#define STRIPPER_QMM_VERSION			"1.2.1"
-#define STRIPPER_QMM_VERSION_DWORD		1,2,1,0
-#define STRIPPER_QMM_COMPILE			__TIME__ " " __DATE__
-#define STRIPPER_QMM_BUILDER			"cybermind"
+#define STRINGIFY(x) STRINGIFY2(x)
+#define STRINGIFY2(x) #x
 
-#pragma warning(disable:4091)
-#define _CRT_SECURE_NO_WARNINGS
+#define STRIPPER_QMM_VERSION_MAJOR	2
+#define STRIPPER_QMM_VERSION_MINOR	0
+#define STRIPPER_QMM_VERSION_REV	0
 
-#endif //__VERSION_H__
+#define STRIPPER_QMM_VERSION		STRINGIFY(STRIPPER_QMM_VERSION_MAJOR) "." STRINGIFY(STRIPPER_QMM_VERSION_MINOR) "." STRINGIFY(STRIPPER_QMM_VERSION_REV)
+
+#if defined(_WIN32)
+#define STRIPPER_QMM_OS             "Windows"
+#ifdef _WIN64
+#define STRIPPER_QMM_ARCH           "x86_64"
+#else
+#define STRIPPER_QMM_ARCH           "x86"
+#endif
+#elif defined(__linux__)
+#define STRIPPER_QMM_OS             "Linux"
+#ifdef __LP64__
+#define STRIPPER_QMM_ARCH           "x86_64"
+#else
+#define STRIPPER_QMM_ARCH           "x86"
+#endif
+#endif
+
+#define STRIPPER_QMM_VERSION_DWORD	STRIPPER_QMM_VERSION_MAJOR , STRIPPER_QMM_VERSION_MINOR , STRIPPER_QMM_VERSION_REV , 0
+#define STRIPPER_QMM_COMPILE		__TIME__ " " __DATE__
+#define STRIPPER_QMM_BUILDER		"cybermind"
+
+#endif // __STRIPPER_QMM_VERSION_H__

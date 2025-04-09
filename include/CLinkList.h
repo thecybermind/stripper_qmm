@@ -9,8 +9,8 @@ Created By:
 
 */
 
-#ifndef __CLINKLIST_H__
-#define __CLINKLIST_H__
+#ifndef __STRIPPER_QMM_CLINKLIST_H__
+#define __STRIPPER_QMM_CLINKLIST_H__
 
 #include <malloc.h>
 
@@ -205,4 +205,4 @@ int CLinkList<T>::num() {
 	return this->_num;
 }
 
-#endif //__CLINKLIST_H__
+#endif // __STRIPPER_QMM_CLINKLIST_H__

@@ -10,9 +10,8 @@ Created By:
 */
 
 #include "version.h"
-#include <q_shared.h>
-#include <g_local.h>
 #include <qmmapi.h>
+#include "game.h"
 #include "util.h"
 
 //read a single line from a file handle

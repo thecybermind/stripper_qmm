@@ -9,11 +9,11 @@ Created By:
 
 */
 
-#ifndef __ENT_H__
-#define __ENT_H__
+#ifndef __STRIPPER_QMM_ENT_H__
+#define __STRIPPER_QMM_ENT_H__
 
-#include <q_shared.h>
 #include "CLinkList.h"
+#include "game.h"
 
 //this represents a single key/value pair
 struct keyval_t {
@@ -77,4 +77,4 @@ int get_next_entity_token(char*, int);
 //outputs mapents list to a file
 void dump_ents();
 
-#endif //__ENT_H__
+#endif // __STRIPPER_QMM_ENT_H__

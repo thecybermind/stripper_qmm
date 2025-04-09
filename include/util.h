@@ -9,9 +9,9 @@ Created By:
 
 */
 
-#ifndef __UTIL_H__
-#define __UTIL_H__
+#ifndef __STRIPPER_QMM_UTIL_H__
+#define __STRIPPER_QMM_UTIL_H__
 
 const char* read_line(fileHandle_t, int);
 
-#endif //__UTIL_H__
+#endif // __STRIPPER_QMM_UTIL_H__
