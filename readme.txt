@@ -1,23 +1,15 @@
 Stripper - Dynamic Map Entity Modification
-Copyright 2004-2024
+Copyright 2004-2025
 https://github.com/thecybermind/stripper_qmm/
 3-clause BSD license: https://opensource.org/license/bsd-3-clause
 
 Created By:
     Kevin Masterson < cybermind@gmail.com >
 
-Win32 Installation:
-	1. Install QMM
-	2. Make a qmmaddons directory inside your mod directory if it does not exist already
-	3. Unzip into the qmmaddons directory.
-	4. Add "qmmaddons/stripper/dlls/stripper_qmm.dll" as an entry in the plugins list in qmm.ini
+1. Install QMM ( https://github.com/thecybermind/qmm2/wiki/Installation )
+2. Make a qmmaddons/stripper directory inside your mod directory and place the stripper_qmm.dll file here
+3. Add the path to stripper_qmm.dll as an entry in the plugins list in qmm2.json
 
-Linux Installation:
-	1. Install QMM
-	2. Make a qmmaddons directory inside your mod directory if it does not exist already
-	3. Unzip into the qmmaddons directory.
-	4. Add "qmmaddons/stripper/dlls/stripper_qmm.so" as an entry in the plugins list in qmm.ini
-	
 Setup:
 	Server Commands:
 	* stripper_dump - Dumps the current maps' default entity list to qmmaddons/stripper/dumps/<mapname>.txt
@@ -27,8 +19,8 @@ Setup:
 	and the other is specific to the current map.
 	
 	The global configuration file is located at qmmaddons/stripper/global.ini and the map-specific file is
-	located at qmmaddons/stripper/maps/<mapname>.ini. A sample global.ini and q3dm1.ini are provided in the
-	package.
+	located at qmmaddons/stripper/maps/<mapname>.ini. ~A sample global.ini and q3dm1.ini are provided in the
+	package.~
 	
 	Configuration files have the following format:
 		;this line is a comment
@@ -89,19 +81,3 @@ Setup:
 		{
 		   classname=item_health
 		}
-
-
-Licensing:
-    QMM is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    QMM is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with QMM; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
