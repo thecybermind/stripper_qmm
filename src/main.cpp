@@ -33,15 +33,14 @@ eng_syscall_t g_syscall = NULL;
 mod_vmMain_t g_vmMain = NULL;
 pluginfuncs_t* g_pluginfuncs = NULL;
 intptr_t g_vmbase = 0;
+pluginvars_t* g_pluginvars = NULL;
 
 C_DLLEXPORT void QMM_Query(plugininfo_t** pinfo) {
 	QMM_GIVE_PINFO();
 }
 
-C_DLLEXPORT int QMM_Attach(eng_syscall_t engfunc, mod_vmMain_t modfunc, pluginres_t* presult, pluginfuncs_t* pluginfuncs, intptr_t vmbase, intptr_t reserved) {
+C_DLLEXPORT int QMM_Attach(eng_syscall_t engfunc, mod_vmMain_t modfunc, pluginres_t* presult, pluginfuncs_t* pluginfuncs, intptr_t vmbase, pluginvars_t* pluginvars) {
 	QMM_SAVE_VARS();
-
-	reserved = 0;
 
 	return 1;
 }
