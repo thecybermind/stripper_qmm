@@ -12,69 +12,46 @@ Created By:
 #ifndef __STRIPPER_QMM_ENT_H__
 #define __STRIPPER_QMM_ENT_H__
 
+#include <vector>
+#include <map>
+#include <string>
 #include "CLinkList.h"
 #include "game.h"
 
-//this represents a single key/value pair
-struct keyval_t {
-	char* key;
-	char* val;
-	
-	keyval_t() { this->key = NULL; this->val = NULL; }
-	~keyval_t() { if (this->key) free(this->key); if (this->val) free(this->val); }
-};
-
-//this represents a single entity
+// this represents a single entity
 struct ent_t {
-	CLinkList<keyval_t> keyvals;
-	char* classname;	//stored here for easy checking while removing ents
-
-	//easy way to get value for key
-	const char* get_val(const char* key) {
-		CLinkNode<keyval_t>* p = this->keyvals.first();
-		while (p) {
-			if (!strcmp(p->data()->key, key))
-				return p->data()->val;
-			p = p->next();
-		}
-		return NULL;
-	}
-
-	ent_t() { this->classname = NULL; }
-	~ent_t() { if (this->classname) free(this->classname); }
+	std::string classname;
+	std::map<std::string, std::string> keyvals;
 };
 
-//this stores all the ents loaded from the map
-extern CLinkList<ent_t> g_mapents;
+// this stores all the ents loaded from the map
+// we save this so we can dump them to file if needed
+extern std::vector<ent_t> g_mapents;
 
-//this stores all the ents that should be passed to the mod
-//this consists of all g_mapents that aren't stripped as well as all added ents
-extern CLinkList<ent_t> g_modents;
+// this stores all the ents that should be passed to the mod (g_mapents +/- modifications)
+extern std::vector<ent_t> g_modents;
 
-//this stores all info for entities that should be replaced
-//the first node is grabbed and removed from the list when a "with" entity is found
-extern CLinkList<ent_t> g_replaceents;
+// this stores all info for entities that should be replaced
+// nodes are read and removed from this list when a "with" entity is found
+extern std::vector<ent_t> g_replaceents;
 
-//gets all the entity tokens from the engine at startup
-//and stores them in a list
-void get_entity_tokens();
+#if defined(GAME_Q3A) || defined(GAME_RTCWMP) || defined(GAME_RTCWSP) || defined(GAME_JK2MP) || defined(GAME_JAMP) || defined(GAME_STVOYHM) || defined(GAME_WET)
+// passes the next entity token to the mod
+intptr_t ent_next_token(char* buf, intptr_t len);
+#endif
 
-//removes all matching entities from list
-void filter_ent(ent_t* filterent);
-//adds an entity to list (puts worldspawn at the beginning)
-void add_ent(ent_t* addent);
-//finds all entities in list matching all stored replaceents and replaces with a withent
-void replace_ent(ent_t* withent);
-//replaces all applicable keyvals on an ent
-void with_ent(ent_t* replaceent, ent_t* withent);
+#if defined(GAME_STEF2) || defined(GAME_MOHAA) || defined(GAME_MOHSH) || defined(GAME_MOHBT)
+// generate an entstring to pass to the mod
+const char* ents_generate_entstring(std::vector<ent_t>& list);
+#endif
 
-//load and parse config file into delent and addent lists
-void load_config(const char* file);
+// gets all the entity tokens from the engine
+void ents_load_tokens(std::vector<ent_t>& list, const char* entstring = nullptr);
 
-//passes the next entity token to the mod
-int get_next_entity_token(char*, int);
+// outputs ent list to a file
+void ents_dump_to_file(std::vector<ent_t>& list, std::string file);
 
-//outputs mapents list to a file
-void dump_ents();
+// load and parse config file
+void ent_load_config(std::string file);
 
 #endif // __STRIPPER_QMM_ENT_H__

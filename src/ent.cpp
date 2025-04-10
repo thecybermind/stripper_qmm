@@ -21,386 +21,440 @@ Created By:
 #include "CLinkList.h"
 #include "util.h"
 
-//this stores all the ents loaded from the map
-CLinkList<ent_t> g_mapents;
-
-//this stores all the ents that should be passed to the mod
-//this consists of all g_mapents that aren't stripped as well as all added ents
-CLinkList<ent_t> g_modents;
-
-//this stores all info for entities that should be replaced
-//the first node is grabbed and removed from the list when a "with" entity is found
-CLinkList<ent_t> g_replaceents;
-
-
-
-//gets all the entity tokens from the engine at startup
-//and stores them in a list
-void get_entity_tokens() {
-	//this is a list of key/value pairs for a single entity
-	ent_t* ent = NULL;
-	ent_t* ent2 = NULL;	//for g_mapents
-
-	//this is a single key/value pair
-	keyval_t* keyval = NULL;
-	keyval_t* keyval2 = NULL;	//for g_mapents
-
-	char str[MAX_TOKEN_CHARS];
-
-	bool insideent = 0;	//0 = between ents, 1 = inside an ent
-	bool isval = 0;		//0 = expecting key, 1 = expecting val
-
-	//go through every token
-	while (1) {
-#if !defined(GAME_STEF2) && !defined(GAME_MOHAA) && !defined(GAME_MOHSH) && !defined(GAME_MOHBT)
-		//get token, check for EOF
-		if (!g_syscall(G_GET_ENTITY_TOKEN, str, sizeof(str)))
-			break;
+// get a given value from an entity
+static std::string* s_ent_get_val(ent_t& ent, std::string key);
+// returns true if "test" has all the same keyvals that "contains" has
+static bool s_ent_match(ent_t& test, ent_t& contains);
+// removes all matching entities from list
+static void s_ents_filter(std::vector<ent_t>& list, ent_t& filterent);
+// adds an entity to list (puts worldspawn at the beginning)
+static void s_ents_add(std::vector<ent_t>& list, ent_t& addent);
+// finds all entities in list matching all stored replaceents and replaces with a withent
+static void s_ents_replace(std::vector<ent_t>& list, ent_t& withent);
+// replaces all applicable keyvals on an ent
+static void s_ent_replace(ent_t& replaceent, ent_t& withent);
+#if defined(GAME_STEF2) || defined(GAME_MOHAA) || defined(GAME_MOHSH) || defined(GAME_MOHBT)
+// get next token from entstring, write it into buf. return start of next token
+static const char* s_ent_load_token_from_str(const char* entstring, char* buf, size_t len);
 #endif
 
-		//got an opening brace while already inside an entity, error
-		if (str[0] == '{' && insideent)
-			break;
 
-		//got a closing brace when not inside an entity, error
-		if (str[0] == '}' && !insideent)
-			break;
+// this stores all the ents loaded from the map
+// we save this so we can dump them to file if needed
+std::vector<ent_t> g_mapents;
 
-		//if this is a closing brace when expecting a val, error
-		if (str[0] == '}' && isval)
-			break;
+// this stores all the ents that should be passed to the mod (g_mapents +/- modifications)
+std::vector<ent_t> g_modents;
 
-		//if this is a valid closing brace, continue
-		if (str[0] == '}') {
-			insideent = 0;
-			g_modents.add(ent);
-			g_mapents.add(ent2);
-			ent = NULL;
-			ent2 = NULL;
-			continue;
-		}
-
-		//if this is a valid opening brace, make a new node
-		if (str[0] == '{') {
-			insideent = 1;
-			isval = 0;
-			ent = new ent_t;
-			ent2 = new ent_t;
-			continue;
-		}
-
-		//this is a key
-		if (!isval) {
-			keyval = new keyval_t;
-			keyval2 = new keyval_t;
-			keyval->key = _strdup(str);
-			keyval2->key = _strdup(str);
-		//this is a val
-		} else {
-			keyval->val = _strdup(str);
-			keyval2->val = _strdup(str);
-			if (!strcmp(keyval->key, "classname") && ent) {
-				ent->classname = _strdup(str);
-				ent2->classname = _strdup(str);
-			}
-			if (ent) {
-				ent->keyvals.add(keyval);
-				ent2->keyvals.add(keyval2);
-			}
-			keyval = NULL;
-			keyval2 = NULL;
-		}
-		isval = !isval;
-	} //while(1)
-
-	if (ent) delete ent;
-	if (ent2) delete ent2;
-	if (keyval) delete keyval;
-	if (keyval2) delete keyval2;
-}
-
-//returns 1 if "ent" contains at least the same keyvals as matchent
-//otherwise returns 0
-bool match_ent(ent_t* ent, ent_t* matchent) {
-	bool flag = 0;
-	CLinkNode<keyval_t>* matchkeyval = matchent->keyvals.first();
-	
-	while (matchkeyval) {
-		const char* entval = ent->get_val(matchkeyval->data()->key);
-		if (!entval) return 0;
-		flag = 1;
-		if (strcmp(entval, matchkeyval->data()->val)) return 0;
-
-		matchkeyval = matchkeyval->next();
-	}
-
-	return flag;
-}
-
-//removes all matching entities from list
-void filter_ent(ent_t* filterent) {
-	CLinkNode<ent_t>* modnode = g_modents.first();
-	while (modnode) {
-		if (match_ent(modnode->data(), filterent)) {
-			CLinkNode<ent_t>* q = modnode->next();
-			g_modents.del(modnode);
-			modnode = q;
-			continue;
-		}
-
-		modnode = modnode->next();
-	}
-}
-
-//adds an entity to list (puts worldspawn at the beginning)
-void add_ent(ent_t* addent) {
-	if (!strcmp(addent->classname, "worldspawn")) g_modents.insert(addent, NULL);
-	else g_modents.add(addent);
-}
-
-//finds all entities in list matching all replaceents and replaces with a withent
-void replace_ent(ent_t* withent) {
-	CLinkNode<ent_t>* replacenode = g_replaceents.first();
-	while (replacenode) {
-		CLinkNode<ent_t>* modnode = g_modents.first();
-		while (modnode) {
-			if (match_ent(modnode->data(), replacenode->data()))
-				with_ent(modnode->data(), withent);
-
-			modnode = modnode->next();
-		}
-
-		replacenode = replacenode->next();
-	}
-
-	g_replaceents.empty();
-}
-
-//replaces all applicable keyvals on an ent
-void with_ent(ent_t* replaceent, ent_t* withent) {
-	CLinkNode<keyval_t>* replacekeyval = replaceent->keyvals.first();
-	while (replacekeyval) {
-		const char* withval = withent->get_val(replacekeyval->data()->key);
-		if (withval) {
-			free(replacekeyval->data()->val);
-			replacekeyval->data()->val = _strdup(withval);
-		}
-
-		replacekeyval = replacekeyval->next();
-	}
-}
-
-//load and parse config file into delent and addent lists
-//int pointers are for getting totals
-void load_config(const char* file) {
-	fileHandle_t f;
-	int fsize = g_syscall(G_FS_FOPEN_FILE, file, &f, FS_READ);
-	if (fsize == -1)
-		return;
-
-	//this is a list of key/value pairs for a single entity
-	ent_t* ent = NULL;
-
-	//this is a single key/value pair
-	keyval_t* keyval = NULL;
-
-	//each line of text
-	const char* str = NULL;
-
-	//count how many ents are loaded
-	int numfiltered = 0, numadded = 0, numreplaced = 0;
-
-	//clear the replace list
-	g_replaceents.empty();
-
-	//what the current entity mode is
-	enum Mode {
-		Mode_Filter,
-		Mode_Add,
-		Mode_Replace,
-		Mode_With,
-	} mode = Mode_Filter;
-
-	bool insideent = 0;	//0 = between ents, 1 = inside an ent
-	
-	//reset the internal read_line counter
-	read_line(0, -1);
-
-	//go through every token
-	while (1) {
-		//get token, check for EOF
-		if (!(str = read_line(f, fsize)))
-			break;
-
-		//skip comments and blank lines
-		else if (!*str || (*str == '#') || (*str == ';') || (*str == '/' && *(str+1) == '/'))
-			continue;
-
-		//only pay attention to tags while outside of entities
-		if (!_stricmp(str, "filter:")) {
-			if (!insideent) mode = Mode_Filter;
-			else continue;
-		} else if (!_stricmp(str, "add:")) {
-			if (!insideent) mode = Mode_Add;
-			else continue;
-		} else if (!_stricmp(str, "replace:")) {
-			if (!insideent) mode = Mode_Replace;
-			else continue;
-		} else if (!_stricmp(str, "with:")) {
-			if (!insideent) mode = Mode_With;
-			else continue;
-		}
-
-		//got an opening brace while already inside an entity, error
-		if (str[0] == '{' && insideent)
-			continue;
-
-		//got a closing brace when not inside an entity, error
-		else if (str[0] == '}' && !insideent)
-			continue;
-
-		//if this is a valid closing brace, continue
-		else if (str[0] == '}') {
-			insideent = 0;
-			
-			//don't actually add the entity if it's empty
-			if (ent && !ent->keyvals.first()) {
-				delete ent;
-				ent = NULL;
-				continue;
-			}
-
-			if (mode == Mode_Filter) {
-				filter_ent(ent);
-				delete ent;	//don't need this anymore
-				++numfiltered;
-			} else if (mode == Mode_Add) {
-				add_ent(ent);	//ent is part of modents list
-				++numadded;
-			} else if (mode == Mode_Replace) {
-				g_replaceents.add(ent);	//store until a "with" ent comes along
-				++numreplaced;
-			} else if (mode == Mode_With) {
-				replace_ent(ent);
-				delete ent;	//don't need this anymore
-			}
-			ent = NULL;
-			continue;
-		}
-
-		//if this is a valid opening brace, make a new node
-		else if (str[0] == '{') {
-			insideent = 1;
-			ent = new ent_t;
-			continue;
-		}
-
-		//its a key/val pair line or something else
-		if (insideent) {
-			char* eq = (char*)strstr(str, "=");
-			if (eq) {
-				*eq = '\0';
-				keyval = new keyval_t;
-				keyval->key = _strdup(str);
-				keyval->val = _strdup(eq+1);
-				if (!strcmp(keyval->key, "classname"))
-					ent->classname = _strdup(keyval->val);
-				ent->keyvals.add(keyval);
-			}
-		}
-
-	} //while(1)
-
-	if (ent) delete ent;
-
-	g_syscall(G_FS_FCLOSE_FILE, f);
-	g_syscall(G_PRINT, QMM_VARARGS("[STRIPPER] Loaded %d filters, %d adds, and %d replaces from %s\n", numfiltered, numadded, numreplaced, file));	
-}
+// this stores all info for entities that should be replaced
+// nodes are read and removed from this list when a "with" entity is found
+std::vector<ent_t> g_replaceents;
 
 
+#if defined(GAME_Q3A) || defined(GAME_RTCWMP) || defined(GAME_RTCWSP) || defined(GAME_JK2MP) || defined(GAME_JAMP) || defined(GAME_STVOYHM) || defined(GAME_WET)
+// passes the next entity token to the mod
+intptr_t ent_next_token(char* buf, intptr_t len) {
+	// iterator for current ent
+	static std::vector<ent_t>::iterator it_ent = g_modents.begin();
 
-//passes the next entity token to the mod
-int get_next_entity_token(char* str, int len) {
-	//count how many ents we've passed to the mod
-	static int numents = 0;
+	// pointer to current keyval
+	static decltype(ent_t::keyvals)::iterator it_keyval;
 
-	//this is a node representing an entity
-	static CLinkNode<ent_t>* ent = NULL;
+	// keep track of 
+	static bool inside_ent = false;	// false = between ents, true = inside an ent
+	static bool is_key = true;		// true = expecting key, false = expecting val
 
-	//this is a node representing a single key/value pair
-	static CLinkNode<keyval_t>* keyval = NULL;
-
-	static bool insideent = 0;	//0 = between ents, 1 = inside an ent
-	static bool isval = 0;		//0 = expecting key, 1 = expecting val
-
-	//if we have sent all the entities, delete lists and send an EOF
-	if (numents == g_modents.num()) {
-		g_modents.empty();
-		g_replaceents.empty(); //just to be safe
-		//save g_mapents for the stripper_dump command
+	// if we have sent all the entities, delete lists and return an EOF
+	if (it_ent == g_modents.end()) {
+		g_modents.clear();
+		g_replaceents.clear(); // just to be safe
+		// save g_mapents for the stripper_dump command
 		return 0;
 	}
 
-	//this is only done once, just starts at the beginning of the ent list
-	//if there are no ents, the above condition would have triggered
-	if (!ent) ent = g_modents.first();
-
-	//if we are just starting or done an entity, send a {
-	if (!insideent) {
-		insideent = 1;
-		isval = 0;
-		keyval = ent->data()->keyvals.first();
-		strncpy(str, "{", len);
-		return 1;
+	// if we are starting a new entity, send a {
+	if (!inside_ent) {
+		inside_ent = true;
+		is_key = true;
+		it_keyval = it_ent->keyvals.begin();
+		strncpy(buf, "{", len);
 	}
-
-	//if a keyval exists and we need to send a key, send it
-	if (insideent && keyval && !isval) {
-		isval = !isval;
-		strncpy(str, keyval->data()->key, len);
-		return 1;
+	// if we are inside an ent
+	else {
+		// if a keyval exists
+		if (it_keyval != it_ent->keyvals.end()) {
+			// if we need to send a key
+			if (is_key) {
+				is_key = false;
+				strncpy(buf, it_keyval->first.c_str(), len);
+			}
+			// if we need to send a val
+			else {
+				is_key = true;
+				strncpy(buf, it_keyval->second.c_str(), len);
+				++it_keyval;
+			}
+		}
+		// if no more keyval exists, send a }
+		else {
+			inside_ent = false;
+			++it_ent;
+			strncpy(buf, "}", len);
+		}
 	}
 	
-	//if a keyval exists and we need to send a val, send it
-	if (insideent && keyval && isval) {
-		isval = !isval;
-		strncpy(str, keyval->data()->val, len);
-		keyval = keyval->next();
-		return 1;
+	return 1;
+}
+#endif
+
+
+#if defined(GAME_STEF2) || defined(GAME_MOHAA) || defined(GAME_MOHSH) || defined(GAME_MOHBT)
+// generate an entstring to pass to the mod
+const char* ents_generate_entstring(std::vector<ent_t>& list) {
+	static std::string str;
+	str = "";
+
+	for (auto& ent : list) {
+		str += "{\n";
+		for (auto& keyval : ent.keyvals) {
+			str += ("\"" + keyval.first + "\" \"" + keyval.second + "\"\n");
+		}
+		str += "}\n";
 	}
 
-	//if we are inside an ent and no keyval exists, send a }
-	if (insideent && !keyval) {
-		insideent = 0;
-		++numents;
-		ent = ent->next();
-		strncpy(str, "}", len);
-		return 1;
-	}
+	return str.c_str();
+}
+#endif
 
-	return 0;
+
+// gets all the entity tokens from the engine and stores them in a list
+void ents_load_tokens(std::vector<ent_t>& list, const char* entstring) {
+	// the current ent
+	ent_t ent;
+	// store key. when a val is received, make a new entry into ent
+	std::string key;
+
+	char buf[MAX_TOKEN_CHARS];
+
+	bool inside_ent = false;	// false = between ents, true = inside an ent
+	bool is_key = true;			// true = expecting key, false = expecting val
+
+	// loop through all tokens from engine
+	while (1) {
+#if defined(GAME_STEF2) || defined(GAME_MOHAA) || defined(GAME_MOHSH) || defined(GAME_MOHBT)
+		// get token, check for EOF
+		entstring = s_ent_load_token_from_str(entstring, buf, sizeof(buf));
+		if (!entstring)
+			break;
+#else
+		// get token, check for EOF
+		if (!g_syscall(G_GET_ENTITY_TOKEN, buf, sizeof(buf)))
+			break;
+#endif
+
+		// got an opening brace while already inside an entity, error
+		if (buf[0] == '{' && inside_ent)
+			break;
+
+		// got a closing brace when not inside an entity, error
+		if (buf[0] == '}' && !inside_ent)
+			break;
+
+		// if this is a closing brace when expecting a val, error
+		if (buf[0] == '}' && !is_key)
+			break;
+
+		// if this is a valid closing brace, save ent to list and continue
+		if (buf[0] == '}') {
+			inside_ent = false;
+			key = "";
+			list.push_back(ent);
+			ent = {};
+			continue;
+		}
+
+		// if this is a valid opening brace, start a new ent
+		if (buf[0] == '{') {
+			inside_ent = true;
+			is_key = true;
+			key = "";
+			ent = {};
+			continue;
+		}
+
+		// this is a key
+		if (is_key) {
+			is_key = false;
+			key = buf;
+		}
+		// this is a val
+		else {
+			is_key = true;
+			std::string val = buf;
+			// store keyval in ent
+			ent.keyvals[key] = val;
+			// store classname for easier lookup
+			if (key == "classname")
+				ent.classname = val;
+		}
+	} // while(1)
 }
 
 
-
-//outputs mapents list to a file
-void dump_ents() {
-	char* file = QMM_VARARGS("qmmaddons/stripper/dumps/%s.txt", QMM_GETSTRCVAR("mapname"));
-
+// outputs ent list to a file
+void ents_dump_to_file(std::vector<ent_t>& list, std::string file) {
 	fileHandle_t f;
-	g_syscall(G_FS_FOPEN_FILE, file, &f, FS_WRITE);
-	CLinkNode<ent_t>* p = g_mapents.first();
-	while (p) {
+#ifdef GAME_MOHAA
+	f = g_syscall(G_FS_FOPEN_FILE_WRITE, file.c_str());
+#else
+	g_syscall(G_FS_FOPEN_FILE, file.c_str(), &f, FS_WRITE);
+#endif
+	for (auto& ent : list) {
 		g_syscall(G_FS_WRITE, "{\n", 2, f);
-		CLinkNode<keyval_t>* q = p->data()->keyvals.first();
-		while (q) {
-			char* buf = QMM_VARARGS("\t%s=%s\n", q->data()->key, q->data()->val);
-			g_syscall(G_FS_WRITE, buf, strlen(buf), f);
-			q = q->next();
+		for (auto& keyval : ent.keyvals) {
+			std::string s = "\t" + keyval.first + "=" + keyval.second + "\n";
+			g_syscall(G_FS_WRITE, s.c_str(), s.size(), f);
 		}
 		g_syscall(G_FS_WRITE, "}\n", 2, f);
-		p = p->next();
 	}
 	g_syscall(G_FS_FCLOSE_FILE, f);
-	g_syscall(G_PRINT, QMM_VARARGS("[STRIPPER] Ent dump written to %s\n", file));
+	QMM_WRITEQMMLOG(QMM_VARARGS("Ent dump written to %s\n", file), QMMLOG_INFO, "STRIPPER");
 }
+
+
+// load and parse config file
+void ent_load_config(std::string file) {
+	fileHandle_t f;
+#ifdef GAME_MOHAA
+#error G_FS_FOPEN_FILE doesn't work, and QMM will eat it
+	// need to use G_FS_READFILE / long (*FS_ReadFile)(const char *qpath, void **buffer, qboolean quiet);
+#endif
+
+	int fsize = g_syscall(G_FS_FOPEN_FILE, file.c_str(), &f, FS_READ);
+	if (fsize == -1)
+		return;
+
+	// the current ent
+	ent_t ent;
+
+	// each line of text
+	std::string line = "";
+
+	// count how many ents are loaded
+	int num_filtered = 0, num_added = 0, num_replaced = 0;
+
+	// clear the replace list
+	g_replaceents.clear();
+
+	// what the current entity mode is
+	enum Mode {
+		mode_filter,
+		mode_add,
+		mode_replace,
+		mode_with,
+	} mode = mode_filter;
+
+	bool inside_ent = false;	// false = between ents, true = inside an ent
+
+	// go through every line
+	while (1) {
+		// get line, check for EOF
+		line = "";
+		if (!read_line(f, line))
+			break;
+
+		// skip comments and blank lines
+		if (line.empty() || line[0] == '#' || line[0] == ';' || line.substr(0, 2) == "//")
+			continue;
+
+		// if not inside an entity, we can either start a new entity or switch modes
+		if (!inside_ent) {
+			// got a closing brace when not inside an entity, error
+			if (line[0] == '}')
+				continue;
+
+			// look for mode lines
+			if (str_striequal(line, "filter:")) {
+				mode = mode_filter;
+			}
+			else if (str_striequal(line, "add:")) {
+				mode = mode_add;
+			}
+			else if (str_striequal(line, "replace:")) {
+				mode = mode_replace;
+			}
+			else if (str_striequal(line, "with:")) {
+				mode = mode_with;
+			}
+			// valid opening brace, make a new entity
+			else if (line[0] == '{') {
+				inside_ent = true;
+				ent = {};
+			}
+		}
+		// inside an entity. we can either have a keyval pair or end the entity
+		else {
+			// got an opening brace while already inside an entity, error
+			if (line[0] == '{')
+				continue;
+
+			// if this is a valid closing brace, handle the entity filter
+			if (line[0] == '}') {
+				inside_ent = false;
+
+				// don't actually do anything with the entity if it's empty
+				if (ent.keyvals.empty())
+					continue;
+
+				if (mode == mode_filter) {
+					s_ents_filter(g_modents, ent);
+					++num_filtered;
+				}
+				else if (mode == mode_add) {
+					s_ents_add(g_modents, ent);
+					++num_added;
+				}
+				else if (mode == mode_replace) {
+					g_replaceents.push_back(ent);	// store until a "with" ent comes along
+					++num_replaced;
+				}
+				else if (mode == mode_with) {
+					s_ents_replace(g_modents, ent);
+				}
+			}
+			// it's a key/val pair line or something else
+			else {
+				size_t eq = line.find('=');
+				// if no '=', then skip
+				if (eq == std::string::npos)
+					continue;
+
+				// store key=val
+				std::string key = line.substr(0, eq);
+				std::string val = line.substr(eq + 1);
+				ent.keyvals[key] = val;
+				if (key == "classname")
+					ent.classname = val;
+			}
+		}
+
+	} // while(1)
+
+	g_syscall(G_FS_FCLOSE_FILE, f);
+	QMM_WRITEQMMLOG(QMM_VARARGS("Loaded %d filters, %d adds, and %d replaces from %s\n", num_filtered, num_added, num_replaced, file.c_str()), QMMLOG_INFO, "STRIPPER");
+}
+
+
+// get a given value from an entity
+static std::string* s_ent_get_val(ent_t& ent, std::string key) {
+	for (auto& keyval : ent.keyvals) {
+		if (keyval.first == key)
+			return &keyval.second;
+	}
+	return nullptr;
+}
+
+
+// returns true if "test" has all the same keyvals that "contains" has
+static bool s_ent_match(ent_t& test, ent_t& contains) {
+	for (auto& matchkeyval : contains.keyvals) {
+		std::string* val = s_ent_get_val(test, matchkeyval.first);
+		// if key doesn't exist on test, or val doesn't match
+		if (!val || *val != matchkeyval.second)
+			return false;
+	}
+	return true;
+}
+
+
+// removes all matching entities from list
+static void s_ents_filter(std::vector<ent_t>& list, ent_t& filterent) {
+	auto it = list.begin();
+	while (it != list.end()) {
+		if (s_ent_match(*it, filterent))
+			it = list.erase(it);
+		else
+			++it;
+	}
+}
+
+
+// adds an entity to list (puts worldspawn at the beginning)
+static void s_ents_add(std::vector<ent_t>& list, ent_t& addent) {
+	if (addent.classname == "worldspawn")
+		list.insert(list.begin(), addent);
+	else
+		list.push_back(addent);
+}
+
+
+// finds all entities in list matching all stored replaceents and replaces with a withent
+static void s_ents_replace(std::vector<ent_t>& list, ent_t& withent) {
+	// go through all replaceents
+	for (ent_t& rent : g_replaceents) {
+		// find any matching ents in given list
+		for (ent_t& ent : list) {
+			// replace with withent
+			if (s_ent_match(ent, rent))
+				s_ent_replace(ent, withent);
+		}
+	}
+
+	g_replaceents.clear();
+}
+
+
+// replaces all applicable keyvals on an ent
+static void s_ent_replace(ent_t& replaceent, ent_t& withent) {
+	// go through all keyvals on withent
+	for (auto& withkeyval : withent.keyvals) {
+		// add/replace val on replaceent
+		replaceent.keyvals[withkeyval.first] = withkeyval.second;
+	}
+}
+
+
+#if defined(GAME_STEF2) || defined(GAME_MOHAA) || defined(GAME_MOHSH) || defined(GAME_MOHBT)
+// get next token from entstring, write it into buf. return start of next token
+static const char* s_ent_load_token_from_str(const char* entstring, char* buf, size_t len) {
+	if (!entstring)
+		return nullptr;
+
+	// eat whitespace
+	while (std::isspace(*entstring))
+		entstring++;
+
+	// end of string
+	if (!*entstring)
+		return nullptr;
+
+	// opening brace
+	if (*entstring == '{') {
+		strncpy(buf, "{", len);
+		// return start of next token
+		return entstring + 1;
+	}
+	// closing brace
+	if (*entstring == '}') {
+		strncpy(buf, "}", len);
+		// return start of next token
+		return entstring + 1;
+	}
+	// quote, this is a key or val. loop until the next "
+	if (*entstring == '"') {
+		entstring++;
+		char* quote = (char*)entstring;
+		// find next quote
+		while (*quote != '"')
+			quote++;
+		// replace with null terminator
+		*quote = '\0';
+		// copy string into buf
+		strncpy(buf, entstring, len);
+		// return start of next token
+		return quote + 1;
+	}
+	// ??
+	return entstring + 1;
+}
+#endif

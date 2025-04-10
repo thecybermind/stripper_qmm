@@ -24,9 +24,6 @@
     <ClInclude Include="..\include\util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\CLinkList.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\game.h">
       <Filter>Header Files</Filter>
     </ClInclude>

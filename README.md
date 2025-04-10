@@ -9,7 +9,7 @@ Created By: Kevin Masterson < cybermind@gmail.com >
 ---
 
 1. Install QMM ( https://github.com/thecybermind/qmm2/wiki/Installation )
-2. Make a qmmaddons/stripper directory inside your mod directory and place stripper_qmm.dll file here
+2. Make a qmmaddons/stripper/ directory inside your mod directory and place stripper_qmm.dll file here
 3. Add the path to stripper_qmm.dll as an entry in the plugins list in qmm2.json
 
 ## Setup:
@@ -19,7 +19,7 @@ Created By: Kevin Masterson < cybermind@gmail.com >
 ### Configuration Files:
 There are 2 files loaded per map. One is the global configuration file that is loaded for every map, and the other is specific to the current map.
 
-The global configuration file is located at qmmaddons/stripper/global.ini and the map-specific file is located at qmmaddons/stripper/maps/<mapname>.ini. ~A sample global.ini and q3dm1.ini are provided in the package.~
+The global configuration file is located at qmmaddons/stripper/global.ini and the map-specific file is located at qmmaddons/stripper/maps/[mapname].ini. ~A sample global.ini and q3dm1.ini are provided in the package.~
 
 Configuration files have the following format:
 

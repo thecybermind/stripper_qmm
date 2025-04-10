@@ -12,6 +12,11 @@ Created By:
 #ifndef __STRIPPER_QMM_UTIL_H__
 #define __STRIPPER_QMM_UTIL_H__
 
-const char* read_line(fileHandle_t, int);
+int str_stristr(std::string haystack, std::string needle);
+int str_stricmp(std::string s1, std::string s2);
+int str_striequal(std::string s1, std::string s2);
+
+// read a single line from a file handle. store in out string, return true if eof
+bool read_line(fileHandle_t f, std::string& out);
 
 #endif // __STRIPPER_QMM_UTIL_H__

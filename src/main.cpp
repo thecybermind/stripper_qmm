@@ -11,10 +11,9 @@ Created By:
 
 #include "version.h"
 #include <qmmapi.h>
-#include <stdio.h>
-#include <string.h>
 #include "game.h"
 #include "ent.h"
+#include "util.h"
 
 pluginres_t* g_result = NULL;
 plugininfo_t g_plugininfo = {
@@ -41,61 +40,83 @@ C_DLLEXPORT void QMM_Query(plugininfo_t** pinfo) {
 
 C_DLLEXPORT int QMM_Attach(eng_syscall_t engfunc, mod_vmMain_t modfunc, pluginres_t* presult, pluginfuncs_t* pluginfuncs, intptr_t vmbase, pluginvars_t* pluginvars) {
 	QMM_SAVE_VARS();
-
 	return 1;
 }
 
 C_DLLEXPORT void QMM_Detach(intptr_t reserved) {
-	g_mapents.empty();
-
 	reserved = 0;
 }
 
 C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 	if (cmd == GAME_INIT) {
-		//init msg
-		QMM_WRITEQMMLOG("Stripper v" STRIPPER_QMM_VERSION " by " STRIPPER_QMM_BUILDER " is loaded\n", QMMLOG_INFO, "STRIPPER_QMM");
+		// init msg
+		QMM_WRITEQMMLOG("Stripper v" STRIPPER_QMM_VERSION " by " STRIPPER_QMM_BUILDER " is loaded\n", QMMLOG_INFO, "STRIPPER");
 
-		//register cvar
+		// register cvar
 		g_syscall(G_CVAR_REGISTER, NULL, "stripper_version", STRIPPER_QMM_VERSION, CVAR_ROM | CVAR_SERVERINFO | CVAR_NORESTART);
 		g_syscall(G_CVAR_SET, "stripper_version", STRIPPER_QMM_VERSION);
 
-#if !defined(GAME_STEF2) && !defined(GAME_MOHAA) && !defined(GAME_MOHSH) && !defined(GAME_MOHBT)
-		//get all the entity tokens from the engine and save to lists
-		get_entity_tokens();
+// G_GET_ENTITY_TOKEN games get entities and load configs here during QMM_vmMain(GAME_INIT)
+// entities are passed to the mod in QMM_syscall(G_GET_ENTITY_TOKEN)
+#if defined(GAME_Q3A) || defined(GAME_RTCWMP) || defined(GAME_RTCWSP) || defined(GAME_JK2MP) || defined(GAME_JAMP) || defined(GAME_STVOYHM) || defined(GAME_WET)
+		// get all the entity tokens from the engine and save to lists
+		ents_load_tokens(g_mapents);
 
-		//load global config
-		load_config("qmmaddons/stripper/global.ini");
+		// g_modents starts as a copy of g_mapents
+		g_modents = g_mapents;
 
-		//load map-specific config
-		load_config(QMM_VARARGS("qmmaddons/stripper/maps/%s.ini", QMM_GETSTRCVAR("mapname")));
+		// load global config
+		ent_load_config("qmmaddons/stripper/global.ini");
+
+		// load map-specific config
+		ent_load_config(QMM_VARARGS("qmmaddons/stripper/maps/%s.ini", QMM_GETSTRCVAR("mapname")));
 #endif
 	}
+	// handle stripper_dump command
 	else if (cmd == GAME_CONSOLE_COMMAND) {
 		char buf[20];
 		QMM_ARGV(0, buf, sizeof(buf));
-		if (!strcmp(buf, "stripper_dump")) {
-			dump_ents();
+		if (str_striequal(buf, "stripper_dump")) {
+			ents_dump_to_file(g_mapents, QMM_VARARGS("qmmaddons/stripper/dumps/%s.txt", QMM_GETSTRCVAR("mapname")));
+			// don't pass this to mod since we handled the command
 			QMM_RET_SUPERCEDE(1);
 		}
 	}
+// GetGameAPI games have to do all the loading and passing to mod here inside QMM_vmMain(GAME_SPAWNENTITIES)
 #if defined(GAME_STEF2) || defined(GAME_MOHAA) || defined(GAME_MOHSH) || defined(GAME_MOHBT)
 	// mohaa: void (*SpawnEntities)(char *entstring, int levelTime);
 	// stef2: void (*SpawnEntities)(const char *mapname, const char *entstring, int levelTime);
 	else if (cmd == GAME_SPAWN_ENTITIES) {
-		char* entstring = (char*)
 #ifdef GAME_STEF2
-		args[1];
+		const char* mapname = (const char*)args[0];
+		const char* entstring = (const char*)args[1];
+		intptr_t levelTime = args[2];
 #else
-		args[0];
+		const char* entstring = (const char*)args[0];
+		intptr_t levelTime = args[1];
 #endif
-		QMM_WRITEQMMLOG(".\n", QMMLOG_INFO, "STRIPPER_QMM");
-		QMM_WRITEQMMLOG(".\n", QMMLOG_INFO, "STRIPPER_QMM");
-		QMM_WRITEQMMLOG("Entstring: ", QMMLOG_INFO, "STRIPPER_QMM");
-		QMM_WRITEQMMLOG(entstring, QMMLOG_INFO, "STRIPPER_QMM");
-		QMM_WRITEQMMLOG("\n", QMMLOG_INFO, "STRIPPER_QMM");
-		QMM_WRITEQMMLOG(".\n", QMMLOG_INFO, "STRIPPER_QMM");
-		QMM_WRITEQMMLOG(".\n", QMMLOG_INFO, "STRIPPER_QMM");
+		// get all the entity tokens from the engine and save to g_mapents
+		ents_load_tokens(g_mapents, entstring);
+
+		// g_modents starts as a copy of g_mapents
+		g_modents = g_mapents;
+
+		// load global config
+		ent_load_config("qmmaddons/stripper/global.ini");
+
+		// load map-specific config
+		ent_load_config(QMM_VARARGS("qmmaddons/stripper/maps/%s.ini", QMM_GETSTRCVAR("mapname")));
+
+		// generate new entstring from g_modents to pass to mod
+		entstring = ents_generate_entstring(g_modents);
+
+		intptr_t ret = g_vmMain(cmd,
+#ifdef GAME_STEF2
+								mapname,
+#endif
+								entstring, levelTime);
+		// don't pass this to mod since we already called the mod with the different entstring
+		QMM_RET_SUPERCEDE(ret);
 	}
 #endif
 
@@ -111,14 +132,17 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 	// loop through the ent list and return a single token
 	if (cmd == G_GET_ENTITY_TOKEN
 #ifdef GAME_JAMP
+		// if this is JAMP and we are in a sub bsp, don't handle this and let the engine handle it
 		&& !insubbsp
 #endif
 		) {
 		char* entity = (char*)args[0];
-		int length = (int)args[1];
-		QMM_RET_SUPERCEDE(get_next_entity_token(entity, length));
+		intptr_t length = (intptr_t)args[1];
+		intptr_t ret = ent_next_token(entity, length);
+		// don't pass this to engine since we already pulled all entities from the engine
+		QMM_RET_SUPERCEDE(ret);
 	}
-#endif // dllEntry games
+#endif // G_GET_ENTITY_TOKEN games
 	QMM_RET_IGNORED(1);
 }
 
@@ -142,7 +166,10 @@ C_DLLEXPORT intptr_t QMM_syscall_Post(intptr_t cmd, intptr_t* args) {
 		  trap_SetActiveSubBSP(-1);
 
 	   For now, until we can refactor the code to better handle this, we will just store whether or not we are working with a
-	   sub bsp and if so, just pass G_GET_ENTITY_TOKEN calls onto the engine directly
+	   sub bsp and if so, just pass G_GET_ENTITY_TOKEN calls onto the engine directly.
+
+	   In the future, we should check for misc_bsp entities during ents_load_tokens and pull the entities ourselves, storing them
+	   in other lists per misc_bsp entity.
 	*/
 	if (cmd == G_SET_ACTIVE_SUBBSP) {
 		insubbsp = (args[0] != -1);

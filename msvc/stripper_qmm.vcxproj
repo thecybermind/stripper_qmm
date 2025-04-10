@@ -182,7 +182,6 @@
     <ClInclude Include="..\include\ent.h" />
     <ClInclude Include="..\include\game.h" />
     <ClInclude Include="..\include\util.h" />
-    <ClInclude Include="..\include\CLinkList.h" />
     <ClInclude Include="..\include\version.h" />
   </ItemGroup>
   <ItemGroup>

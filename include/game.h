@@ -27,22 +27,18 @@ Created By:
 #elif defined(GAME_STVOYHM)
 #include <stvoyhm/game/g_local.h>
 #elif defined(GAME_STEF2)
-// #error Game not supported yet
 #include <stef2/game/g_local.h>
 #include <stef2/game/bg_public.h>
 #include <game_stef2.h>
 #elif defined(GAME_MOHAA)
-// #error Game not supported yet
 #include <mohaa/fgame/g_local.h>
 #include <mohaa/fgame/bg_public.h>
 #include <game_mohaa.h>
 #elif defined(GAME_MOHSH)
-// #error Game not supported yet
 #include <mohsh/fgame/g_local.h>
 #include <mohsh/fgame/bg_public.h>
 #include <game_mohsh.h>
 #elif defined(GAME_MOHBT)
-// #error Game not supported yet
 #include <mohaa/fgame/g_local.h>
 #include <mohaa/fgame/bg_public.h>
 #include <game_mohbt.h>
