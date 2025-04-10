@@ -110,12 +110,13 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 		// generate new entstring from g_modents to pass to mod
 		entstring = ents_generate_entstring(g_modents);
 
-		intptr_t ret = g_vmMain(cmd,
+		// call mod's SpawnEntities with new entstring
 #ifdef GAME_STEF2
-								mapname,
+		intptr_t ret = g_vmMain(cmd, mapname, entstring, levelTime);
+#else
+		intptr_t ret = g_vmMain(cmd, entstring, levelTime);
 #endif
-								entstring, levelTime);
-		// don't pass this to mod since we already called the mod with the different entstring
+		// don't pass this call to mod since we already called the mod above
 		QMM_RET_SUPERCEDE(ret);
 	}
 #endif

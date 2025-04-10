@@ -369,13 +369,19 @@ static bool s_ent_match(ent_t& test, ent_t& contains) {
 
 // removes all matching entities from list
 static void s_ents_filter(std::vector<ent_t>& list, ent_t& filterent) {
-	auto it = list.begin();
+	auto it = std::remove_if(list.begin(), list.end(),
+		[&filterent](ent_t& ent) {
+			return s_ent_match(ent, filterent);
+		}
+	);
+	list.erase(it, list.end());
+	/*auto it = list.begin();
 	while (it != list.end()) {
 		if (s_ent_match(*it, filterent))
 			it = list.erase(it);
 		else
 			++it;
-	}
+	}*/
 }
 
 
@@ -391,11 +397,11 @@ static void s_ents_add(std::vector<ent_t>& list, ent_t& addent) {
 // finds all entities in list matching all stored replaceents and replaces with a withent
 static void s_ents_replace(std::vector<ent_t>& list, ent_t& withent) {
 	// go through all replaceents
-	for (ent_t& rent : g_replaceents) {
+	for (ent_t& repent : g_replaceents) {
 		// find any matching ents in given list
 		for (ent_t& ent : list) {
 			// replace with withent
-			if (s_ent_match(ent, rent))
+			if (s_ent_match(ent, repent))
 				s_ent_replace(ent, withent);
 		}
 	}
@@ -443,14 +449,23 @@ static const char* s_ent_load_token_from_str(const char* entstring, char* buf, s
 	// quote, this is a key or val. loop until the next "
 	if (*entstring == '"') {
 		entstring++;
-		char* quote = (char*)entstring;
+		bool end = false;
+		const char* quote = entstring;
 		// find next quote
-		while (*quote != '"')
+		while (*quote && *quote != '"')
 			quote++;
-		// replace with null terminator
-		*quote = '\0';
+		// just a small check to catch if the string abruptly ends in a key/val
+		if (!*quote)
+			end = true;
+		// oh nos! replace with null terminator. this avoids making a copy of this long string
+		// luckily this string doesn't get used again as we generate a new one to send to the
+		// mod in ents_generate_entstring
+		*(char*)quote = '\0';
 		// copy string into buf
 		strncpy(buf, entstring, len);
+		// if end is true, then there is no next token, so just return nullptr
+		if (end)
+			return nullptr;
 		// return start of next token
 		return quote + 1;
 	}
