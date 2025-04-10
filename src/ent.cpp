@@ -64,11 +64,9 @@ intptr_t ent_next_token(char* buf, intptr_t len) {
 	static bool inside_ent = false;	// false = between ents, true = inside an ent
 	static bool is_key = true;		// true = expecting key, false = expecting val
 
-	// if we have sent all the entities, delete lists and return an EOF
+	// if we have sent all the entities, return an EOF
 	if (it_ent == g_modents.end()) {
-		g_modents.clear();
 		g_replaceents.clear(); // just to be safe
-		// save g_mapents for the stripper_dump command
 		return 0;
 	}
 
@@ -224,15 +222,20 @@ void ents_dump_to_file(std::vector<ent_t>& list, std::string file) {
 
 // load and parse config file
 void ent_load_config(std::string file) {
-	fileHandle_t f;
 #ifdef GAME_MOHAA
-#error G_FS_FOPEN_FILE doesn't work, and QMM will eat it
-	// need to use G_FS_READFILE / long (*FS_ReadFile)(const char *qpath, void **buffer, qboolean quiet);
-#endif
-
+	// MOHAA doesn't have G_FS_FOPEN_FILE or a fileHandle-based alternative for reading
+	// so we have to use G_FS_READFILE which loads everything into an engine-managed buffer
+	const char* buf = nullptr;
+	int fsize = g_syscall(G_FS_READFILE, file.c_str(), &buf, (intptr_t)0);
+	if (fsize == -1)
+		return;
+	const char* buf_orig = buf;	// pass this to g_syscall(G_FS_FREEFILE) later
+#else
+	fileHandle_t f;
 	int fsize = g_syscall(G_FS_FOPEN_FILE, file.c_str(), &f, FS_READ);
 	if (fsize == -1)
 		return;
+#endif
 
 	// the current ent
 	ent_t ent;
@@ -260,8 +263,13 @@ void ent_load_config(std::string file) {
 	while (1) {
 		// get line, check for EOF
 		line = "";
+#ifdef GAME_MOHAA
+		if (!(buf = read_line(buf, line)))
+			break;
+#else
 		if (!read_line(f, line))
 			break;
+#endif
 
 		// skip comments and blank lines
 		if (line.empty() || line[0] == '#' || line[0] == ';' || line.substr(0, 2) == "//")
@@ -337,10 +345,13 @@ void ent_load_config(std::string file) {
 					ent.classname = val;
 			}
 		}
-
 	} // while(1)
 
+#ifdef GAME_MOHAA
+	g_syscall(G_FS_FREEFILE, buf_orig);
+#else
 	g_syscall(G_FS_FCLOSE_FILE, f);
+#endif
 	QMM_WRITEQMMLOG(QMM_VARARGS("Loaded %d filters, %d adds, and %d replaces from %s\n", num_filtered, num_added, num_replaced, file.c_str()), QMMLOG_INFO, "STRIPPER");
 }
 
