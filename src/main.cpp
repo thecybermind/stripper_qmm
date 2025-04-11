@@ -59,6 +59,9 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 // G_GET_ENTITY_TOKEN games get entities and load configs here during QMM_vmMain(GAME_INIT)
 // entities are passed to the mod in QMM_syscall(G_GET_ENTITY_TOKEN)
 #if defined(GAME_Q3A) || defined(GAME_RTCWMP) || defined(GAME_RTCWSP) || defined(GAME_JK2MP) || defined(GAME_JAMP) || defined(GAME_STVOYHM) || defined(GAME_WET)
+		// some games can load new maps without unloading the mod
+		g_mapents.clear();
+
 		// get all the entity tokens from the engine and save to lists
 		ents_load_tokens(g_mapents);
 
@@ -95,6 +98,9 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 		const char* entstring = (const char*)args[0];
 		intptr_t levelTime = args[1];
 #endif
+		// some games can load new maps without unloading the mod
+		g_mapents.clear();
+
 		// get all the entity tokens from the engine and save to g_mapents
 		ents_load_tokens(g_mapents, entstring);
 
