@@ -380,19 +380,13 @@ static bool s_ent_match(ent_t& test, ent_t& contains) {
 
 // removes all matching entities from list
 static void s_ents_filter(std::vector<ent_t>& list, ent_t& filterent) {
-	auto it = std::remove_if(list.begin(), list.end(),
-		[&filterent](ent_t& ent) {
-			return s_ent_match(ent, filterent);
-		}
-	);
-	list.erase(it, list.end());
-	/*auto it = list.begin();
+	auto it = list.begin();
 	while (it != list.end()) {
 		if (s_ent_match(*it, filterent))
 			it = list.erase(it);
 		else
 			++it;
-	}*/
+	}
 }
 
 
