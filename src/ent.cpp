@@ -21,6 +21,8 @@ Created By:
 #include "CLinkList.h"
 #include "util.h"
 
+// return a string representation of an entity
+static std::string s_ent_tostring(ent_t& ent);
 // get a given value from an entity
 static std::string* s_ent_get_val(ent_t& ent, std::string key);
 // returns true if "test" has all the same keyvals that "contains" has
@@ -65,11 +67,9 @@ intptr_t ent_next_token(char* buf, intptr_t len) {
 	static bool is_key = true;		// true = expecting key, false = expecting val
 
 	// if we have sent all the entities, return an EOF
-	if (it_ent == g_modents.end()) {
-		g_replaceents.clear(); // just to be safe
+	if (it_ent == g_modents.end())
 		return 0;
-	}
-
+	
 	// if we are starting a new entity, send a {
 	if (!inside_ent) {
 		inside_ent = true;
@@ -355,6 +355,15 @@ void ent_load_config(std::string file) {
 	QMM_WRITEQMMLOG(QMM_VARARGS("Loaded %d filters, %d adds, and %d replaces from %s\n", num_filtered, num_added, num_replaced, file.c_str()), QMMLOG_INFO, "STRIPPER");
 }
 
+// return a string representation of an entity
+static std::string s_ent_tostring(ent_t& ent) {
+	std::string s = "{";
+	for (auto& keyval : ent.keyvals) {
+		s += "\"" + keyval.first + "\"=\"" + keyval.second + "\",";
+	}
+	s[s.size() - 1] = '}';
+	return s;
+}
 
 // get a given value from an entity
 static std::string* s_ent_get_val(ent_t& ent, std::string key) {

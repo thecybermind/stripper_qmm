@@ -76,6 +76,7 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 		QMM_ARGV(0, buf, sizeof(buf));
 		if (str_striequal(buf, "stripper_dump")) {
 			ents_dump_to_file(g_mapents, QMM_VARARGS("qmmaddons/stripper/dumps/%s.txt", QMM_GETSTRCVAR("mapname")));
+			ents_dump_to_file(g_modents, QMM_VARARGS("qmmaddons/stripper/dumps/%s_modents.txt", QMM_GETSTRCVAR("mapname")));
 			// don't pass this to mod since we handled the command
 			QMM_RET_SUPERCEDE(1);
 		}
