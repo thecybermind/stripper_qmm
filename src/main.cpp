@@ -91,12 +91,9 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 	// stef2: void (*SpawnEntities)(const char *mapname, const char *entstring, int levelTime);
 	else if (cmd == GAME_SPAWN_ENTITIES) {
 #ifdef GAME_STEF2
-		const char* mapname = (const char*)args[0];
 		const char* entstring = (const char*)args[1];
-		intptr_t levelTime = args[2];
 #else
 		const char* entstring = (const char*)args[0];
-		intptr_t levelTime = args[1];
 #endif
 		// some games can load new maps without unloading the mod
 		g_mapents.clear();
@@ -116,14 +113,14 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 		// generate new entstring from g_modents to pass to mod
 		entstring = ents_generate_entstring(g_modents);
 
-		// call mod's SpawnEntities with new entstring
+		// replace entstring arg for passing to mod
 #ifdef GAME_STEF2
-		intptr_t ret = g_vmMain(cmd, mapname, entstring, levelTime);
+		args[1] = (intptr_t)entstring;
 #else
-		intptr_t ret = g_vmMain(cmd, entstring, levelTime);
+		args[0] = (intptr_t)entstring;
 #endif
-		// don't pass this call to mod since we already called the mod above
-		QMM_RET_SUPERCEDE(ret);
+
+		QMM_RET_IGNORED(1);
 	}
 #endif
 
