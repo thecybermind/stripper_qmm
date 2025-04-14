@@ -38,7 +38,7 @@ int str_striequal(std::string s1, std::string s2) {
 }
 
 // read a single line from a string buffer. store in out string, return true if eof
-#ifdef GAME_MOHAA
+#if defined(GAME_MOHAA)
 const char* read_line(const char* buf, std::string& out) {
 	const char* p = buf;
 
@@ -72,6 +72,11 @@ const char* read_line(const char* buf, std::string& out) {
 		return p;	// if we hit the end of the string, return the null terminator so the next call ends
 
 	return p + 1;
+}
+#elif defined(GAME_Q2R)
+// read a single line from a FILE*. store in "out" string, return true if eof
+bool read_line(FILE* f, std::string& out) {
+	return true;
 }
 #else
 // read a single line from a file handle. store in out string, return false if eof
@@ -107,5 +112,4 @@ bool read_line(fileHandle_t f, std::string& out) {
 
 	return true;
 }
-#endif // !GAME_MOHAA
-
+#endif // !MOHAA

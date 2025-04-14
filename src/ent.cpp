@@ -35,7 +35,7 @@ static void s_ents_add(std::vector<ent_t>& list, ent_t& addent);
 static void s_ents_replace(std::vector<ent_t>& list, ent_t& withent);
 // replaces all applicable keyvals on an ent
 static void s_ent_replace(ent_t& replaceent, ent_t& withent);
-#if defined(GAME_STEF2) || defined(GAME_MOHAA) || defined(GAME_MOHSH) || defined(GAME_MOHBT)
+#if defined(GAME_STEF2) || defined(GAME_MOHAA) || defined(GAME_MOHSH) || defined(GAME_MOHBT) || defined(GAME_Q2R)
 // get next token from entstring, write it into buf. return start of next token
 static const char* s_ent_load_token_from_str(const char* entstring, char* buf, size_t len);
 #endif
@@ -106,7 +106,7 @@ intptr_t ent_next_token(char* buf, intptr_t len) {
 #endif
 
 
-#if defined(GAME_STEF2) || defined(GAME_MOHAA) || defined(GAME_MOHSH) || defined(GAME_MOHBT)
+#if defined(GAME_STEF2) || defined(GAME_MOHAA) || defined(GAME_MOHSH) || defined(GAME_MOHBT) || defined(GAME_Q2R)
 // generate an entstring to pass to the mod
 const char* ents_generate_entstring(std::vector<ent_t>& list) {
 	static std::string str;
@@ -139,7 +139,7 @@ void ents_load_tokens(std::vector<ent_t>& list, const char* entstring) {
 
 	// loop through all tokens from engine
 	while (1) {
-#if defined(GAME_STEF2) || defined(GAME_MOHAA) || defined(GAME_MOHSH) || defined(GAME_MOHBT)
+#if defined(GAME_STEF2) || defined(GAME_MOHAA) || defined(GAME_MOHSH) || defined(GAME_MOHBT) || defined(GAME_Q2R)
 		// get token, check for EOF
 		entstring = s_ent_load_token_from_str(entstring, buf, sizeof(buf));
 		if (!entstring)
@@ -202,8 +202,11 @@ void ents_load_tokens(std::vector<ent_t>& list, const char* entstring) {
 // outputs ent list to a file
 void ents_dump_to_file(std::vector<ent_t>& list, std::string file) {
 	fileHandle_t f;
-#ifdef GAME_MOHAA
+#if defined(GAME_MOHAA)
 	f = g_syscall(G_FS_FOPEN_FILE_WRITE, file.c_str());
+#elif defined(GAME_Q2R)
+	f = nullptr;
+	// use fopen
 #else
 	g_syscall(G_FS_FOPEN_FILE, file.c_str(), &f, FS_WRITE);
 #endif
@@ -215,14 +218,18 @@ void ents_dump_to_file(std::vector<ent_t>& list, std::string file) {
 		}
 		g_syscall(G_FS_WRITE, "}\n", 2, f);
 	}
+#if defined(GAME_Q2R)
+	// use fclose
+#else
 	g_syscall(G_FS_FCLOSE_FILE, f);
+#endif
 	QMM_WRITEQMMLOG(QMM_VARARGS("Ent dump written to %s\n", file), QMMLOG_INFO, "STRIPPER");
 }
 
 
 // load and parse config file
 void ent_load_config(std::string file) {
-#ifdef GAME_MOHAA
+#if defined(GAME_MOHAA)
 	// MOHAA doesn't have G_FS_FOPEN_FILE or a fileHandle-based alternative for reading
 	// so we have to use G_FS_READFILE which loads everything into an engine-managed buffer
 	const char* buf = nullptr;
@@ -230,6 +237,8 @@ void ent_load_config(std::string file) {
 	if (fsize == -1)
 		return;
 	const char* buf_orig = buf;	// pass this to g_syscall(G_FS_FREEFILE) later
+#elif defined(GAME_Q2R)
+	// use fopen
 #else
 	fileHandle_t f;
 	int fsize = g_syscall(G_FS_FOPEN_FILE, file.c_str(), &f, FS_READ);
@@ -263,9 +272,11 @@ void ent_load_config(std::string file) {
 	while (1) {
 		// get line, check for EOF
 		line = "";
-#ifdef GAME_MOHAA
+#if defined(GAME_MOHAA)
 		if (!(buf = read_line(buf, line)))
 			break;
+#elif defined(GAME_Q2R)
+		// use fread
 #else
 		if (!read_line(f, line))
 			break;
@@ -347,8 +358,10 @@ void ent_load_config(std::string file) {
 		}
 	} // while(1)
 
-#ifdef GAME_MOHAA
+#if defined(GAME_MOHAA)
 	g_syscall(G_FS_FREEFILE, buf_orig);
+#elif defined(GAME_Q2R)
+	// use fclose
 #else
 	g_syscall(G_FS_FCLOSE_FILE, f);
 #endif
@@ -434,7 +447,7 @@ static void s_ent_replace(ent_t& replaceent, ent_t& withent) {
 }
 
 
-#if defined(GAME_STEF2) || defined(GAME_MOHAA) || defined(GAME_MOHSH) || defined(GAME_MOHBT)
+#if defined(GAME_STEF2) || defined(GAME_MOHAA) || defined(GAME_MOHSH) || defined(GAME_MOHBT) || defined(GAME_Q2R)
 // get next token from entstring, write it into buf. return start of next token
 static const char* s_ent_load_token_from_str(const char* entstring, char* buf, size_t len) {
 	if (!entstring)
@@ -486,4 +499,4 @@ static const char* s_ent_load_token_from_str(const char* entstring, char* buf, s
 	// ??
 	return entstring + 1;
 }
-#endif
+#endif // STEF2 || MOHAA || MOHSH || MOHBT || Q2R

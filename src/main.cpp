@@ -68,7 +68,8 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 
 		// load map-specific config
 		ent_load_config(QMM_VARARGS("qmmaddons/stripper/maps/%s.ini", QMM_GETSTRCVAR("mapname")));
-#endif
+#endif // Q3A || RTCWMP || RTCWSP || JK2MP || JAMP || STVOYHM || WET
+
 	}
 	// handle stripper_dump command
 	else if (cmd == GAME_CONSOLE_COMMAND) {
@@ -82,15 +83,16 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 		}
 	}
 // GetGameAPI games have to do all the loading and passing to mod here inside QMM_vmMain(GAME_SPAWNENTITIES)
-#if defined(GAME_STEF2) || defined(GAME_MOHAA) || defined(GAME_MOHSH) || defined(GAME_MOHBT)
+#if defined(GAME_STEF2) || defined(GAME_MOHAA) || defined(GAME_MOHSH) || defined(GAME_MOHBT) || defined(GAME_Q2R)
 	// mohaa: void (*SpawnEntities)(char *entstring, int levelTime);
 	// stef2: void (*SpawnEntities)(const char *mapname, const char *entstring, int levelTime);
+	// q2r:   void (*SpawnEntities)(const char *mapname, const char *entstring, const char *spawnpoint);
 	else if (cmd == GAME_SPAWN_ENTITIES) {
-#ifdef GAME_STEF2
+ #if defined(GAME_STEF2) || defined(GAME_Q2R)
 		const char* entstring = (const char*)args[1];
-#else
+ #else
 		const char* entstring = (const char*)args[0];
-#endif
+ #endif // STEF2
 		// some games can load new maps without unloading the mod
 		g_mapents.clear();
 
@@ -110,20 +112,20 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 		entstring = ents_generate_entstring(g_modents);
 
 		// replace entstring arg for passing to mod
-#ifdef GAME_STEF2
+ #if defined(GAME_STEF2) || defined(GAME_Q2R)
 		args[1] = (intptr_t)entstring;
-#else
+ #else
 		args[0] = (intptr_t)entstring;
-#endif
+ #endif
 
 		QMM_RET_IGNORED(1);
 	}
-#endif
+#endif // STEF2 || MOHAA || MOHSH || MOHBT || Q2R
 
 	QMM_RET_IGNORED(1);
 }
 
-#ifdef GAME_JAMP
+#if defined(GAME_JAMP)
 static int insubbsp = 0;
 #endif // GAME_JAMP
 
@@ -131,10 +133,10 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 #if defined(GAME_Q3A) || defined(GAME_RTCWMP) || defined(GAME_RTCWSP) || defined(GAME_JK2MP) || defined(GAME_JAMP) || defined(GAME_STVOYHM) || defined(GAME_WET)
 	// loop through the ent list and return a single token
 	if (cmd == G_GET_ENTITY_TOKEN
-#ifdef GAME_JAMP
+ #if defined(GAME_JAMP)
 		// if this is JAMP and we are in a sub bsp, don't handle this and let the engine handle it
 		&& !insubbsp
-#endif
+ #endif // JAMP
 		) {
 		char* entity = (char*)args[0];
 		intptr_t length = (intptr_t)args[1];
@@ -142,7 +144,7 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 		// don't pass this to engine since we already pulled all entities from the engine
 		QMM_RET_SUPERCEDE(ret);
 	}
-#endif // G_GET_ENTITY_TOKEN games
+#endif // Q3A || RTCWMP || RTCWSP || JK2MP || JAMP || STVOYHM || WET
 	QMM_RET_IGNORED(1);
 }
 
@@ -151,7 +153,7 @@ C_DLLEXPORT intptr_t QMM_vmMain_Post(intptr_t cmd, intptr_t* args) {
 }
 
 C_DLLEXPORT intptr_t QMM_syscall_Post(intptr_t cmd, intptr_t* args) {
-#ifdef GAME_JAMP
+#if defined(GAME_JAMP)
 	/* Jedi Academy has a feature where a "misc_bsp" map entity can have the engine load an entire map and load it into another map.
 	   This then triggers another round of G_GET_ENTITY_TOKEN which we must handle.
 	   The mod tells the engine that it should load a map with the trap_SetActiveSubBSP function:
@@ -174,7 +176,7 @@ C_DLLEXPORT intptr_t QMM_syscall_Post(intptr_t cmd, intptr_t* args) {
 	if (cmd == G_SET_ACTIVE_SUBBSP) {
 		insubbsp = (args[0] != -1);
 	}
-#endif // GAME_JAMP
+#endif // JAMP
 
 	QMM_RET_IGNORED(1);
 }
