@@ -40,10 +40,10 @@ extern std::vector<ent_t> g_replaceents;
 intptr_t ent_next_token(char* buf, intptr_t len);
 #endif // Q3A || RTCWMP || RTCWSP || JK2MP || JAMP || STVOYMH || WET
 
-#if defined(GAME_STEF2) || defined(GAME_MOHAA) || defined(GAME_MOHSH) || defined(GAME_MOHBT) || defined(GAME_Q2R)
+#if defined(GAME_STEF2) || defined(GAME_MOHAA) || defined(GAME_MOHSH) || defined(GAME_MOHBT) || defined(GAME_Q2R) || defined(GAME_QUAKE2)
 // generate an entstring to pass to the mod
 const char* ents_generate_entstring(std::vector<ent_t>& list);
-#endif // STEF2 || MOHAA || MOHSH || MOHBT || Q2R
+#endif // STEF2 || MOHAA || MOHSH || MOHBT || Q2R || QUAKE2
 
 // gets all the entity tokens from the engine
 void ents_load_tokens(std::vector<ent_t>& list, const char* entstring = nullptr);

@@ -74,7 +74,13 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 	// handle stripper_dump command
 	else if (cmd == GAME_CONSOLE_COMMAND) {
 		char buf[20];
-		QMM_ARGV(0, buf, sizeof(buf));
+// Quake 2 and Quake 2 Remastered use 1-based command arguments (presumably the 0th arg is "sv"?)
+#if defined(GAME_Q2R) || defined(GAME_QUAKE2)
+		int argn = 1;
+#else
+		int argn = 0;
+#endif // Q2R || QUAKE2
+		QMM_ARGV(argn, buf, sizeof(buf));
 		if (str_striequal(buf, "stripper_dump")) {
 			ents_dump_to_file(g_mapents, QMM_VARARGS("qmmaddons/stripper/dumps/%s.txt", QMM_GETSTRCVAR("mapname")));
 			ents_dump_to_file(g_modents, QMM_VARARGS("qmmaddons/stripper/dumps/%s_modents.txt", QMM_GETSTRCVAR("mapname")));
@@ -83,16 +89,17 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 		}
 	}
 // GetGameAPI games have to do all the loading and passing to mod here inside QMM_vmMain(GAME_SPAWNENTITIES)
-#if defined(GAME_STEF2) || defined(GAME_MOHAA) || defined(GAME_MOHSH) || defined(GAME_MOHBT) || defined(GAME_Q2R)
-	// mohaa: void (*SpawnEntities)(char *entstring, int levelTime);
-	// stef2: void (*SpawnEntities)(const char *mapname, const char *entstring, int levelTime);
-	// q2r:   void (*SpawnEntities)(const char *mapname, const char *entstring, const char *spawnpoint);
+#if defined(GAME_STEF2) || defined(GAME_MOHAA) || defined(GAME_MOHSH) || defined(GAME_MOHBT) || defined(GAME_Q2R) || defined(GAME_QUAKE2)
+	// moh??:  void (*SpawnEntities)(char *entstring, int levelTime);
+	// stef2:  void (*SpawnEntities)(const char *mapname, const char *entstring, int levelTime);
+	// quake2: void (*SpawnEntities)(const char *mapname, const char *entstring, const char *spawnpoint);
+	// q2r:    void (*SpawnEntities)(const char *mapname, const char *entstring, const char *spawnpoint);
 	else if (cmd == GAME_SPAWN_ENTITIES) {
- #if defined(GAME_STEF2) || defined(GAME_Q2R)
+ #if defined(GAME_STEF2) || defined(GAME_Q2R) || defined(GAME_QUAKE2)
 		const char* entstring = (const char*)args[1];
  #else
 		const char* entstring = (const char*)args[0];
- #endif // STEF2
+ #endif // STEF2 || Q2R || QUAKE2
 		// some games can load new maps without unloading the mod
 		g_mapents.clear();
 
@@ -112,7 +119,7 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 		entstring = ents_generate_entstring(g_modents);
 
 		// replace entstring arg for passing to mod
- #if defined(GAME_STEF2) || defined(GAME_Q2R)
+ #if defined(GAME_STEF2) || defined(GAME_Q2R) || defined(GAME_QUAKE2)
 		args[1] = (intptr_t)entstring;
  #else
 		args[0] = (intptr_t)entstring;
@@ -120,7 +127,7 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 
 		QMM_RET_IGNORED(1);
 	}
-#endif // STEF2 || MOHAA || MOHSH || MOHBT || Q2R
+#endif // STEF2 || MOHAA || MOHSH || MOHBT || Q2R || QUAKE2
 
 	QMM_RET_IGNORED(1);
 }

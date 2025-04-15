@@ -41,11 +41,11 @@ Created By:
 #elif defined(GAME_QUAKE2)
 #include <quake2/game/g_local.h>
 #include <game_quake2.h>
+#define CVAR_NORESTART 0
 #elif defined(GAME_Q2R)
 #include <q2r/rerelease/g_local.h>
 #include <game_q2r.h>
 #define CVAR_NORESTART 0
-typedef FILE* fileHandle_t;
 #endif
 
 #endif // __STRIPPER_QMM_GAME_H__
