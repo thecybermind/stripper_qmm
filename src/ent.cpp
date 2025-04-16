@@ -35,7 +35,7 @@ static void s_ents_add(std::vector<ent_t>& list, ent_t& addent);
 static void s_ents_replace(std::vector<ent_t>& list, ent_t& withent);
 // replaces all applicable keyvals on an ent
 static void s_ent_replace(ent_t& replaceent, ent_t& withent);
-#if defined(GAME_STEF2) || defined(GAME_MOHAA) || defined(GAME_MOHSH) || defined(GAME_MOHBT) || defined(GAME_Q2R) || defined(GAME_QUAKE2)
+#if !defined(GAME_VMMAIN)
 // get next token from entstring, write it into buf. return start of next token
 static const char* s_ent_load_token_from_str(const char* entstring, char* buf, size_t len);
 #endif
@@ -53,7 +53,7 @@ std::vector<ent_t> g_modents;
 std::vector<ent_t> g_replaceents;
 
 
-#if defined(GAME_Q3A) || defined(GAME_RTCWMP) || defined(GAME_RTCWSP) || defined(GAME_JK2MP) || defined(GAME_JAMP) || defined(GAME_STVOYHM) || defined(GAME_WET)
+#if defined(GAME_VMMAIN)
 // passes the next entity token to the mod
 intptr_t ent_next_token(char* buf, intptr_t len) {
 	// iterator for current ent
@@ -106,7 +106,7 @@ intptr_t ent_next_token(char* buf, intptr_t len) {
 #endif
 
 
-#if defined(GAME_STEF2) || defined(GAME_MOHAA) || defined(GAME_MOHSH) || defined(GAME_MOHBT) || defined(GAME_Q2R) || defined(GAME_QUAKE2)
+#if !defined(GAME_VMMAIN)
 // generate an entstring to pass to the mod
 const char* ents_generate_entstring(std::vector<ent_t>& list) {
 	static std::string str;
@@ -139,14 +139,14 @@ void ents_load_tokens(std::vector<ent_t>& list, const char* entstring) {
 
 	// loop through all tokens from engine
 	while (1) {
-#if defined(GAME_STEF2) || defined(GAME_MOHAA) || defined(GAME_MOHSH) || defined(GAME_MOHBT) || defined(GAME_Q2R) || defined(GAME_QUAKE2)
+#if defined(GAME_VMMAIN)
 		// get token, check for EOF
-		entstring = s_ent_load_token_from_str(entstring, buf, sizeof(buf));
-		if (!entstring)
+		if (!g_syscall(G_GET_ENTITY_TOKEN, buf, sizeof(buf)))
 			break;
 #else
 		// get token, check for EOF
-		if (!g_syscall(G_GET_ENTITY_TOKEN, buf, sizeof(buf)))
+		entstring = s_ent_load_token_from_str(entstring, buf, sizeof(buf));
+		if (!entstring)
 			break;
 #endif
 
@@ -223,18 +223,14 @@ void ents_dump_to_file(std::vector<ent_t>& list, std::string file) {
 }
 
 
-#if defined(GAME_MOHAA)
-#define G_FS_FOPEN_FILE_MSG G_FS_FOPEN_FILE_QMM
-#define G_FS_FCLOSE_FILE_MSG G_FS_FCLOSE_FILE_QMM
-#else
-#define G_FS_FOPEN_FILE_MSG G_FS_FOPEN_FILE
-#define G_FS_FCLOSE_FILE_MSG G_FS_FCLOSE_FILE
-#endif
-
 // load and parse config file
 void ent_load_config(std::string file) {
 	fileHandle_t f;
-	if (g_syscall(G_FS_FOPEN_FILE_MSG, file.c_str(), &f, FS_READ) < 0)
+#if defined(GAME_MOHAA)
+	if (g_syscall(G_FS_FOPEN_FILE_QMM, file.c_str(), &f, FS_READ) < 0)
+#else
+	if (g_syscall(G_FS_FOPEN_FILE, file.c_str(), &f, FS_READ) < 0)
+#endif
 		return;
 
 	// the current ent
@@ -342,9 +338,14 @@ void ent_load_config(std::string file) {
 		}
 	} // while(1)
 
-	g_syscall(G_FS_FCLOSE_FILE_MSG, f);
+#if defined(GAME_MOHAA)
+	g_syscall(G_FS_FCLOSE_FILE_QMM, f);
+#else
+	g_syscall(G_FS_FCLOSE_FILE, f);
+#endif
 	QMM_WRITEQMMLOG(QMM_VARARGS("Loaded %d filters, %d adds, and %d replaces from %s\n", num_filtered, num_added, num_replaced, file.c_str()), QMMLOG_INFO, "STRIPPER");
 }
+
 
 // return a string representation of an entity
 static std::string s_ent_tostring(ent_t& ent) {
@@ -355,6 +356,7 @@ static std::string s_ent_tostring(ent_t& ent) {
 	s[s.size() - 1] = '}';
 	return s;
 }
+
 
 // get a given value from an entity
 static std::string* s_ent_get_val(ent_t& ent, std::string key) {
@@ -425,7 +427,7 @@ static void s_ent_replace(ent_t& replaceent, ent_t& withent) {
 }
 
 
-#if defined(GAME_STEF2) || defined(GAME_MOHAA) || defined(GAME_MOHSH) || defined(GAME_MOHBT) || defined(GAME_Q2R) || defined(GAME_QUAKE2)
+#if !defined(GAME_VMMAIN)
 // get next token from entstring, write it into buf. return start of next token
 static const char* s_ent_load_token_from_str(const char* entstring, char* buf, size_t len) {
 	if (!entstring)
@@ -477,4 +479,4 @@ static const char* s_ent_load_token_from_str(const char* entstring, char* buf, s
 	// ??
 	return entstring + 1;
 }
-#endif // STEF2 || MOHAA || MOHSH || MOHBT || Q2R || QUAKE2
+#endif

@@ -53,7 +53,7 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 
 // G_GET_ENTITY_TOKEN games get entities and load configs here during QMM_vmMain(GAME_INIT)
 // entities are passed to the mod in QMM_syscall(G_GET_ENTITY_TOKEN)
-#if defined(GAME_Q3A) || defined(GAME_RTCWMP) || defined(GAME_RTCWSP) || defined(GAME_JK2MP) || defined(GAME_JAMP) || defined(GAME_STVOYHM) || defined(GAME_WET)
+#if defined(GAME_VMMAIN)
 		// some games can load new maps without unloading the mod
 		g_mapents.clear();
 
@@ -68,7 +68,7 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 
 		// load map-specific config
 		ent_load_config(QMM_VARARGS("qmmaddons/stripper/maps/%s.ini", QMM_GETSTRCVAR("mapname")));
-#endif // Q3A || RTCWMP || RTCWSP || JK2MP || JAMP || STVOYHM || WET
+#endif
 
 	}
 	// handle stripper_dump command
@@ -88,8 +88,8 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 			QMM_RET_SUPERCEDE(1);
 		}
 	}
-// GetGameAPI games have to do all the loading and passing to mod here inside QMM_vmMain(GAME_SPAWNENTITIES)
-#if defined(GAME_STEF2) || defined(GAME_MOHAA) || defined(GAME_MOHSH) || defined(GAME_MOHBT) || defined(GAME_Q2R) || defined(GAME_QUAKE2)
+// GetGameAPI games have to do all the loading here and passing to mod inside QMM_vmMain(GAME_SPAWNENTITIES)
+#if !defined(GAME_VMMAIN)
 	// moh??:  void (*SpawnEntities)(char *entstring, int levelTime);
 	// stef2:  void (*SpawnEntities)(const char *mapname, const char *entstring, int levelTime);
 	// quake2: void (*SpawnEntities)(const char *mapname, const char *entstring, const char *spawnpoint);
@@ -127,7 +127,7 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 
 		QMM_RET_IGNORED(1);
 	}
-#endif // STEF2 || MOHAA || MOHSH || MOHBT || Q2R || QUAKE2
+#endif
 
 	QMM_RET_IGNORED(1);
 }
@@ -137,7 +137,7 @@ static int insubbsp = 0;
 #endif // GAME_JAMP
 
 C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
-#if defined(GAME_Q3A) || defined(GAME_RTCWMP) || defined(GAME_RTCWSP) || defined(GAME_JK2MP) || defined(GAME_JAMP) || defined(GAME_STVOYHM) || defined(GAME_WET)
+#if defined(GAME_VMMAIN)
 	// loop through the ent list and return a single token
 	if (cmd == G_GET_ENTITY_TOKEN
  #if defined(GAME_JAMP)
@@ -151,7 +151,7 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 		// don't pass this to engine since we already pulled all entities from the engine
 		QMM_RET_SUPERCEDE(ret);
 	}
-#endif // Q3A || RTCWMP || RTCWSP || JK2MP || JAMP || STVOYHM || WET
+#endif
 	QMM_RET_IGNORED(1);
 }
 
