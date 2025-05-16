@@ -19,7 +19,7 @@ Created By: Kevin Masterson < cybermind@gmail.com >
 ### Configuration Files:
 There are 2 files loaded per map. One is the global configuration file that is loaded for every map, and the other is specific to the current map.
 
-The global configuration file is located at qmmaddons/stripper/global.ini and the map-specific file is located at qmmaddons/stripper/maps/[mapname].ini. ~A sample global.ini and q3dm1.ini are provided in the package.~
+The global configuration file is located at qmmaddons/stripper/global.ini and the map-specific file is located at qmmaddons/stripper/maps/[mapname].ini. A sample global.ini and q3dm1.ini are provided in the package.
 
 Configuration files have the following format:
 
