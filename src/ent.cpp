@@ -418,13 +418,15 @@ static const char* s_ent_load_token_from_str(const char* entstring, char* buf, s
 
 	// opening brace
 	if (*entstring == '{') {
-		strncpy(buf, "{", len);
+		strncpy(buf, "{", len - 1);
+		buf[len - 1] = '\0';
 		// return start of next token
 		return entstring + 1;
 	}
 	// closing brace
 	if (*entstring == '}') {
-		strncpy(buf, "}", len);
+		strncpy(buf, "}", len - 1);
+		buf[len - 1] = '\0';
 		// return start of next token
 		return entstring + 1;
 	}
