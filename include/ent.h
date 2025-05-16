@@ -15,7 +15,6 @@ Created By:
 #include <vector>
 #include <map>
 #include <string>
-#include "CLinkList.h"
 #include "game.h"
 
 // this represents a single entity

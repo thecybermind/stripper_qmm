@@ -18,7 +18,6 @@ Created By:
 
 #include "game.h"
 #include "ent.h"
-#include "CLinkList.h"
 #include "util.h"
 
 // returns true if "test" has all the same keyvals that "contains" has

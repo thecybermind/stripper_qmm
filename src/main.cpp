@@ -17,13 +17,13 @@ Created By:
 
 pluginres_t* g_result = NULL;
 plugininfo_t g_plugininfo = {
-	QMM_PIFV_MAJOR,						// plugin interface version major
-	QMM_PIFV_MINOR,						// plugin interface version minor
-	"Stripper",							// name of plugin
-	STRIPPER_QMM_VERSION,				// version of plugin
-	"Change map entities during load",	// description of plugin
-	STRIPPER_QMM_BUILDER,				// author of plugin
-	"http://www.q3mm.org/",				// website of plugin
+	QMM_PIFV_MAJOR,									// plugin interface version major
+	QMM_PIFV_MINOR,									// plugin interface version minor
+	"Stripper",										// name of plugin
+	STRIPPER_QMM_VERSION,							// version of plugin
+	"Change map entities during load",				// description of plugin
+	STRIPPER_QMM_BUILDER,							// author of plugin
+	"https://github.com/thecybermind/stripper_qmm", // website of plugin
 };
 eng_syscall_t g_syscall = NULL;
 mod_vmMain_t g_vmMain = NULL;
@@ -57,7 +57,7 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 		// some games can load new maps without unloading the mod
 		g_mapents.clear();
 
-		// get all the entity tokens from the engine and save to lists
+		// get all the entity tokens from the engine with G_GET_ENTITY_TOKEN and save to lists
 		ents_load_tokens(g_mapents);
 
 		// g_modents starts as a copy of g_mapents
@@ -88,7 +88,7 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 			QMM_RET_SUPERCEDE(1);
 		}
 	}
-// GetGameAPI games have to do all the loading here and passing to mod inside QMM_vmMain(GAME_SPAWNENTITIES)
+// GetGameAPI games have to do all the loading and passing to mod here inside QMM_vmMain(GAME_SPAWN_ENTITIES)
 #if !defined(GAME_VMMAIN)
 	// moh??:  void (*SpawnEntities)(char *entstring, int levelTime);
 	// stef2:  void (*SpawnEntities)(const char *mapname, const char *entstring, int levelTime);
@@ -100,6 +100,7 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
  #else
 		const char* entstring = (const char*)args[0];
  #endif // STEF2 || Q2R || QUAKE2
+
 		// some games can load new maps without unloading the mod
 		g_mapents.clear();
 
