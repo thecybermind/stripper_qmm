@@ -65,16 +65,16 @@ bool read_line(fileHandle_t f, std::string& out) {
 	}
 
 	// ltrim
-	int i = 0;
-	while (i < out.size() && std::isspace(out[i]))
-		++i;
-	out = out.substr(i);
+	unsigned int li = 0;
+	while (li < out.size() && std::isspace(out[li]))
+		++li;
+	out = out.substr(li);
 
 	// rtrim
-	i = out.size() - 1;
-	while (i >= 0 && std::isspace(out[i]))
-		i--;
-	out = out.substr(0, i + 1);
+	int ri = out.size() - 1;
+	while (ri >= 0 && std::isspace(out[ri]))
+		ri--;
+	out = out.substr(0, ri + 1);
 
 	return true;
 }

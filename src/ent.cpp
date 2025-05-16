@@ -444,7 +444,8 @@ static const char* s_ent_load_token_from_str(const char* entstring, char* buf, s
 		// mod in ents_generate_entstring
 		*(char*)quote = '\0';
 		// copy string into buf
-		strncpy(buf, entstring, len);
+		strncpy(buf, entstring, len - 1);
+		buf[len - 1] = '\0';
 		// if end is true, then there is no next token, so just return nullptr
 		if (end)
 			return nullptr;
