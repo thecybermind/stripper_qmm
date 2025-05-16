@@ -20,7 +20,7 @@ Created By:
 
 // this represents a single entity
 struct ent_t {
-	std::string classname;
+	std::string classname; // classname is stored when encountered for easier retrieval
 	std::map<std::string, std::string> keyvals;
 };
 

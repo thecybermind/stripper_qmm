@@ -49,10 +49,6 @@
       <Configuration>Debug-QUAKE2</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug-Q2R|Win32">
-      <Configuration>Debug-Q2R</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug-SOF2MP|Win32">
       <Configuration>Debug-SOF2MP</Configuration>
       <Platform>Win32</Platform>
@@ -103,10 +99,6 @@
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release-QUAKE2|Win32">
       <Configuration>Release-QUAKE2</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release-Q2R|Win32">
-      <Configuration>Release-Q2R</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release-SOF2MP|Win32">
@@ -166,7 +158,7 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Debug-SOF2MP|x64">
-      <Configuration>Debug-Q2R</Configuration>
+      <Configuration>Debug-SOF2MP</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release-Q3A|x64">
@@ -222,7 +214,7 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release-SOF2MP|x64">
-      <Configuration>Release-Q2R</Configuration>
+      <Configuration>Release-SOF2MP</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
@@ -331,11 +323,6 @@
     <ExternalIncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</ExternalIncludePath>
     <TargetName>$(ProjectName)_WET</TargetName>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Q2R|Win32'">
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
-    <ExternalIncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</ExternalIncludePath>
-    <TargetName>$(ProjectName)_Q2R</TargetName>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-QUAKE2|Win32'">
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <ExternalIncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</ExternalIncludePath>
@@ -400,11 +387,6 @@
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <ExternalIncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</ExternalIncludePath>
     <TargetName>$(ProjectName)_WET</TargetName>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Q2R|Win32'">
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
-    <ExternalIncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</ExternalIncludePath>
-    <TargetName>$(ProjectName)_Q2R</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-QUAKE2|Win32'">
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
@@ -829,13 +811,9 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <TreatAngleIncludeAsExternal Condition="'$(Configuration)|$(Platform)'=='Debug-Q2R|Win32'">true</TreatAngleIncludeAsExternal>
-      <ExternalWarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug-Q2R|Win32'">TurnOffAllWarnings</ExternalWarningLevel>
-      <DisableAnalyzeExternal Condition="'$(Configuration)|$(Platform)'=='Debug-Q2R|Win32'">true</DisableAnalyzeExternal>
       <TreatAngleIncludeAsExternal Condition="'$(Configuration)|$(Platform)'=='Debug-Q2R|x64'">true</TreatAngleIncludeAsExternal>
       <ExternalWarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug-Q2R|x64'">TurnOffAllWarnings</ExternalWarningLevel>
       <DisableAnalyzeExternal Condition="'$(Configuration)|$(Platform)'=='Debug-Q2R|x64'">true</DisableAnalyzeExternal>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug-Q2R|Win32'">../include;../../qmm_sdks;../../qmm2/include</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug-Q2R|x64'">../include;../../qmm_sdks;../../qmm2/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -1211,13 +1189,9 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <TreatAngleIncludeAsExternal Condition="'$(Configuration)|$(Platform)'=='Release-Q2R|Win32'">true</TreatAngleIncludeAsExternal>
-      <ExternalWarningLevel Condition="'$(Configuration)|$(Platform)'=='Release-Q2R|Win32'">TurnOffAllWarnings</ExternalWarningLevel>
-      <DisableAnalyzeExternal Condition="'$(Configuration)|$(Platform)'=='Release-Q2R|Win32'">true</DisableAnalyzeExternal>
       <TreatAngleIncludeAsExternal Condition="'$(Configuration)|$(Platform)'=='Release-Q2R|x64'">true</TreatAngleIncludeAsExternal>
       <ExternalWarningLevel Condition="'$(Configuration)|$(Platform)'=='Release-Q2R|x64'">TurnOffAllWarnings</ExternalWarningLevel>
       <DisableAnalyzeExternal Condition="'$(Configuration)|$(Platform)'=='Release-Q2R|x64'">true</DisableAnalyzeExternal>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release-Q2R|Win32'">../include;../../qmm_sdks;../../qmm2/include</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release-Q2R|x64'">../include;../../qmm_sdks;../../qmm2/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>

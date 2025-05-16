@@ -21,10 +21,6 @@ Created By:
 #include "CLinkList.h"
 #include "util.h"
 
-// return a string representation of an entity
-static std::string s_ent_tostring(ent_t& ent);
-// get a given value from an entity
-static std::string* s_ent_get_val(ent_t& ent, std::string key);
 // returns true if "test" has all the same keyvals that "contains" has
 static bool s_ent_match(ent_t& test, ent_t& contains);
 // removes all matching entities from list
@@ -347,33 +343,13 @@ void ent_load_config(std::string file) {
 }
 
 
-// return a string representation of an entity
-static std::string s_ent_tostring(ent_t& ent) {
-	std::string s = "{";
-	for (auto& keyval : ent.keyvals) {
-		s += "\"" + keyval.first + "\"=\"" + keyval.second + "\",";
-	}
-	s[s.size() - 1] = '}';
-	return s;
-}
-
-
-// get a given value from an entity
-static std::string* s_ent_get_val(ent_t& ent, std::string key) {
-	for (auto& keyval : ent.keyvals) {
-		if (keyval.first == key)
-			return &keyval.second;
-	}
-	return nullptr;
-}
-
-
-// returns true if "test" has all the same keyvals that "contains" has
+// returns true if "test" has at least all the same keyvals that "contains" has
 static bool s_ent_match(ent_t& test, ent_t& contains) {
 	for (auto& matchkeyval : contains.keyvals) {
-		std::string* val = s_ent_get_val(test, matchkeyval.first);
+		// look up match key in test ent
+		auto iter = test.keyvals.find(matchkeyval.first);
 		// if key doesn't exist on test, or val doesn't match
-		if (!val || *val != matchkeyval.second)
+		if (iter == test.keyvals.end() || iter->second != matchkeyval.second)
 			return false;
 	}
 	return true;
