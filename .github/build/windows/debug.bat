@@ -1,28 +1,20 @@
-msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-Q3A /p:Platform=x86
-msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-Q3A /p:Platform=x64
-msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-RTCWMP /p:Platform=x86
-msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-RTCWMP /p:Platform=x64
-msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-RTCWSP /p:Platform=x86
-msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-RTCWSP /p:Platform=x64
-msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-WET /p:Platform=x86
-msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-WET /p:Platform=x64
-msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-JAMP /p:Platform=x86
-msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-JAMP /p:Platform=x64
-msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-JK2MP /p:Platform=x86
-msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-JK2MP /p:Platform=x64
-msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-SOF2MP /p:Platform=x86
-msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-SOF2MP /p:Platform=x64
-msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-STVOYHM /p:Platform=x86
-msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-STVOYHM /p:Platform=x64
-msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-STEF2 /p:Platform=x86
-msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-STEF2 /p:Platform=x64
-msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-MOHAA /p:Platform=x86
-msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-MOHAA /p:Platform=x64
-msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-MOHBT /p:Platform=x86
-msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-MOHBT /p:Platform=x64
-msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-MOHSH /p:Platform=x86
-msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-MOHSH /p:Platform=x64
-msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-QUAKE2 /p:Platform=x86
-msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-QUAKE2 /p:Platform=x64
-rem msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-Q2R /p:Platform=x86
+for %%x in (
+        Q3A
+        RTCWMP
+		RTCWSP
+		WET
+		JAMP
+		JK2MP
+		SOF2MP
+		STVOYHM
+		STEF2
+		MOHAA
+		MOHBT
+		MOHSH
+		QUAKE2
+       ) do (
+         msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-%%x /p:Platform=x86
+         msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-%%x /p:Platform=x64
+       )
+
 msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-Q2R /p:Platform=x64
