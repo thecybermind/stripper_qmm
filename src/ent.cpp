@@ -30,10 +30,6 @@ static void s_ents_add(std::vector<ent_t>& list, ent_t& addent);
 static void s_ents_replace(std::vector<ent_t>& list, ent_t& withent);
 // replaces all applicable keyvals on an ent
 static void s_ent_replace(ent_t& replaceent, ent_t& withent);
-#if !defined(GAME_VMMAIN)
-// get next token from entstring, write it into buf. return start of next token
-static const char* s_ent_load_token_from_str(const char* entstring, char* buf, size_t len);
-#endif
 
 
 // this stores all the ents loaded from the map
@@ -48,7 +44,27 @@ std::vector<ent_t> g_modents;
 std::vector<ent_t> g_replaceents;
 
 
-#if defined(GAME_VMMAIN)
+#if defined(GAME_HAS_SPAWNENTS)
+// generate an entstring to pass to the mod
+const char* ents_generate_entstring(std::vector<ent_t>& list) {
+	static std::string str;
+	str = "";
+
+	for (auto& ent : list) {
+		str += "{\n";
+		for (auto& keyval : ent.keyvals) {
+			str += ("\"" + keyval.first + "\" \"" + keyval.second + "\"\n");
+		}
+		str += "}\n";
+	}
+
+	return str.c_str();
+}
+
+
+#else
+
+
 // passes the next entity token to the mod
 intptr_t ent_next_token(char* buf, intptr_t len) {
 	// iterator for current ent
@@ -98,26 +114,7 @@ intptr_t ent_next_token(char* buf, intptr_t len) {
 	
 	return 1;
 }
-#endif
-
-
-#if !defined(GAME_VMMAIN)
-// generate an entstring to pass to the mod
-const char* ents_generate_entstring(std::vector<ent_t>& list) {
-	static std::string str;
-	str = "";
-
-	for (auto& ent : list) {
-		str += "{\n";
-		for (auto& keyval : ent.keyvals) {
-			str += ("\"" + keyval.first + "\" \"" + keyval.second + "\"\n");
-		}
-		str += "}\n";
-	}
-
-	return str.c_str();
-}
-#endif
+#endif // GAME_HAS_SPAWNENTS
 
 
 // gets all the entity tokens from the engine and stores them in a list
@@ -134,16 +131,9 @@ void ents_load_tokens(std::vector<ent_t>& list, const char* entstring) {
 
 	// loop through all tokens from engine
 	while (1) {
-#if defined(GAME_VMMAIN)
 		// get token, check for EOF
 		if (!g_syscall(G_GET_ENTITY_TOKEN, buf, sizeof(buf)))
 			break;
-#else
-		// get token, check for EOF
-		entstring = s_ent_load_token_from_str(entstring, buf, sizeof(buf));
-		if (!entstring)
-			break;
-#endif
 
 		// got an opening brace while already inside an entity, error
 		if (buf[0] == '{' && inside_ent)
@@ -400,61 +390,3 @@ static void s_ent_replace(ent_t& replaceent, ent_t& withent) {
 		replaceent.keyvals[withkeyval.first] = withkeyval.second;
 	}
 }
-
-
-#if !defined(GAME_VMMAIN)
-// get next token from entstring, write it into buf. return start of next token
-static const char* s_ent_load_token_from_str(const char* entstring, char* buf, size_t len) {
-	if (!entstring)
-		return nullptr;
-
-	// eat whitespace
-	while (std::isspace(*entstring))
-		entstring++;
-
-	// end of string
-	if (!*entstring)
-		return nullptr;
-
-	// opening brace
-	if (*entstring == '{') {
-		strncpy(buf, "{", len - 1);
-		buf[len - 1] = '\0';
-		// return start of next token
-		return entstring + 1;
-	}
-	// closing brace
-	if (*entstring == '}') {
-		strncpy(buf, "}", len - 1);
-		buf[len - 1] = '\0';
-		// return start of next token
-		return entstring + 1;
-	}
-	// quote, this is a key or val. loop until the next "
-	if (*entstring == '"') {
-		entstring++;
-		bool end = false;
-		const char* quote = entstring;
-		// find next quote
-		while (*quote && *quote != '"')
-			quote++;
-		// just a small check to catch if the string abruptly ends in a key/val
-		if (!*quote)
-			end = true;
-		// oh nos! replace with null terminator. this avoids making a copy of this long string
-		// luckily this string doesn't get used again as we generate a new one to send to the
-		// mod in ents_generate_entstring
-		*(char*)quote = '\0';
-		// copy string into buf
-		strncpy(buf, entstring, len - 1);
-		buf[len - 1] = '\0';
-		// if end is true, then there is no next token, so just return nullptr
-		if (end)
-			return nullptr;
-		// return start of next token
-		return quote + 1;
-	}
-	// ??
-	return entstring + 1;
-}
-#endif

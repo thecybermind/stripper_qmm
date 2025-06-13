@@ -12,10 +12,10 @@ Created By:
 #ifndef __STRIPPER_QMM_ENT_H__
 #define __STRIPPER_QMM_ENT_H__
 
+#include "game.h"
 #include <vector>
 #include <map>
 #include <string>
-#include "game.h"
 
 // this represents a single entity
 struct ent_t {
@@ -34,15 +34,12 @@ extern std::vector<ent_t> g_modents;
 // nodes are read and removed from this list when a "with" entity is found
 extern std::vector<ent_t> g_replaceents;
 
-#if defined(GAME_VMMAIN)
-
-// passes the next entity token to the mod
-intptr_t ent_next_token(char* buf, intptr_t len);
-
-#else
-
+#if defined(GAME_HAS_SPAWNENTS)
 // generate an entstring to pass to the mod
 const char* ents_generate_entstring(std::vector<ent_t>& list);
+#else
+// passes the next entity token to the mod
+intptr_t ent_next_token(char* buf, intptr_t len);
 #endif
 
 // gets all the entity tokens from the engine

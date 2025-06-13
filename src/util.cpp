@@ -15,6 +15,7 @@ Created By:
 #include "game.h"
 #include "util.h"
 
+
 int str_stristr(std::string haystack, std::string needle) {
 	for (auto& c : haystack)
 		c = (char)std::tolower((unsigned char)c);
@@ -23,6 +24,7 @@ int str_stristr(std::string haystack, std::string needle) {
 
 	return haystack.find(needle) != std::string::npos;
 }
+
 
 int str_stricmp(std::string s1, std::string s2) {
 	for (auto& c : s1)
@@ -33,9 +35,11 @@ int str_stricmp(std::string s1, std::string s2) {
 	return s1.compare(s2);
 }
 
+
 int str_striequal(std::string s1, std::string s2) {
 	return str_stricmp(s1, s2) == 0;
 }
+
 
 // read a single line from a file handle. store in out string, return false if eof
 bool read_line(fileHandle_t f, std::string& out) {
@@ -71,7 +75,7 @@ bool read_line(fileHandle_t f, std::string& out) {
 	out = out.substr(li);
 
 	// rtrim
-	int ri = out.size() - 1;
+	int ri = (int)out.size() - 1;
 	while (ri >= 0 && std::isspace(out[ri]))
 		ri--;
 	out = out.substr(0, ri + 1);

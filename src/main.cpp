@@ -34,13 +34,16 @@ C_DLLEXPORT void QMM_Query(plugininfo_t** pinfo) {
 	QMM_GIVE_PINFO();
 }
 
+
 C_DLLEXPORT int QMM_Attach(eng_syscall_t engfunc, mod_vmMain_t modfunc, pluginres_t* presult, pluginfuncs_t* pluginfuncs, pluginvars_t* pluginvars) {
 	QMM_SAVE_VARS();
 	return 1;
 }
 
+
 C_DLLEXPORT void QMM_Detach() {
 }
+
 
 C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 	if (cmd == GAME_INIT) {
@@ -53,7 +56,7 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 
 // G_GET_ENTITY_TOKEN games get entities and load configs here during QMM_vmMain(GAME_INIT)
 // entities are passed to the mod in QMM_syscall(G_GET_ENTITY_TOKEN)
-#if defined(GAME_VMMAIN)
+#if !defined(GAME_HAS_SPAWNENTS)
 		// some games can load new maps without unloading the mod
 		g_mapents.clear();
 
@@ -69,7 +72,6 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 		// load map-specific config
 		ent_load_config(QMM_VARARGS("qmmaddons/stripper/maps/%s.ini", QMM_GETSTRCVAR("mapname")));
 #endif
-
 	}
 	// handle stripper_dump command
 	else if (cmd == GAME_CONSOLE_COMMAND) {
@@ -88,18 +90,21 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 			QMM_RET_SUPERCEDE(1);
 		}
 	}
+
 // GetGameAPI games have to do all the loading and passing to mod here inside QMM_vmMain(GAME_SPAWN_ENTITIES)
-#if !defined(GAME_VMMAIN)
+#if defined(GAME_HAS_SPAWNENTS)
 	// moh??:  void (*SpawnEntities)(char *entstring, int levelTime);
 	// stef2:  void (*SpawnEntities)(const char *mapname, const char *entstring, int levelTime);
 	// quake2: void (*SpawnEntities)(const char *mapname, const char *entstring, const char *spawnpoint);
 	// q2r:    void (*SpawnEntities)(const char *mapname, const char *entstring, const char *spawnpoint);
 	else if (cmd == GAME_SPAWN_ENTITIES) {
  #if defined(GAME_STEF2) || defined(GAME_Q2R) || defined(GAME_QUAKE2)
-		const char* entstring = (const char*)args[1];
+		int entarg = 1;
  #else
-		const char* entstring = (const char*)args[0];
+		int entarg = 0;
  #endif // STEF2 || Q2R || QUAKE2
+
+		const char* entstring = (const char*)args[entarg];
 
 		// some games can load new maps without unloading the mod
 		g_mapents.clear();
@@ -120,12 +125,8 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 		entstring = ents_generate_entstring(g_modents);
 
 		// replace entstring arg for passing to mod
- #if defined(GAME_STEF2) || defined(GAME_Q2R) || defined(GAME_QUAKE2)
-		args[1] = (intptr_t)entstring;
- #else
-		args[0] = (intptr_t)entstring;
- #endif
-
+ 		args[entarg] = (intptr_t)entstring;
+ 
 		QMM_RET_IGNORED(1);
 	}
 #endif
@@ -133,12 +134,13 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 	QMM_RET_IGNORED(1);
 }
 
+
 #if defined(GAME_JAMP)
 static int insubbsp = 0;
 #endif // GAME_JAMP
 
 C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
-#if defined(GAME_VMMAIN)
+#if !defined(GAME_HAS_SPAWNENTS)
 	// loop through the ent list and return a single token
 	if (cmd == G_GET_ENTITY_TOKEN
  #if defined(GAME_JAMP)
@@ -156,9 +158,11 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 	QMM_RET_IGNORED(1);
 }
 
+
 C_DLLEXPORT intptr_t QMM_vmMain_Post(intptr_t cmd, intptr_t* args) {
 	QMM_RET_IGNORED(1);
 }
+
 
 C_DLLEXPORT intptr_t QMM_syscall_Post(intptr_t cmd, intptr_t* args) {
 #if defined(GAME_JAMP)
