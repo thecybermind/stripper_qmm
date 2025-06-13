@@ -187,11 +187,7 @@ void ents_load_tokens(std::vector<ent_t>& list, const char* entstring) {
 // outputs ent list to a file
 void ents_dump_to_file(std::vector<ent_t>& list, std::string file) {
 	fileHandle_t f;
-#if defined(GAME_MOHAA)
-	if (!(f = g_syscall(G_FS_FOPEN_FILE_WRITE, file.c_str()))) {
-#else
 	if (g_syscall(G_FS_FOPEN_FILE, file.c_str(), &f, FS_WRITE) < 0) {
-#endif
 		QMM_WRITEQMMLOG(QMM_VARARGS("Unable to write ent dump to %s\n", file.c_str()), QMMLOG_INFO, "STRIPPER");
 		return;
 	}
@@ -212,11 +208,14 @@ void ents_dump_to_file(std::vector<ent_t>& list, std::string file) {
 void ent_load_config(std::string file) {
 	fileHandle_t f;
 #if defined(GAME_MOHAA)
-	if (g_syscall(G_FS_FOPEN_FILE_QMM, file.c_str(), &f, FS_READ) < 0)
+	int cmdopen = G_FS_FOPEN_FILE_QMM;
+	int cmdclose = G_FS_FCLOSE_FILE_QMM;
 #else
-	if (g_syscall(G_FS_FOPEN_FILE, file.c_str(), &f, FS_READ) < 0)
+	int cmdopen = G_FS_FOPEN_FILE;
+	int cmdclose = G_FS_FCLOSE_FILE;
 #endif
-		return;
+	if (g_syscall(cmdopen, file.c_str(), &f, FS_READ) < 0)
+			return;
 
 	// the current ent
 	ent_t ent;
@@ -323,11 +322,8 @@ void ent_load_config(std::string file) {
 		}
 	} // while(1)
 
-#if defined(GAME_MOHAA)
-	g_syscall(G_FS_FCLOSE_FILE_QMM, f);
-#else
-	g_syscall(G_FS_FCLOSE_FILE, f);
-#endif
+	g_syscall(cmdclose, f);
+
 	QMM_WRITEQMMLOG(QMM_VARARGS("Loaded %d filters, %d adds, and %d replaces from %s\n", num_filtered, num_added, num_replaced, file.c_str()), QMMLOG_INFO, "STRIPPER");
 }
 

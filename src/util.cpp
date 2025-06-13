@@ -45,10 +45,11 @@ int str_striequal(std::string s1, std::string s2) {
 bool read_line(fileHandle_t f, std::string& out) {
 	char buf = -1;
 #if defined(GAME_MOHAA)
-	g_syscall(G_FS_READ_QMM, &buf, 1, f);
+	int cmdread = G_FS_READ_QMM;
 #else
-	g_syscall(G_FS_READ, &buf, 1, f);
+	int cmdread = G_FS_READ;
 #endif
+	g_syscall(cmdread, &buf, 1, f);
 	if (buf == -1)
 		return false;
 
@@ -61,11 +62,7 @@ bool read_line(fileHandle_t f, std::string& out) {
 			break;
 
 		buf = -1;
-#if defined(GAME_MOHAA)
-		g_syscall(G_FS_READ_QMM, &buf, 1, f);
-#else
-		g_syscall(G_FS_READ, &buf, 1, f);
-#endif
+		g_syscall(cmdread, &buf, 1, f);
 	}
 
 	// ltrim
