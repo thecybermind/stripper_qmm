@@ -43,7 +43,7 @@ intptr_t ent_next_token(char* buf, intptr_t len);
 #endif
 
 // gets all the entity tokens from the engine
-void ents_load_tokens(std::vector<ent_t>& list, const char* entstring = nullptr);
+void ents_load_tokens(std::vector<ent_t>& list);
 
 // outputs ent list to a file
 void ents_dump_to_file(std::vector<ent_t>& list, std::string file);

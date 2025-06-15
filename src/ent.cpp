@@ -118,7 +118,7 @@ intptr_t ent_next_token(char* buf, intptr_t len) {
 
 
 // gets all the entity tokens from the engine and stores them in a list
-void ents_load_tokens(std::vector<ent_t>& list, const char* entstring) {
+void ents_load_tokens(std::vector<ent_t>& list) {
 	// the current ent
 	ent_t ent;
 	// store key. when a val is received, make a new entry into ent
