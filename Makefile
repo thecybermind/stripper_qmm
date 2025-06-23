@@ -49,6 +49,13 @@ help:
 	@echo debug: debug32 debug64
 	@echo debug32: [32-bit debug builds]
 	@echo debug64: [64-bit debug builds]
+	@echo game-[GAME]: release-[GAME] debug-[GAME]
+	@echo release-[GAME]: release32-[GAME] release64-[GAME]
+	@echo debug-[GAME]: debug32-[GAME] debug64-[GAME]
+	@echo release32-[GAME]: [32-bit release build for GAME]
+	@echo release64-[GAME]: [64-bit release build for GAME]
+	@echo debug32-[GAME]: [32-bit debug build for GAME]
+	@echo debug64-[GAME]: [64-bit release build for GAME]
 	
 all: release debug
 release: release32 release64
