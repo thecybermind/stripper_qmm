@@ -38,8 +38,18 @@ REL_LDFLAGS_64 := $(LDFLAGS)
 DBG_LDFLAGS_32 := $(LDFLAGS) -m32 -g -pg
 DBG_LDFLAGS_64 := $(LDFLAGS) -g -pg
 
-.PHONY: all clean release debug release32 debug32 release64 debug64 $(addprefix game-,$(GAMES)) $(addprefix release-,$(GAMES)) $(addprefix debug-,$(GAMES))
+.PHONY: help all clean release debug release32 debug32 release64 debug64 $(addprefix game-,$(GAMES)) $(addprefix release-,$(GAMES)) $(addprefix debug-,$(GAMES))
 
+help:
+	@echo make targets:
+	@echo all: release debug
+	@echo release: release32 release64
+	@echo release32: [32-bit release builds]
+	@echo release64: [64-bit release builds]
+	@echo debug: debug32 debug64
+	@echo debug32: [32-bit debug builds]
+	@echo debug64: [64-bit debug builds]
+	
 all: release debug
 release: release32 release64
 release32: $(addprefix release32-,$(GAMES))
