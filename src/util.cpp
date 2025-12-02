@@ -9,6 +9,7 @@ Created By:
 
 */
 
+#define _CRT_SECURE_NO_WARNINGS 1
 #include "version.h"
 #include <string>
 #include <qmmapi.h>
@@ -38,6 +39,14 @@ int str_stricmp(std::string s1, std::string s2) {
 
 int str_striequal(std::string s1, std::string s2) {
 	return str_stricmp(s1, s2) == 0;
+}
+
+
+// "safe" strncpy that always null-terminates
+char* strncpyz(char* dest, const char* src, std::size_t count) {
+	char* ret = strncpy(dest, src, count);
+	dest[count - 1] = '\0';
+	return ret;
 }
 
 

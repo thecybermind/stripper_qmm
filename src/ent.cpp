@@ -9,7 +9,6 @@ Created By:
 
 */
 
-#define _CRT_SECURE_NO_WARNINGS 1
 #include "version.h"
 #include <qmmapi.h>
 #include <stdio.h>
@@ -86,7 +85,7 @@ intptr_t ent_next_token(char* buf, intptr_t len) {
 		inside_ent = true;
 		is_key = true;
 		it_keyval = it_ent->keyvals.begin();
-		strncpy(buf, "{", len);
+		strncpyz(buf, "{", len);
 	}
 	// if we are inside an ent
 	else {
@@ -95,12 +94,12 @@ intptr_t ent_next_token(char* buf, intptr_t len) {
 			// if we need to send a key
 			if (is_key) {
 				is_key = false;
-				strncpy(buf, it_keyval->first.c_str(), len);
+				strncpyz(buf, it_keyval->first.c_str(), len);
 			}
 			// if we need to send a val
 			else {
 				is_key = true;
-				strncpy(buf, it_keyval->second.c_str(), len);
+				strncpyz(buf, it_keyval->second.c_str(), len);
 				++it_keyval;
 			}
 		}
@@ -108,7 +107,7 @@ intptr_t ent_next_token(char* buf, intptr_t len) {
 		else {
 			inside_ent = false;
 			++it_ent;
-			strncpy(buf, "}", len);
+			strncpyz(buf, "}", len);
 		}
 	}
 	
