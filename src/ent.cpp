@@ -70,10 +70,10 @@ intptr_t ent_next_token(char* buf, intptr_t len) {
 	// iterator for current ent
 	static std::vector<ent_t>::iterator it_ent = g_modents.begin();
 
-	// pointer to current keyval
+	// iterator for current keyval
 	static decltype(ent_t::keyvals)::iterator it_keyval;
 
-	// keep track of 
+	// keep track of token status
 	static bool inside_ent = false;	// false = between ents, true = inside an ent
 	static bool is_key = true;		// true = expecting key, false = expecting val
 
