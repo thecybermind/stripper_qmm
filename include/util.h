@@ -14,6 +14,7 @@ Created By:
 
 #include <stdio.h>
 
+std::string str_tolower(std::string str);
 int str_stristr(std::string haystack, std::string needle);
 int str_stricmp(std::string s1, std::string s2);
 int str_striequal(std::string s1, std::string s2);
