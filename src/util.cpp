@@ -11,8 +11,8 @@ Created By:
 
 #define _CRT_SECURE_NO_WARNINGS 1
 #include "version.h"
-#include <string>
 #include <qmmapi.h>
+#include <string>
 #include "game.h"
 #include "util.h"
 

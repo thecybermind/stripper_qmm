@@ -21,6 +21,10 @@
       <Configuration>Debug-JK2MP</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug-JK2SP|Win32">
+      <Configuration>Debug-JK2SP</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug-JAMP|Win32">
       <Configuration>Debug-JAMP</Configuration>
       <Platform>Win32</Platform>
@@ -73,6 +77,10 @@
       <Configuration>Release-JK2MP</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Release-JK2SP|Win32">
+      <Configuration>Release-JK2SP</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release-JAMP|Win32">
       <Configuration>Release-JAMP</Configuration>
       <Platform>Win32</Platform>
@@ -123,6 +131,10 @@
     </ProjectConfiguration>
     <ProjectConfiguration Include="Debug-JK2MP|x64">
       <Configuration>Debug-JK2MP</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+     <ProjectConfiguration Include="Debug-JK2SP|x64">
+      <Configuration>Debug-JK2SP</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Debug-JAMP|x64">
@@ -179,6 +191,10 @@
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release-JK2MP|x64">
       <Configuration>Release-JK2MP</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release-JK2SP|x64">
+      <Configuration>Release-JK2SP</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release-JAMP|x64">
@@ -276,6 +292,9 @@
   <PropertyGroup Condition="$(Platform)=='Win32' And $(Configuration.EndsWith('-JK2MP'))==true">
     <TargetName>$(ProjectName)_JK2MP</TargetName>
   </PropertyGroup>
+  <PropertyGroup Condition="$(Platform)=='Win32' And $(Configuration.EndsWith('-JK2SP'))==true">
+    <TargetName>$(ProjectName)_JK2SP</TargetName>
+  </PropertyGroup>
   <PropertyGroup Condition="$(Platform)=='Win32' And $(Configuration.EndsWith('-MOHAA'))==true">
     <TargetName>$(ProjectName)_MOHAA</TargetName>
   </PropertyGroup>
@@ -314,6 +333,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-JK2MP'))==true">
     <TargetName>$(ProjectName)_x86_64_JK2MP</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-JK2SP'))==true">
+    <TargetName>$(ProjectName)_x86_64_JK2SP</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-MOHAA'))==true">
     <TargetName>$(ProjectName)_x86_64_MOHAA</TargetName>
@@ -413,6 +435,11 @@
   <ItemDefinitionGroup Condition="$(Configuration.EndsWith('-JK2MP'))==true">
     <ClCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);GAME_JK2MP</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="$(Configuration.EndsWith('-JK2SP'))==true">
+    <ClCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);GAME_JK2SP</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="$(Configuration.EndsWith('-JAMP'))==true">

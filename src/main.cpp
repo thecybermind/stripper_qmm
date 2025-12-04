@@ -72,7 +72,7 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 
 		// load map-specific config
 		ent_load_config(QMM_VARARGS("qmmaddons/stripper/maps/%s.ini", QMM_GETSTRCVAR("mapname")));
-#endif
+#endif // !GAME_HAS_SPAWNENTS
 	}
 	// handle stripper_dump command
 	else if (cmd == GAME_CONSOLE_COMMAND) {
@@ -92,16 +92,19 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 		}
 	}
 
-// games with a GAME_SPAWN_ENTITIES msg load configs here during QMM_vmMain(GAME_SPAWN_ENTITIES).
-// entities are passed to the mod by changing the entstring parameter.
-// QMM gets the entities and stores them for returning in a G_GET_ENTITY_TOKEN polyfill
+	// games with a GAME_SPAWN_ENTITIES msg load configs here during QMM_vmMain(GAME_SPAWN_ENTITIES).
+	// entities are passed to the mod by changing the entstring parameter.
+	// QMM gets the entities and stores them for returning in a G_GET_ENTITY_TOKEN polyfill
 #if defined(GAME_HAS_SPAWNENTS)
 	// moh??:  void (*SpawnEntities)(char *entstring, int levelTime);
 	// stef2:  void (*SpawnEntities)(const char *mapname, const char *entstring, int levelTime);
 	// quake2: void (*SpawnEntities)(const char *mapname, const char *entstring, const char *spawnpoint);
 	// q2r:    void (*SpawnEntities)(const char *mapname, const char *entstring, const char *spawnpoint);
-	else if (cmd == GAME_SPAWN_ENTITIES) {
- 		// some games can load new maps without unloading the mod
+	// jk2sp:  void (*Init)(const char *mapname, const char *spawntarget, int checkSum, const char *entstring, int levelTime, int randomSeed, int globalTime, SavedGameJustLoaded_e eSavedGameJustLoaded, qboolean qbLoadTransition);
+
+	// specifically not "else if" since in JK2SP, GAME_SPAWN_ENTITIES = GAME_INIT
+	if (cmd == GAME_SPAWN_ENTITIES) {
+		// some games can load new maps without unloading the mod DLL
 		g_mapents.clear();
 
 		// get all the entity tokens from the engine and save to g_mapents
@@ -121,14 +124,16 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 
 #if defined(GAME_STEF2) || defined(GAME_Q2R) || defined(GAME_QUAKE2)
 		int entarg = 1;
+#elif defined(GAME_JK2SP)
+		int entarg = 3;
+#elif defined(GAME_MOHAA) || defined(GAME_MOHSH) || defined(GAME_MOHBT)
+		int entarg = 0;
 #else
 		int entarg = 0;
 #endif
 
 		// replace entstring arg for passing to mod
 		args[entarg] = (intptr_t)entstring;
- 
-		QMM_RET_IGNORED(1);
 	}
 #endif
 

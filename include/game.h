@@ -20,6 +20,12 @@ Created By:
     #include <rtcwsp/game/g_local.h>
 #elif defined(GAME_JK2MP)
     #include <jk2mp/game/g_local.h>
+#elif defined(GAME_JK2SP)
+    #include <jk2sp/game/q_shared.h>
+    #include <jk2sp/game/g_local.h>
+    #include <jk2sp/game/bg_public.h>
+    #include <game_jk2sp.h>
+    #define GAME_HAS_SPAWNENTS
 #elif defined(GAME_JAMP)
     #include <jamp/game/g_local.h>
 #elif defined(GAME_WET)
