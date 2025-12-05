@@ -49,8 +49,7 @@ C_DLLEXPORT void QMM_Detach() {
 C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 	if (cmd == GAME_INIT) {
 		// init msg
-		QMM_WRITEQMMLOG("Stripper v" STRIPPER_QMM_VERSION " by " STRIPPER_QMM_BUILDER " is loaded\n", QMMLOG_INFO, "STRIPPER");
-
+		QMM_WRITEQMMLOG(QMM_VARARGS("Stripper v" STRIPPER_QMM_VERSION " (%s) by " STRIPPER_QMM_BUILDER " is loaded\n", QMM_GETGAMEENGINE()), QMMLOG_INFO, "STRIPPER");
 		// register cvar
 		g_syscall(G_CVAR_REGISTER, nullptr, "stripper_version", STRIPPER_QMM_VERSION, CVAR_ROM | CVAR_SERVERINFO | CVAR_NORESTART);
 		g_syscall(G_CVAR_SET, "stripper_version", STRIPPER_QMM_VERSION);
@@ -94,15 +93,17 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 
 	// games with a GAME_SPAWN_ENTITIES msg load configs here during QMM_vmMain(GAME_SPAWN_ENTITIES).
 	// entities are passed to the mod by changing the entstring parameter.
-	// QMM gets the entities and stores them for returning in a G_GET_ENTITY_TOKEN polyfill
+	// QMM also gets the entities and stores them for returning in a G_GET_ENTITY_TOKEN polyfill
 #if defined(GAME_HAS_SPAWNENTS)
-	// moh??:  void (*SpawnEntities)(char *entstring, int levelTime);
-	// stef2:  void (*SpawnEntities)(const char *mapname, const char *entstring, int levelTime);
-	// quake2: void (*SpawnEntities)(const char *mapname, const char *entstring, const char *spawnpoint);
-	// q2r:    void (*SpawnEntities)(const char *mapname, const char *entstring, const char *spawnpoint);
-	// jk2sp:  void (*Init)(const char *mapname, const char *spawntarget, int checkSum, const char *entstring, int levelTime, int randomSeed, int globalTime, SavedGameJustLoaded_e eSavedGameJustLoaded, qboolean qbLoadTransition);
+	// moh??:   void (*SpawnEntities)(char *entstring, int levelTime);
+	// stef2:   void (*SpawnEntities)(const char *mapname, const char *entstring, int levelTime);
+	// quake2:  void (*SpawnEntities)(const char *mapname, const char *entstring, const char *spawnpoint);
+	// q2r:     void (*SpawnEntities)(const char *mapname, const char *entstring, const char *spawnpoint);
+	// jk2sp:   void (*Init)(const char *mapname, const char *spawntarget, int checkSum, const char *entstring, int levelTime, int randomSeed, int globalTime, SavedGameJustLoaded_e eSavedGameJustLoaded, qboolean qbLoadTransition);
+	// jasp:    void (*Init)(const char *mapname, const char *spawntarget, int checkSum, const char *entstring, int levelTime, int randomSeed, int globalTime, SavedGameJustLoaded_e eSavedGameJustLoaded, qboolean qbLoadTransition);
+	// stvoysp: void (*Init)(const char *mapname, const char *spawntarget, int checkSum, const char *entstring, int levelTime, int randomSeed, int globalTime, SavedGameJustLoaded_e eSavedGameJustLoaded, qboolean qbLoadTransition);
 
-	// specifically not "else if" since in JK2SP, GAME_SPAWN_ENTITIES = GAME_INIT
+	// specifically not "else if" since in JK2SP/JASP/STVOYSP, GAME_SPAWN_ENTITIES is really just an alias for GAME_INIT
 	if (cmd == GAME_SPAWN_ENTITIES) {
 		// some games can load new maps without unloading the mod DLL
 		g_mapents.clear();
@@ -124,7 +125,7 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 
 #if defined(GAME_STEF2) || defined(GAME_Q2R) || defined(GAME_QUAKE2)
 		int entarg = 1;
-#elif defined(GAME_JK2SP)
+#elif defined(GAME_JK2SP) || defined(GAME_JASP) || defined(GAME_STVOYSP)
 		int entarg = 3;
 #elif defined(GAME_MOHAA) || defined(GAME_MOHSH) || defined(GAME_MOHBT)
 		int entarg = 0;
@@ -141,18 +142,18 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 }
 
 
-#if defined(GAME_JAMP)
+#if defined(GAME_HAS_SUBBSP)
 static int insubbsp = 0;
-#endif // GAME_JAMP
+#endif // GAME_HAS_SUBBSP
 
 C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 #if !defined(GAME_HAS_SPAWNENTS)
 	// loop through the ent list and return a single token
 	if (cmd == G_GET_ENTITY_TOKEN
- #if defined(GAME_JAMP)
-		// if this is JAMP and we are in a sub bsp, don't handle this and let the engine handle it
+ #if defined(GAME_HAS_SUBBSP)
+		// if this is JAMP/JASP and we are in a sub bsp, don't handle this and let the engine handle it
 		&& !insubbsp
- #endif // JAMP
+ #endif // GAME_HAS_SUBBSP
 		) {
 		char* entity = (char*)args[0];
 		intptr_t length = (intptr_t)args[1];
@@ -171,7 +172,7 @@ C_DLLEXPORT intptr_t QMM_vmMain_Post(intptr_t cmd, intptr_t* args) {
 
 
 C_DLLEXPORT intptr_t QMM_syscall_Post(intptr_t cmd, intptr_t* args) {
-#if defined(GAME_JAMP)
+#if defined(GAME_HAS_SUBBSP)
 	/* Jedi Academy has a feature where a "misc_bsp" map entity can have the engine load an entire map and load it into another map.
 	   This then triggers another round of G_GET_ENTITY_TOKEN which we must handle.
 	   The mod tells the engine that it should load a map with the trap_SetActiveSubBSP function:
@@ -194,7 +195,7 @@ C_DLLEXPORT intptr_t QMM_syscall_Post(intptr_t cmd, intptr_t* args) {
 	if (cmd == G_SET_ACTIVE_SUBBSP) {
 		insubbsp = (args[0] != -1);
 	}
-#endif // JAMP
+#endif // GAME_HAS_SUBBSP
 
 	QMM_RET_IGNORED(1);
 }

@@ -28,10 +28,24 @@ Created By:
     #define GAME_HAS_SPAWNENTS
 #elif defined(GAME_JAMP)
     #include <jamp/game/g_local.h>
+    #define GAME_HAS_SUBBSP
+#elif defined(GAME_JASP)
+    #include <jasp/game/q_shared.h>
+    #include <jasp/game/g_local.h>
+    #include <jasp/game/bg_public.h>
+    #include <game_jasp.h>
+    #define GAME_HAS_SPAWNENTS
+    #define GAME_HAS_SUBBSP
 #elif defined(GAME_WET)
     #include <wet/game/g_local.h>
 #elif defined(GAME_STVOYHM)
     #include <stvoyhm/game/g_local.h>
+#elif defined(GAME_STVOYSP)
+    #include <stvoysp/game/q_shared.h>
+    #include <stvoysp/game/g_local.h>
+    #include <stvoysp/game/bg_public.h>
+    #include <game_stvoysp.h>
+    #define GAME_HAS_SPAWNENTS
 #elif defined(GAME_SOF2MP)
     #include <sof2mp/game/g_local.h>
 #elif defined(GAME_STEF2)
