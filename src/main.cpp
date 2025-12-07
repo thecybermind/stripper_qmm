@@ -173,8 +173,9 @@ C_DLLEXPORT intptr_t QMM_vmMain_Post(intptr_t cmd, intptr_t* args) {
 
 C_DLLEXPORT intptr_t QMM_syscall_Post(intptr_t cmd, intptr_t* args) {
 #if defined(GAME_HAS_SUBBSP)
-	/* Jedi Academy has a feature where a "misc_bsp" map entity can have the engine load an entire map and load it into another map.
-	   This then triggers another round of G_GET_ENTITY_TOKEN which we must handle.
+	/* Jedi Academy multiplayer has a feature where a "misc_bsp" map entity can have the engine load an entire map and load it into
+	   another map. This then triggers another round of G_GET_ENTITY_TOKEN which we must handle.
+	   
 	   The mod tells the engine that it should load a map with the trap_SetActiveSubBSP function:
 
 	      void trap_SetActiveSubBSP(int index)
@@ -191,6 +192,10 @@ C_DLLEXPORT intptr_t QMM_syscall_Post(intptr_t cmd, intptr_t* args) {
 
 	   In the future, we should check for misc_bsp entities during ents_load_tokens and pull the entities ourselves, storing them
 	   in other lists per misc_bsp entity.
+	*/
+	/* Jedi Academy singleplayer also has a SetActiveSubBSP engine function but it also just returns the subbsp entstring directly
+	   for the mod to parse just like the main one passed to Init. There is no need to track the index/status like for multiplayer.
+	   We should probably parse and store the entstring eventually, just like with multiplayer comment above.
 	*/
 	if (cmd == G_SET_ACTIVE_SUBBSP) {
 		insubbsp = (args[0] != -1);

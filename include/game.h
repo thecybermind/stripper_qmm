@@ -35,7 +35,7 @@ Created By:
     #include <jasp/game/bg_public.h>
     #include <game_jasp.h>
     #define GAME_HAS_SPAWNENTS
-    #define GAME_HAS_SUBBSP
+    // #define GAME_HAS_SUBBSP  // see second big comment in QMM_syscall_Post
 #elif defined(GAME_WET)
     #include <wet/game/g_local.h>
 #elif defined(GAME_STVOYHM)
