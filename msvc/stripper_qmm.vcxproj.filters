@@ -15,16 +15,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\version.h">
+    <ClInclude Include="..\include\ent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\ent.h">
+    <ClInclude Include="..\include\game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\game.h">
+    <ClInclude Include="..\include\version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
