@@ -49,7 +49,7 @@ C_DLLEXPORT void QMM_Detach() {
 C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 	if (cmd == GAME_INIT) {
 		// init msg
-		QMM_WRITEQMMLOG(QMM_VARARGS("Stripper v" STRIPPER_QMM_VERSION " (%s) by " STRIPPER_QMM_BUILDER " is loaded\n", QMM_GETGAMEENGINE()), QMMLOG_INFO, "STRIPPER");
+		QMM_WRITEQMMLOG(QMM_VARARGS("Stripper v" STRIPPER_QMM_VERSION " (%s) by " STRIPPER_QMM_BUILDER " is loaded\n", QMM_GETGAMEENGINE()), QMMLOG_NOTICE, "STRIPPER");
 		// register cvar
 		g_syscall(G_CVAR_REGISTER, nullptr, "stripper_version", STRIPPER_QMM_VERSION, CVAR_ROM | CVAR_SERVERINFO | CVAR_NORESTART);
 		g_syscall(G_CVAR_SET, "stripper_version", STRIPPER_QMM_VERSION);
@@ -61,16 +61,28 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 		g_mapents.clear();
 
 		// get all the entity tokens from the engine with G_GET_ENTITY_TOKEN and save to lists
+		QMM_WRITEQMMLOG("Parsing entity list", QMMLOG_DEBUG, "STRIPPER");
 		ents_load_tokens(g_mapents);
+
+		// check for valid entity list
+		if (!g_mapents.size()) {
+			QMM_WRITEQMMLOG("Empty ent list from engine. Possibly trailer/menu?", QMMLOG_INFO, "STRIPPER");
+			QMM_RET_IGNORED(1);
+		}
 
 		// g_modents starts as a copy of g_mapents
 		g_modents = g_mapents;
 
 		// load global config
+		QMM_WRITEQMMLOG("Loading global config", QMMLOG_DEBUG, "STRIPPER");
 		ent_load_config("qmmaddons/stripper/global.ini");
 
 		// load map-specific config
+		QMM_WRITEQMMLOG(QMM_VARARGS("Loading map-specific config: %s", QMM_GETSTRCVAR("mapname")), QMMLOG_DEBUG, "STRIPPER");
 		ent_load_config(QMM_VARARGS("qmmaddons/stripper/maps/%s.ini", QMM_GETSTRCVAR("mapname")));
+
+		QMM_WRITEQMMLOG("Stripper loading complete.\n", QMMLOG_NOTICE, "STRIPPER");
+
 #endif // !GAME_HAS_SPAWNENTS
 	}
 	// handle stripper_dump command
@@ -93,36 +105,17 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 
 	// games with a GAME_SPAWN_ENTITIES msg load configs here during QMM_vmMain(GAME_SPAWN_ENTITIES).
 	// entities are passed to the mod by changing the entstring parameter.
-	// QMM also gets the entities and stores them for returning in a G_GET_ENTITY_TOKEN polyfill
+	// QMM also gets the entities and allows you to call G_GET_ENTITY_TOKEN to retrieve them in ents_load_tokens()
 #if defined(GAME_HAS_SPAWNENTS)
-	// moh??:   void (*SpawnEntities)(char *entstring, int levelTime);
-	// stef2:   void (*SpawnEntities)(const char *mapname, const char *entstring, int levelTime);
-	// quake2:  void (*SpawnEntities)(const char *mapname, const char *entstring, const char *spawnpoint);
-	// q2r:     void (*SpawnEntities)(const char *mapname, const char *entstring, const char *spawnpoint);
-	// jk2sp:   void (*Init)(const char *mapname, const char *spawntarget, int checkSum, const char *entstring, int levelTime, int randomSeed, int globalTime, SavedGameJustLoaded_e eSavedGameJustLoaded, qboolean qbLoadTransition);
-	// jasp:    void (*Init)(const char *mapname, const char *spawntarget, int checkSum, const char *entstring, int levelTime, int randomSeed, int globalTime, SavedGameJustLoaded_e eSavedGameJustLoaded, qboolean qbLoadTransition);
-	// stvoysp: void (*Init)(const char *mapname, const char *spawntarget, int checkSum, const char *entstring, int levelTime, int randomSeed, int globalTime, SavedGameJustLoaded_e eSavedGameJustLoaded, qboolean qbLoadTransition);
-
 	// specifically not "else if" since in JK2SP/JASP/STVOYSP, GAME_SPAWN_ENTITIES is really just an alias for GAME_INIT
 	if (cmd == GAME_SPAWN_ENTITIES) {
-		// some games can load new maps without unloading the mod DLL
-		g_mapents.clear();
-
-		// get all the entity tokens from the engine and save to g_mapents
-		ents_load_tokens(g_mapents);
-
-		// g_modents starts as a copy of g_mapents
-		g_modents = g_mapents;
-
-		// load global config
-		ent_load_config("qmmaddons/stripper/global.ini");
-
-		// load map-specific config
-		ent_load_config(QMM_VARARGS("qmmaddons/stripper/maps/%s.ini", QMM_GETSTRCVAR("mapname")));
-
-		// generate new entstring from g_modents to pass to mod
-		const char* entstring = ents_generate_entstring(g_modents);
-
+		// moh??:   void (*SpawnEntities)(char *entstring, int levelTime);
+		// stef2:   void (*SpawnEntities)(const char *mapname, const char *entstring, int levelTime);
+		// quake2:  void (*SpawnEntities)(const char *mapname, const char *entstring, const char *spawnpoint);
+		// q2r:     void (*SpawnEntities)(const char *mapname, const char *entstring, const char *spawnpoint);
+		// jk2sp:   void (*Init)(const char *mapname, const char *spawntarget, int checkSum, const char *entstring, int levelTime, int randomSeed, int globalTime, SavedGameJustLoaded_e eSavedGameJustLoaded, qboolean qbLoadTransition);
+		// jasp:    void (*Init)(const char *mapname, const char *spawntarget, int checkSum, const char *entstring, int levelTime, int randomSeed, int globalTime, SavedGameJustLoaded_e eSavedGameJustLoaded, qboolean qbLoadTransition);
+		// stvoysp: void (*Init)(const char *mapname, const char *spawntarget, int checkSum, const char *entstring, int levelTime, int randomSeed, int globalTime, SavedGameJustLoaded_e eSavedGameJustLoaded, qboolean qbLoadTransition);
 #if defined(GAME_STEF2) || defined(GAME_Q2R) || defined(GAME_QUAKE2)
 		int entarg = 1;
 #elif defined(GAME_JK2SP) || defined(GAME_JASP) || defined(GAME_STVOYSP)
@@ -133,8 +126,37 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 		int entarg = 0;
 #endif
 
+		// some games can load new maps without unloading the mod DLL
+		g_mapents.clear();
+
+		// get all the entity tokens from the engine and save to g_mapents
+		QMM_WRITEQMMLOG("Parsing entity list", QMMLOG_DEBUG, "STRIPPER");
+		ents_load_tokens(g_mapents);
+
+		// check for valid entity list
+		if (!g_mapents.size()) {
+			QMM_WRITEQMMLOG("Empty ent list from engine. Possibly trailer/menu?", QMMLOG_INFO, "STRIPPER");
+			QMM_RET_IGNORED(1);
+		}
+
+		// g_modents starts as a copy of g_mapents
+		g_modents = g_mapents;
+
+		// load global config
+		QMM_WRITEQMMLOG("Loading global config", QMMLOG_DEBUG, "STRIPPER");
+		ent_load_config("qmmaddons/stripper/global.ini");
+
+		// load map-specific config
+		QMM_WRITEQMMLOG(QMM_VARARGS("Loading map-specific config: %s", QMM_GETSTRCVAR("mapname")), QMMLOG_DEBUG, "STRIPPER");
+		ent_load_config(QMM_VARARGS("qmmaddons/stripper/maps/%s.ini", QMM_GETSTRCVAR("mapname")));
+
+		// generate new entstring from g_modents to pass to mod
+		const char* entstring = ents_generate_entstring(g_modents);
+
 		// replace entstring arg for passing to mod
 		args[entarg] = (intptr_t)entstring;
+
+		QMM_WRITEQMMLOG("Stripper loading complete.\n", QMMLOG_NOTICE, "STRIPPER");
 	}
 #endif
 
