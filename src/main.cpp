@@ -46,7 +46,16 @@ C_DLLEXPORT void QMM_Detach() {
 }
 
 
+// handle retrieving map entities, loading stripper configs, and modifying entities
 static bool s_load_and_modify_ents();
+
+#if defined(GAME_JAMP)
+// store mapents/modents lists per subbsp index
+static std::map<intptr_t, std::vector<ent_t>> s_subbsp_mapents;
+static std::map<intptr_t, std::vector<ent_t>> s_subbsp_modents;
+// store active subbsp index
+static int subbsp_index = -1;
+#endif // GAME_JAMP
 
 
 C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
@@ -128,37 +137,61 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 }
 
 
-#if defined(GAME_JAMP)
-static int insubbsp = 0;
-#endif // GAME_JAMP
-
 C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 #if !defined(GAME_HAS_SPAWNENTS)
+
+ #if !defined(GAME_JAMP)
+	
 	// loop through the ent list and return a single token
-	if (cmd == G_GET_ENTITY_TOKEN
- #if defined(GAME_JAMP)
-		// if this is JAMP and we are in a sub bsp, don't handle this and let the engine handle it
-		&& !insubbsp
- #endif // GAME_JAMP
-		) {
+	if (cmd == G_GET_ENTITY_TOKEN) {
 		char* entity = (char*)args[0];
-		intptr_t length = (intptr_t)args[1];
+		intptr_t length = args[1];
 		intptr_t ret = ent_next_token(g_modents, entity, length);
 		// don't pass this to engine since we already pulled all entities from the engine
 		QMM_RET_SUPERCEDE(ret);
 	}
-#endif
+
+ #else
+	
+	// loop through the ent list and return a single token
+	if (cmd == G_GET_ENTITY_TOKEN) {
+		// if not in a subbsp, just return from g_modents
+		if (subbsp_index == -1) {
+			char* entity = (char*)args[0];
+			intptr_t length = args[1];
+			intptr_t ret = ent_next_token(g_modents, entity, length);
+			// don't pass this to engine since we already pulled all entities from the engine
+			QMM_RET_SUPERCEDE(ret);
+		}
+		// in a subbsp
+		else {
+			char* entity = (char*)args[0];
+			intptr_t length = args[1];
+			intptr_t ret = ent_next_token(s_subbsp_modents[subbsp_index], entity, length);
+			// don't pass this to engine since we already pulled all entities from the engine
+			QMM_RET_SUPERCEDE(ret);
+		}
+	}
+
+ #endif // GAME_JAMP
+
+#endif // !GAME_HAS_SPAWNENTS
 
 #if defined(GAME_JASP)
-	/* Jedi Academy singleplayer also has a SetActiveSubBSP engine function but it returns the subbsp entstring directly
-	   for the mod to parse just like the main one passed to Init. There is no need to track the index/status like for
-	   multiplayer.
+
+	/* Jedi Academy singleplayer has a SetActiveSubBSP engine function that returns the subbsp entstring directly
+	   for the mod to parse just like the main one passed to Init. So all we need to do here is call the engine's
+	   SetActiveSubBSP function directly and parse the returned entstring into entities, then load the global+map
+	   configs as normal, then generate a new entstring to pass to the mod.
 	*/
 	if (cmd == G_SET_ACTIVE_SUBBSP) {
 		intptr_t index = args[0];
+		// -1 is used to tell the engine that the mod is done with the SubBSP
+		if (index < 0)
+			QMM_RET_IGNORED(1);
 		QMM_WRITEQMMLOG(QMM_VARARGS("Parsing SubBSP entity list %d\n", index), QMMLOG_INFO, "STRIPPER");
 
-		// get all the entity tokens from the engine and save to mapents
+		// get the entity string from the engine, parse it, and save to mapents
 		const char* ret = (const char*)g_syscall(G_SET_ACTIVE_SUBBSP, index);
 		std::vector<std::string> tokens = ent_parse_entstring(ret);
 		std::vector<ent_t> mapents;
@@ -167,11 +200,12 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 		// check for valid entity list
 		if (mapents.empty()) {
 			QMM_WRITEQMMLOG(QMM_VARARGS("Empty SubBSP entity list %d from engine\n", index), QMMLOG_DEBUG, "STRIPPER");
+			// return exact pointer from the engine
 			QMM_RET_SUPERCEDE((intptr_t)ret);
 		}
 
 		// modents starts as a copy of mapents
-		std::vector<ent_t>modents = mapents;
+		std::vector<ent_t> modents = mapents;
 
 		// load global config
 		QMM_WRITEQMMLOG(QMM_VARARGS("Loading global config for SubBSP entity list %d\n", index), QMMLOG_DEBUG, "STRIPPER");
@@ -184,10 +218,23 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 		// generate new entstring from modents to pass to mod
 		const char* entstring = ents_generate_entstring(modents);
 
+		// add "_subbsp_index=index" keyval to each entity in mapents and modents to provide
+		// some extra information in stripper_dump files
+		std::string strindex = std::to_string(index);
+		for (auto& ent : mapents)
+			ent.keyvals["_subbsp_index"] = strindex;
+		for (auto& ent : modents)
+			ent.keyvals["_subbsp_index"] = strindex;
+
+		// add these temp mapents and modents to the global ones (so stripper_dump shows all)
+		g_mapents.insert(g_mapents.end(), mapents.begin(), mapents.end());
+		g_modents.insert(g_modents.end(), modents.begin(), modents.end());
+
 		QMM_WRITEQMMLOG(QMM_VARARGS("Completed parsing SubBSP entity list %d\n", index), QMMLOG_INFO, "STRIPPER");
 
 		QMM_RET_SUPERCEDE((intptr_t)entstring);
 	}
+
 #endif // GAME_JASP
 
 	QMM_RET_IGNORED(1);
@@ -195,38 +242,78 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 
 
 C_DLLEXPORT intptr_t QMM_vmMain_Post(intptr_t cmd, intptr_t* args) {
-	QMM_RET_IGNORED(1);
+#if defined(GAME_JAMP)
+
+	// mod init is done, tag all the subbsp lists and add them to g_mapents and g_modents for stripper_dump
+	if (cmd == GAME_INIT) {
+		// add "_subbsp_index=index" keyval to each entity in mapents and modents to provide
+		// some extra information in stripper_dump files. these are ignored by the game
+		for (auto& list : s_subbsp_mapents) {
+			std::string strindex = std::to_string(list.first);
+			for (auto& ent : list.second)
+				ent.keyvals["_subbsp_index"] = strindex;
+
+			// add this list to the global one
+			g_mapents.insert(g_mapents.end(), list.second.begin(), list.second.end());
+		}
+		for (auto& list : s_subbsp_modents) {
+			std::string strindex = std::to_string(list.first);
+			for (auto& ent : list.second)
+				ent.keyvals["_subbsp_index"] = strindex;
+
+			// add this list to the global one
+			g_mapents.insert(g_modents.end(), list.second.begin(), list.second.end());
+		}
+	}
+
+#endif // GAME_JAMP
+
+	return 0;
 }
 
 
 C_DLLEXPORT intptr_t QMM_syscall_Post(intptr_t cmd, intptr_t* args) {
 #if defined(GAME_JAMP)
-	/* Jedi Academy multiplayer has a feature where a "misc_bsp" map entity can have the engine load an entire map and load it into
-	   another map. This then triggers another round of G_GET_ENTITY_TOKEN which we must handle.
-	   
-	   The mod tells the engine that it should load a map with the trap_SetActiveSubBSP function:
 
-	      void trap_SetActiveSubBSP(int index)
-
-	   where 'index' is a unique value for each sub bsp to be loaded. It represents the index of the first model from this sub bsp
-	   in the global models list, it retrieves this from the misc_bsp entity itself before calling G_GET_ENTITY_TOKEN again:
-
-	      trap_SetActiveSubBSP(ent->s.modelindex);
-		  G_SpawnEntitiesFromString(qtrue);
-		  trap_SetActiveSubBSP(-1);
-
-	   For now, until we can refactor the code to better handle this, we will just store whether or not we are working with a
-	   sub bsp and if so, just pass G_GET_ENTITY_TOKEN calls onto the engine directly.
-
-	   In the future, we should check for misc_bsp entities during ents_load_tokens and pull the entities ourselves, storing them
-	   in other lists per misc_bsp entity.
+	/* Jedi Academy multiplayer has a SetActiveSubBSP engine function where a "misc_bsp" map entity can have the
+	   engine load an entire map and load it into another map. This then triggers another round of
+	   G_GET_ENTITY_TOKEN which we must handle. So all we need to do here is call the engine's G_GET_ENTITY_TOKEN
+	   repeatedly to load more entities, store them in a map keyed with the unique subbsp index argument, then
+	   read from that specific entity list in G_GET_ENTITY_TOKEN. Once G_SET_ACTIVE_SUBBSP is called with -1,
+	   then we can continue passing the normal entity list in G_GET_ENTITY_TOKEN.
 	*/
+	// hook this in post so that the engine has already set up what it needs to regarding subbsp stuff
 	if (cmd == G_SET_ACTIVE_SUBBSP) {
-		insubbsp = (args[0] != -1);
+		subbsp_index = args[0];
+		// do nothing if the mod is done loading subbsp entity info
+		if (subbsp_index < 0)
+			return 0;
+
+		// get the entities from the engine and save to mapents
+		std::vector<ent_t> mapents;
+		ents_load_tokens(mapents);
+
+		// modents starts as a copy of mapents
+		std::vector<ent_t> modents = mapents;
+
+		// load global config
+		QMM_WRITEQMMLOG(QMM_VARARGS("Loading global config for SubBSP entity list %d\n", subbsp_index), QMMLOG_DEBUG, "STRIPPER");
+		ent_load_config(modents, "qmmaddons/stripper/global.ini");
+
+		// load map-specific config
+		QMM_WRITEQMMLOG(QMM_VARARGS("Loading map-specific config for SubBSP entity list %d: %s\n", subbsp_index, QMM_GETSTRCVAR("mapname")), QMMLOG_DEBUG, "STRIPPER");
+		ent_load_config(modents, QMM_VARARGS("qmmaddons/stripper/maps/%s.ini", QMM_GETSTRCVAR("mapname")));
+
+		// store entity lists for later reading in G_GET_ENTITY_TOKEN hook
+		s_subbsp_mapents[subbsp_index] = mapents;
+		s_subbsp_modents[subbsp_index] = modents;
+
+		QMM_WRITEQMMLOG(QMM_VARARGS("Completed parsing SubBSP entity list %d\n", subbsp_index), QMMLOG_INFO, "STRIPPER");
 	}
+
 #endif // GAME_JAMP
 
-	QMM_RET_IGNORED(1);
+	return 0;
 }
 
 
