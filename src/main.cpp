@@ -46,6 +46,9 @@ C_DLLEXPORT void QMM_Detach() {
 }
 
 
+static bool s_load_and_modify_ents();
+
+
 C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 	if (cmd == GAME_INIT) {
 		// init msg
@@ -54,36 +57,17 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 		g_syscall(G_CVAR_REGISTER, nullptr, "stripper_version", STRIPPER_QMM_VERSION, CVAR_ROM | CVAR_SERVERINFO | CVAR_NORESTART);
 		g_syscall(G_CVAR_SET, "stripper_version", STRIPPER_QMM_VERSION);
 
-// games without a GAME_SPAWN_ENTITIES msg get entities and load configs here during QMM_vmMain(GAME_INIT).
-// entities are passed to the mod with the QMM_syscall(G_GET_ENTITY_TOKEN) hook
 #if !defined(GAME_HAS_SPAWNENTS)
-		// some games can load new maps without unloading the mod
-		g_mapents.clear();
 
-		// get all the entity tokens from the engine with G_GET_ENTITY_TOKEN and save to lists
-		QMM_WRITEQMMLOG("Parsing entity list", QMMLOG_DEBUG, "STRIPPER");
-		ents_load_tokens(g_mapents);
+		// games without a GAME_SPAWN_ENTITIES msg get entities and load configs here during QMM_vmMain(GAME_INIT).
+		// entities are passed to the mod with the QMM_syscall(G_GET_ENTITY_TOKEN) hook
 
-		// check for valid entity list
-		if (!g_mapents.size()) {
-			QMM_WRITEQMMLOG("Empty ent list from engine. Possibly trailer/menu?", QMMLOG_INFO, "STRIPPER");
-			QMM_RET_IGNORED(1);
-		}
-
-		// g_modents starts as a copy of g_mapents
-		g_modents = g_mapents;
-
-		// load global config
-		QMM_WRITEQMMLOG("Loading global config", QMMLOG_DEBUG, "STRIPPER");
-		ent_load_config("qmmaddons/stripper/global.ini");
-
-		// load map-specific config
-		QMM_WRITEQMMLOG(QMM_VARARGS("Loading map-specific config: %s", QMM_GETSTRCVAR("mapname")), QMMLOG_DEBUG, "STRIPPER");
-		ent_load_config(QMM_VARARGS("qmmaddons/stripper/maps/%s.ini", QMM_GETSTRCVAR("mapname")));
+		s_load_and_modify_ents();
 
 		QMM_WRITEQMMLOG("Stripper loading complete.\n", QMMLOG_NOTICE, "STRIPPER");
 
 #endif // !GAME_HAS_SPAWNENTS
+
 	}
 	// handle stripper_dump command
 	else if (cmd == GAME_CONSOLE_COMMAND) {
@@ -103,10 +87,11 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 		}
 	}
 
+#if defined(GAME_HAS_SPAWNENTS)
+
 	// games with a GAME_SPAWN_ENTITIES msg load configs here during QMM_vmMain(GAME_SPAWN_ENTITIES).
 	// entities are passed to the mod by changing the entstring parameter.
-	// QMM also gets the entities and allows you to call G_GET_ENTITY_TOKEN to retrieve them in ents_load_tokens()
-#if defined(GAME_HAS_SPAWNENTS)
+
 	// specifically not "else if" since in JK2SP/JASP/STVOYSP, GAME_SPAWN_ENTITIES is really just an alias for GAME_INIT
 	if (cmd == GAME_SPAWN_ENTITIES) {
 		// moh??:   void (*SpawnEntities)(char *entstring, int levelTime);
@@ -126,64 +111,85 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 		int entarg = 0;
 #endif
 
-		// some games can load new maps without unloading the mod DLL
-		g_mapents.clear();
+		if (s_load_and_modify_ents()) {
+			// generate new entstring from g_modents to pass to mod
+			const char* entstring = ents_generate_entstring(g_modents);
 
-		// get all the entity tokens from the engine and save to g_mapents
-		QMM_WRITEQMMLOG("Parsing entity list", QMMLOG_DEBUG, "STRIPPER");
-		ents_load_tokens(g_mapents);
-
-		// check for valid entity list
-		if (!g_mapents.size()) {
-			QMM_WRITEQMMLOG("Empty ent list from engine. Possibly trailer/menu?", QMMLOG_INFO, "STRIPPER");
-			QMM_RET_IGNORED(1);
+			// replace entstring arg for passing to mod
+			args[entarg] = (intptr_t)entstring;
 		}
-
-		// g_modents starts as a copy of g_mapents
-		g_modents = g_mapents;
-
-		// load global config
-		QMM_WRITEQMMLOG("Loading global config", QMMLOG_DEBUG, "STRIPPER");
-		ent_load_config("qmmaddons/stripper/global.ini");
-
-		// load map-specific config
-		QMM_WRITEQMMLOG(QMM_VARARGS("Loading map-specific config: %s", QMM_GETSTRCVAR("mapname")), QMMLOG_DEBUG, "STRIPPER");
-		ent_load_config(QMM_VARARGS("qmmaddons/stripper/maps/%s.ini", QMM_GETSTRCVAR("mapname")));
-
-		// generate new entstring from g_modents to pass to mod
-		const char* entstring = ents_generate_entstring(g_modents);
-
-		// replace entstring arg for passing to mod
-		args[entarg] = (intptr_t)entstring;
 
 		QMM_WRITEQMMLOG("Stripper loading complete.\n", QMMLOG_NOTICE, "STRIPPER");
 	}
+
 #endif
 
 	QMM_RET_IGNORED(1);
 }
 
 
-#if defined(GAME_HAS_SUBBSP)
+#if defined(GAME_JAMP)
 static int insubbsp = 0;
-#endif // GAME_HAS_SUBBSP
+#endif // GAME_JAMP
 
 C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 #if !defined(GAME_HAS_SPAWNENTS)
 	// loop through the ent list and return a single token
 	if (cmd == G_GET_ENTITY_TOKEN
- #if defined(GAME_HAS_SUBBSP)
-		// if this is JAMP/JASP and we are in a sub bsp, don't handle this and let the engine handle it
+ #if defined(GAME_JAMP)
+		// if this is JAMP and we are in a sub bsp, don't handle this and let the engine handle it
 		&& !insubbsp
- #endif // GAME_HAS_SUBBSP
+ #endif // GAME_JAMP
 		) {
 		char* entity = (char*)args[0];
 		intptr_t length = (intptr_t)args[1];
-		intptr_t ret = ent_next_token(entity, length);
+		intptr_t ret = ent_next_token(g_modents, entity, length);
 		// don't pass this to engine since we already pulled all entities from the engine
 		QMM_RET_SUPERCEDE(ret);
 	}
 #endif
+
+#if defined(GAME_JASP)
+	/* Jedi Academy singleplayer also has a SetActiveSubBSP engine function but it returns the subbsp entstring directly
+	   for the mod to parse just like the main one passed to Init. There is no need to track the index/status like for
+	   multiplayer.
+	*/
+	if (cmd == G_SET_ACTIVE_SUBBSP) {
+		intptr_t index = args[0];
+		QMM_WRITEQMMLOG(QMM_VARARGS("Parsing SubBSP entity list %d\n", index), QMMLOG_INFO, "STRIPPER");
+
+		// get all the entity tokens from the engine and save to mapents
+		const char* ret = (const char*)g_syscall(G_SET_ACTIVE_SUBBSP, index);
+		std::vector<std::string> tokens = ent_parse_entstring(ret);
+		std::vector<ent_t> mapents;
+		ents_load_tokens(mapents, tokens);
+
+		// check for valid entity list
+		if (mapents.empty()) {
+			QMM_WRITEQMMLOG(QMM_VARARGS("Empty SubBSP entity list %d from engine\n", index), QMMLOG_DEBUG, "STRIPPER");
+			QMM_RET_SUPERCEDE((intptr_t)ret);
+		}
+
+		// modents starts as a copy of mapents
+		std::vector<ent_t>modents = mapents;
+
+		// load global config
+		QMM_WRITEQMMLOG(QMM_VARARGS("Loading global config for SubBSP entity list %d\n", index), QMMLOG_DEBUG, "STRIPPER");
+		ent_load_config(modents, "qmmaddons/stripper/global.ini");
+
+		// load map-specific config
+		QMM_WRITEQMMLOG(QMM_VARARGS("Loading map-specific config for SubBSP entity list %d: %s\n", index, QMM_GETSTRCVAR("mapname")), QMMLOG_DEBUG, "STRIPPER");
+		ent_load_config(modents, QMM_VARARGS("qmmaddons/stripper/maps/%s.ini", QMM_GETSTRCVAR("mapname")));
+
+		// generate new entstring from modents to pass to mod
+		const char* entstring = ents_generate_entstring(modents);
+
+		QMM_WRITEQMMLOG(QMM_VARARGS("Completed parsing SubBSP entity list %d\n", index), QMMLOG_INFO, "STRIPPER");
+
+		QMM_RET_SUPERCEDE((intptr_t)entstring);
+	}
+#endif // GAME_JASP
+
 	QMM_RET_IGNORED(1);
 }
 
@@ -194,7 +200,7 @@ C_DLLEXPORT intptr_t QMM_vmMain_Post(intptr_t cmd, intptr_t* args) {
 
 
 C_DLLEXPORT intptr_t QMM_syscall_Post(intptr_t cmd, intptr_t* args) {
-#if defined(GAME_HAS_SUBBSP)
+#if defined(GAME_JAMP)
 	/* Jedi Academy multiplayer has a feature where a "misc_bsp" map entity can have the engine load an entire map and load it into
 	   another map. This then triggers another round of G_GET_ENTITY_TOKEN which we must handle.
 	   
@@ -215,14 +221,40 @@ C_DLLEXPORT intptr_t QMM_syscall_Post(intptr_t cmd, intptr_t* args) {
 	   In the future, we should check for misc_bsp entities during ents_load_tokens and pull the entities ourselves, storing them
 	   in other lists per misc_bsp entity.
 	*/
-	/* Jedi Academy singleplayer also has a SetActiveSubBSP engine function but it also just returns the subbsp entstring directly
-	   for the mod to parse just like the main one passed to Init. There is no need to track the index/status like for multiplayer.
-	   We should probably parse and store the entstring eventually, just like with multiplayer comment above.
-	*/
 	if (cmd == G_SET_ACTIVE_SUBBSP) {
 		insubbsp = (args[0] != -1);
 	}
-#endif // GAME_HAS_SUBBSP
+#endif // GAME_JAMP
 
 	QMM_RET_IGNORED(1);
+}
+
+
+// handle retrieving map entities, loading stripper configs, and modifying entities
+static bool s_load_and_modify_ents() {
+	// some games can load new maps without unloading the mod DLL
+	g_mapents.clear();
+
+	// get all the entity tokens from the engine and save to g_mapents
+	QMM_WRITEQMMLOG("Parsing entity list\n", QMMLOG_DEBUG, "STRIPPER");
+	ents_load_tokens(g_mapents);
+
+	// check for valid entity list
+	if (g_mapents.empty()) {
+		QMM_WRITEQMMLOG("Empty ent list from engine - possibly a trailer/menu?\n", QMMLOG_DEBUG, "STRIPPER");
+		return false;
+	}
+
+	// g_modents starts as a copy of g_mapents
+	g_modents = g_mapents;
+
+	// load global config
+	QMM_WRITEQMMLOG("Loading global config\n", QMMLOG_DEBUG, "STRIPPER");
+	ent_load_config(g_modents, "qmmaddons/stripper/global.ini");
+
+	// load map-specific config
+	QMM_WRITEQMMLOG(QMM_VARARGS("Loading map-specific config: %s\n", QMM_GETSTRCVAR("mapname")), QMMLOG_DEBUG, "STRIPPER");
+	ent_load_config(g_modents, QMM_VARARGS("qmmaddons/stripper/maps/%s.ini", QMM_GETSTRCVAR("mapname")));
+
+	return true;
 }

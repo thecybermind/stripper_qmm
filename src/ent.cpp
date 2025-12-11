@@ -40,7 +40,7 @@ std::vector<ent_t> g_modents;
 
 // this stores all info for entities that should be replaced
 // nodes are read and removed from this list when a "with" entity is found
-std::vector<ent_t> g_replaceents;
+static std::vector<ent_t> s_replaceents;
 
 
 #if defined(GAME_HAS_SPAWNENTS)
@@ -65,9 +65,9 @@ const char* ents_generate_entstring(std::vector<ent_t>& list) {
 
 
 // passes the next entity token to the mod
-intptr_t ent_next_token(char* buf, intptr_t len) {
+intptr_t ent_next_token(std::vector<ent_t>& list, char* buf, intptr_t len) {
 	// iterator for current ent
-	static std::vector<ent_t>::iterator it_ent = g_modents.begin();
+	static std::vector<ent_t>::iterator it_ent = list.begin();
 
 	// iterator for current keyval
 	static decltype(ent_t::keyvals)::iterator it_keyval;
@@ -77,7 +77,7 @@ intptr_t ent_next_token(char* buf, intptr_t len) {
 	static bool is_key = true;		// true = expecting key, false = expecting val
 
 	// if we have sent all the entities, return an EOF
-	if (it_ent == g_modents.end())
+	if (it_ent == list.end())
 		return 0;
 	
 	// if we are starting a new entity, send a {
@@ -117,7 +117,7 @@ intptr_t ent_next_token(char* buf, intptr_t len) {
 
 
 // gets all the entity tokens from the engine and stores them in a list
-void ents_load_tokens(std::vector<ent_t>& list) {
+void ents_load_tokens(std::vector<ent_t>& list, std::vector<std::string> entstring_tokens) {
 	// the current ent
 	ent_t ent;
 	// store key. when a val is received, make a new entry into ent
@@ -128,11 +128,27 @@ void ents_load_tokens(std::vector<ent_t>& list) {
 	bool inside_ent = false;	// false = between ents, true = inside an ent
 	bool is_key = true;			// true = expecting key, false = expecting val
 
+	// iterator for entstring_tokens
+	std::vector<std::string>::iterator it_tokens = entstring_tokens.begin();
+	// simple flag to determine whether to use parsed entstring tokens or not
+	bool using_tokens = false;
+	if (!entstring_tokens.empty())
+		using_tokens = true;
+
 	// loop through all tokens from engine
 	while (1) {
-		// get token, check for EOF
-		if (!g_syscall(G_GET_ENTITY_TOKEN, buf, sizeof(buf)))
-			break;
+		// get token from parsed entstring
+		if (using_tokens) {
+			// no more tokens
+			if (it_tokens == entstring_tokens.end())
+				break;
+			strncpyz(buf, it_tokens->c_str(), sizeof(buf));
+		}
+		// get token from engine/QMM, check for EOF
+		else {
+			if (!g_syscall(G_GET_ENTITY_TOKEN, buf, sizeof(buf)))
+				break;
+		}
 
 		// got an opening brace while already inside an entity, error
 		if (buf[0] == '{' && inside_ent)
@@ -204,7 +220,7 @@ void ents_dump_to_file(std::vector<ent_t>& list, std::string file) {
 
 
 // load and parse config file
-void ent_load_config(std::string file) {
+void ent_load_config(std::vector<ent_t>& list, std::string file) {
 	fileHandle_t f;
 #if defined(GAME_MOHAA)
 	int cmdopen = G_FS_FOPEN_FILE_QMM;
@@ -226,7 +242,7 @@ void ent_load_config(std::string file) {
 	int num_filtered = 0, num_added = 0, num_replaced = 0;
 
 	// clear the replace list
-	g_replaceents.clear();
+	s_replaceents.clear();
 
 	// what the current entity mode is
 	enum Mode {
@@ -289,19 +305,19 @@ void ent_load_config(std::string file) {
 					continue;
 
 				if (mode == mode_filter) {
-					s_ents_filter(g_modents, ent);
+					s_ents_filter(list, ent);
 					++num_filtered;
 				}
 				else if (mode == mode_add) {
-					s_ents_add(g_modents, ent);
+					s_ents_add(list, ent);
 					++num_added;
 				}
 				else if (mode == mode_replace) {
-					g_replaceents.push_back(ent);	// store until a "with" ent comes along
+					s_replaceents.push_back(ent);	// store until a "with" ent comes along
 					++num_replaced;
 				}
 				else if (mode == mode_with) {
-					s_ents_replace(g_modents, ent);
+					s_ents_replace(list, ent);
 				}
 			}
 			// it's a key/val pair line or something else
@@ -319,9 +335,12 @@ void ent_load_config(std::string file) {
 					ent.classname = val;
 			}
 		}
-	} // while(1)
+	} // while(1) - go through every line
 
 	g_syscall(cmdclose, f);
+
+	// clear the replace list again for good measure
+	s_replaceents.clear();
 
 	QMM_WRITEQMMLOG(QMM_VARARGS("Loaded %d filters, %d adds, and %d replaces from %s\n", num_filtered, num_added, num_replaced, file.c_str()), QMMLOG_INFO, "STRIPPER");
 }
@@ -364,7 +383,7 @@ static void s_ents_add(std::vector<ent_t>& list, ent_t& addent) {
 // finds all entities in list matching all stored replaceents and replaces with a withent
 static void s_ents_replace(std::vector<ent_t>& list, ent_t& withent) {
 	// go through all replaceents
-	for (ent_t& repent : g_replaceents) {
+	for (ent_t& repent : s_replaceents) {
 		// find any matching ents in given list
 		for (ent_t& ent : list) {
 			// replace with withent
@@ -373,7 +392,7 @@ static void s_ents_replace(std::vector<ent_t>& list, ent_t& withent) {
 		}
 	}
 
-	g_replaceents.clear();
+	s_replaceents.clear();
 }
 
 
@@ -385,3 +404,45 @@ static void s_ent_replace(ent_t& replaceent, ent_t& withent) {
 		replaceent.keyvals[withkeyval.first] = withkeyval.second;
 	}
 }
+
+
+#if defined(GAME_JASP)
+// tokenize an entstring into a vector of strings 
+std::vector<std::string> ent_parse_entstring(std::string entstring) {
+	std::vector<std::string> ret;
+
+	std::string build;
+	bool buildstr = false;
+
+	for (auto& c : entstring) {
+		// end if null (shouldn't happen)
+		if (!c)
+			break;
+		// skip whitespace outside strings
+		else if (std::isspace(c) && !buildstr)
+			continue;
+		// handle opening braces
+		else if (c == '{')
+			ret.push_back("{");
+		// handle closing braces
+		else if (c == '}')
+			ret.push_back("}");
+		// handle quote, start of a key or value
+		else if (c == '"' && !buildstr) {
+			build.clear();
+			buildstr = true;
+		}
+		// handle quote, end of a key or value
+		else if (c == '"' && buildstr) {
+			ret.push_back(build);
+			build.clear();
+			buildstr = false;
+		}
+		// all other chars, add to build string
+		else
+			build.push_back(c);
+	}
+
+	return ret;
+}
+#endif // GAME_JASP
