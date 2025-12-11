@@ -66,6 +66,8 @@ const char* ents_generate_entstring(std::vector<ent_t>& list) {
 
 // passes the next entity token to the mod
 intptr_t ent_next_token(std::vector<ent_t>& list, char* buf, intptr_t len) {
+	// todo: remove static variables and save state somehow so we can jump between lists if needed
+
 	// iterator for current ent
 	static std::vector<ent_t>::iterator it_ent = list.begin();
 
@@ -300,23 +302,23 @@ void ent_load_config(std::vector<ent_t>& list, std::string file) {
 			if (line[0] == '}') {
 				inside_ent = false;
 
-				// don't actually do anything with the entity if it's empty
-				if (ent.keyvals.empty())
-					continue;
-
-				if (mode == mode_filter) {
+				// filter mode, don't accept empty entity
+				if (mode == mode_filter && !ent.keyvals.empty()) {
 					s_ents_filter(list, ent);
 					++num_filtered;
 				}
-				else if (mode == mode_add) {
+				// add mode, don't accept empty entity or one without a classname
+				else if (mode == mode_add && !ent.keyvals.empty() && !ent.classname.empty()) {
 					s_ents_add(list, ent);
 					++num_added;
 				}
+				// replace mode, accept empty entity to match all
 				else if (mode == mode_replace) {
 					s_replaceents.push_back(ent);	// store until a "with" ent comes along
 					++num_replaced;
 				}
-				else if (mode == mode_with) {
+				// with mode, don't accept empty entity
+				else if (mode == mode_with && !ent.keyvals.empty()) {
 					s_ents_replace(list, ent);
 				}
 			}
@@ -387,7 +389,7 @@ static void s_ents_replace(std::vector<ent_t>& list, ent_t& withent) {
 		// find any matching ents in given list
 		for (ent_t& ent : list) {
 			// replace with withent
-			if (s_ent_match(ent, repent))
+			if (repent.keyvals.empty() || s_ent_match(ent, repent))
 				s_ent_replace(ent, withent);
 		}
 	}
