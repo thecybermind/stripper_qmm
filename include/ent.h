@@ -30,25 +30,26 @@ extern std::vector<ent_t> g_mapents;
 // this stores all the ents that should be passed to the mod (g_mapents +/- modifications)
 extern std::vector<ent_t> g_modents;
 
-// this stores all info for entities that should be replaced
-// nodes are read and removed from this list when a "with" entity is found
-extern std::vector<ent_t> g_replaceents;
-
 #if defined(GAME_HAS_SPAWNENTS)
 // generate an entstring to pass to the mod
 const char* ents_generate_entstring(std::vector<ent_t>& list);
 #else
 // passes the next entity token to the mod
-intptr_t ent_next_token(char* buf, intptr_t len);
-#endif
+intptr_t ent_next_token(std::vector<ent_t>& list, char* buf, intptr_t len);
+#endif 
 
 // gets all the entity tokens from the engine
-void ents_load_tokens(std::vector<ent_t>& list);
+void ents_load_tokens(std::vector<ent_t>& list, std::vector<std::string> entstring_tokens = {});
 
 // outputs ent list to a file
 void ents_dump_to_file(std::vector<ent_t>& list, std::string file);
 
 // load and parse config file
-void ent_load_config(std::string file);
+void ent_load_config(std::vector<ent_t>& list, std::string file);
+
+#if defined(GAME_JASP)
+// tokenize an entstring into a vector of strings 
+std::vector<std::string> ent_parse_entstring(std::string entstring);
+#endif // GAME_JASP
 
 #endif // __STRIPPER_QMM_ENT_H__
