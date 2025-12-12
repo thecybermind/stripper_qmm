@@ -20,19 +20,71 @@ Created By:
 #include "util.h"
 
 
+MapEntities::MapEntities() : tokeniter(tokenlist.begin()) { }
+
+
+MapEntities::MapEntities(const MapEntities& other) {
+	*this = other;
+}
+
+
+MapEntities& MapEntities::operator=(const MapEntities& other) {
+	this->entlist = other.entlist;
+	this->tokenlist = other.tokenlist;
+	this->entstring = other.entstring;
+
+	auto other_offset = other.tokeniter - other.tokenlist.begin();
+	this->tokeniter = this->tokenlist.begin() + other_offset;
+
+	return *this;
+}
+
+
+MapEntities::MapEntities(MapEntities&& other) noexcept {
+	*this = other;
+}
+
+
+MapEntities& MapEntities::operator=(MapEntities&& other) noexcept {
+	this->entlist = other.entlist;
+	this->tokenlist = other.tokenlist;
+	this->entstring = other.entstring;
+
+	auto other_offset = other.tokeniter - other.tokenlist.begin();
+	this->tokeniter = this->tokenlist.begin() + other_offset;
+
+	other.entlist.clear();
+	other.tokenlist.clear();
+	other.entstring.clear();
+	other.tokeniter = other.tokenlist.end();
+
+	return *this;
+}
+
+
 // populate MapEntities from entstring
 void MapEntities::make_from_entstring(EntString entstring) {
-	this->tokenlist = tokenlist_from_entstring(entstring);
-	this->entlist = entlist_from_tokenlist(this->tokenlist);
+	TokenList tokenlist = tokenlist_from_entstring(entstring);
+	this->entlist = entlist_from_tokenlist(tokenlist);
+
+	// entlist should be the definitive source that the other fields are generated from
+	this->tokenlist = tokenlist_from_entlist(this->entlist);
 	this->tokeniter = this->tokenlist.begin();
+
+	this->entstring = entstring_from_entlist(this->entlist);
 }
 
 
 // populate MapEntities from engine tokens
 void MapEntities::make_from_engine() {
-	this->tokenlist = tokenlist_from_engine();
+	TokenList tokenlist = tokenlist_from_engine();
 	this->entlist = entlist_from_tokenlist(tokenlist);
+
+	// entlist should be the definitive source that the other fields are generated from
+	this->tokenlist = tokenlist_from_entlist(this->entlist);
 	this->tokeniter = this->tokenlist.begin();
+
+	this->entstring = entstring_from_entlist(this->entlist);
 }
 
 
@@ -165,7 +217,7 @@ void MapEntities::apply_config(std::string file) {
 }
 
 
-// add keyval to entities
+// add keyval to all entities
 void MapEntities::add_keyval(std::string key, std::string val) {
 	for (auto& ent : this->entlist)
 		ent.keyvals[key] = val;
@@ -224,6 +276,37 @@ void MapEntities::dump_to_file(std::string file, bool append) {
 	}
 	g_syscall(G_FS_FCLOSE_FILE, f);
 	QMM_WRITEQMMLOG(QMM_VARARGS("Ent dump written to %s\n", file.c_str()), QMMLOG_INFO, "STRIPPER");
+}
+
+
+void MapEntities::dump_tokens_to_file(std::string file, bool append) {
+	fileHandle_t f;
+	if (g_syscall(G_FS_FOPEN_FILE, file.c_str(), &f, append ? FS_APPEND : FS_WRITE) < 0) {
+		QMM_WRITEQMMLOG(QMM_VARARGS("Unable to write token dump to %s\n", file.c_str()), QMMLOG_INFO, "STRIPPER");
+		return;
+	}
+	bool is_key = false;
+	std::string s;
+	for (auto& token : this->tokenlist) {
+		if (token == "{") {
+			s = token + "\n";
+			is_key = true;
+		}
+		else if (token == "}") {
+			s = token + "\n";
+		}
+		else if (is_key) {
+			s = "\t" + token + "=";
+			is_key = false;
+		}
+		else {
+			s = token + "\n";
+			is_key = true;
+		}
+		g_syscall(G_FS_WRITE, s.c_str(), s.size(), f);
+	}
+	g_syscall(G_FS_FCLOSE_FILE, f);
+	QMM_WRITEQMMLOG(QMM_VARARGS("Token dump written to %s\n", file.c_str()), QMMLOG_INFO, "STRIPPER");
 }
 
 
@@ -448,10 +531,3 @@ EntString MapEntities::entstring_from_entlist(EntList entlist) {
 
 	return entstring;
 }
-
-
-// this stores all the ents loaded from the map
-// we save this so we can dump them to file if needed
-MapEntities g_mapents;
-// this stores all the ents that should be passed to the mod (g_mapents +/- modifications)
-MapEntities g_modents;

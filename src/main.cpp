@@ -46,16 +46,22 @@ C_DLLEXPORT void QMM_Detach() {
 }
 
 
+// this stores all the ents loaded from the map
+// we save this so we can dump them to file if needed
+MapEntities s_mapents;
+// this stores all the ents that should be passed to the mod (s_mapents +/- modifications)
+MapEntities s_modents;
+
+
 // handle retrieving map entities, loading stripper configs, and modifying entities
 static bool s_load_and_modify_ents();
 
-#if defined(GAME_JAMP) || defined(GAME_JASP)
+// these next vars are for JASP/JAMP, but leaving them available to all games makes code a bit cleaner in some places
 // store mapents/modents lists per subbsp index
 static std::map<intptr_t, MapEntities> s_subbsp_mapents;
 static std::map<intptr_t, MapEntities> s_subbsp_modents;
 // store active subbsp index
-static int subbsp_index = -1;
-#endif // GAME_JAMP || GAME_JASP
+static int s_subbsp_index = -1;
 
 
 C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
@@ -87,18 +93,19 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 #endif
 		QMM_ARGV(argn, buf, sizeof(buf));
 		if (str_striequal(buf, "stripper_dump")) {
-			const char* mapfile = QMM_VARARGS("qmmaddons/stripper/dumps/%s.txt", QMM_GETSTRCVAR("mapname"));
-			const char* modfile = QMM_VARARGS("qmmaddons/stripper/dumps/%s_modents.txt", QMM_GETSTRCVAR("mapname"));
-			g_mapents.dump_to_file(mapfile);
-			g_modents.dump_to_file(modfile);
+			const char* mapname = QMM_GETSTRCVAR("mapname");
+			const char* mapfile = QMM_VARARGS("qmmaddons/stripper/dumps/%s.txt", mapname);
+			const char* modfile = QMM_VARARGS("qmmaddons/stripper/dumps/%s_modents.txt", mapname);
 
-#if defined(GAME_JAMP) || defined(GAME_JASP)
+			s_mapents.dump_to_file(mapfile);
+			s_modents.dump_to_file(modfile);
+
 			// we also need to print out the subbsp lists (true = append)
 			for (auto& subbsp : s_subbsp_mapents)
 				subbsp.second.dump_to_file(mapfile, true);
 			for (auto& subbsp : s_subbsp_modents)
 				subbsp.second.dump_to_file(modfile, true);
-#endif
+
 			// don't pass this to mod since we handled the command
 			QMM_RET_SUPERCEDE(1);
 		}
@@ -129,8 +136,8 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 #endif
 
 		if (s_load_and_modify_ents()) {
-			// generate new entstring from g_modents to pass to mod
-			const char* entstring = g_modents.get_entstring().c_str();
+			// generate new entstring from s_modents to pass to mod
+			const char* entstring = s_modents.get_entstring().c_str();
 
 			// replace entstring arg for passing to mod
 			args[entarg] = (intptr_t)entstring;
@@ -151,12 +158,14 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 	if (cmd == G_GET_ENTITY_TOKEN) {
 		char* entity = (char*)args[0];
 		intptr_t length = args[1];
-		MapEntities& entlist = 
-#if defined(GAME_JAMP)
-			(subbsp_index >= 0) ? s_subbsp_modents[subbsp_index] :
-#endif
-			g_modents;
+		MapEntities& entlist = (s_subbsp_index >= 0) ? s_subbsp_modents[s_subbsp_index] : s_modents;
 		intptr_t ret = entlist.get_next_token(entity, length);
+
+		if (ret && s_subbsp_index >= 0)
+			QMM_WRITEQMMLOG(QMM_VARARGS("Passing SubBSP %d entity to mod: \"%s\"\n", s_subbsp_index, entity), QMMLOG_TRACE, "STRIPPER");
+		else if (ret)
+			QMM_WRITEQMMLOG(QMM_VARARGS("Passing entity token to mod: \"%s\"\n", entity), QMMLOG_TRACE, "STRIPPER");
+
 		// don't pass this to engine since we already pulled all entities from the engine
 		QMM_RET_SUPERCEDE(ret);
 	}
@@ -168,25 +177,25 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 	   function with a unique ID that is part of the entity. This lets the engine give the mod the SubBSP's entity
 	   info.
 	   In multiplayer (JAMP), this call simply allows the mod to then call G_GET_ENTITY_TOKEN again (like in Init)
-	   in order to get the SubBSP entity info. 
+	   in order to get the SubBSP entity info.
 	   In singleplayer (JASP), this call will return the SubBSP entity info as an entstring (like in Init).
 	   In both, once the mod has loaded all the new SubBSP entities, the mod calls SetActiveSubBSP(-1).
 	   
-	   Here, we store the given index, and then exit if it's -1.
-	   Then we get the entity info, apply configs, and save for later processing/dumping.
+	   Here, we store the given index (exit if it's -1), then we get the entity info, apply configs,
+	   and save for later processing/dumping.
 	*/
 	if (cmd == G_SET_ACTIVE_SUBBSP) {
-		subbsp_index = args[0];
+		s_subbsp_index = args[0];
 		// -1 is used to tell the engine that the mod is done with the SubBSP
 		// we will just let this pass through directly to the engine
-		if (subbsp_index < 0)
+		if (s_subbsp_index < 0)
 			QMM_RET_IGNORED(0);
-		QMM_WRITEQMMLOG(QMM_VARARGS("Parsing SubBSP entity list %d\n", subbsp_index), QMMLOG_INFO, "STRIPPER");
+		QMM_WRITEQMMLOG(QMM_VARARGS("Parsing SubBSP entity list %d\n", s_subbsp_index), QMMLOG_INFO, "STRIPPER");
 
 		// get the entities from the engine and save to mapents
 		MapEntities mapents;
 		// since we will supercede this call, we need to call the engine function ourselves
-		const char* ret = (const char*)g_syscall(G_SET_ACTIVE_SUBBSP, subbsp_index);
+		const char* ret = (const char*)g_syscall(G_SET_ACTIVE_SUBBSP, s_subbsp_index);
 #if defined(GAME_JAMP)
 		// load entities from G_GET_ENTITY_TOKEN
 		mapents.make_from_engine();
@@ -197,27 +206,30 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 
 		// check for valid entity list
 		if (mapents.get_entlist().empty()) {
-			QMM_WRITEQMMLOG(QMM_VARARGS("Empty SubBSP entity list %d from engine\n", subbsp_index), QMMLOG_DEBUG, "STRIPPER");
+			QMM_WRITEQMMLOG(QMM_VARARGS("Empty SubBSP entity list %d from engine\n", s_subbsp_index), QMMLOG_DEBUG, "STRIPPER");
 			// return whatever the engine did (void in JAMP, so irrelevant)
 			QMM_RET_SUPERCEDE((intptr_t)ret);
 		}
+
+		QMM_WRITEQMMLOG(QMM_VARARGS("SubBSP entity list %d loaded, found %d entities\n", s_subbsp_index, mapents.get_entlist().size()), QMMLOG_DEBUG, "STRIPPER");
 
 		// modents starts as a copy of mapents
 		MapEntities modents = mapents;
 
 		// load global config
-		QMM_WRITEQMMLOG(QMM_VARARGS("Loading global config for SubBSP entity list %d\n", subbsp_index), QMMLOG_DEBUG, "STRIPPER");
+		QMM_WRITEQMMLOG(QMM_VARARGS("Loading global config for SubBSP entity list %d\n", s_subbsp_index), QMMLOG_DEBUG, "STRIPPER");
 		modents.apply_config("qmmaddons/stripper/global.ini");
 
 		// load map-specific config
-		QMM_WRITEQMMLOG(QMM_VARARGS("Loading map-specific config for SubBSP entity list %d: %s\n", subbsp_index, QMM_GETSTRCVAR("mapname")), QMMLOG_DEBUG, "STRIPPER");
-		modents.apply_config(QMM_VARARGS("qmmaddons/stripper/maps/%s.ini", QMM_GETSTRCVAR("mapname")));
+		const char* mapname = QMM_GETSTRCVAR("mapname");
+		QMM_WRITEQMMLOG(QMM_VARARGS("Loading map-specific config for SubBSP entity list %d: %s\n", s_subbsp_index, mapname), QMMLOG_DEBUG, "STRIPPER");
+		modents.apply_config(QMM_VARARGS("qmmaddons/stripper/maps/%s.ini", mapname));
 
-		// store these ent lists in subbsp table
-		s_subbsp_mapents[subbsp_index] = mapents;
-		s_subbsp_modents[subbsp_index] = modents;
-
-		QMM_WRITEQMMLOG(QMM_VARARGS("Completed parsing SubBSP entity list %d\n", subbsp_index), QMMLOG_INFO, "STRIPPER");
+		// store these ent lists in subbsp tables
+		s_subbsp_mapents[s_subbsp_index] = mapents;
+		s_subbsp_modents[s_subbsp_index] = modents;
+		
+		QMM_WRITEQMMLOG(QMM_VARARGS("Completed parsing SubBSP entity list %d, passing %d entities to mod\n", s_subbsp_index, modents.get_entlist().size()), QMMLOG_INFO, "STRIPPER");
 
 		// generate new entstring from modents to pass to mod
 		// this is fine even in JAMP since trap_SetActiveSubBSP is void so return value is ignored
@@ -233,7 +245,6 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 
 C_DLLEXPORT intptr_t QMM_vmMain_Post(intptr_t cmd, intptr_t* args) {
 
-#if defined(GAME_JAMP) || defined(GAME_JASP)
 	// mod init is done, tag all the subbsp lists for stripper_dump
 	if (cmd == GAME_INIT) {
 		// add "_subbsp_index=index" keyval to each entity in mapents and modents to provide
@@ -248,7 +259,6 @@ C_DLLEXPORT intptr_t QMM_vmMain_Post(intptr_t cmd, intptr_t* args) {
 			list.second.add_keyval("_subbsp_index", strindex);
 		}
 	}
-#endif // GAME_JAMP || GAME_JASP
 
 	return 0;
 }
@@ -262,28 +272,33 @@ C_DLLEXPORT intptr_t QMM_syscall_Post(intptr_t cmd, intptr_t* args) {
 // handle retrieving map entities, loading stripper configs, and modifying entities
 static bool s_load_and_modify_ents() {
 	// some games can load new maps without unloading the mod DLL
-	g_mapents = {};
+	s_mapents = {};
 
-	// get all the entity tokens from the engine and save to g_mapents
+	// get all the entity tokens from the engine and save to s_mapents
 	QMM_WRITEQMMLOG("Parsing entity list\n", QMMLOG_DEBUG, "STRIPPER");
-	g_mapents.make_from_engine();
+	s_mapents.make_from_engine();
 
 	// check for valid entity list
-	if (g_mapents.get_entlist().empty()) {
-		QMM_WRITEQMMLOG("Empty ent list from engine - possibly a trailer/menu?\n", QMMLOG_DEBUG, "STRIPPER");
+	if (s_mapents.get_entlist().empty()) {
+		QMM_WRITEQMMLOG("Empty entity list from engine - possibly a trailer/menu?\n", QMMLOG_DEBUG, "STRIPPER");
 		return false;
 	}
 
-	// g_modents starts as a copy of g_mapents
-	g_modents = g_mapents;
+	QMM_WRITEQMMLOG(QMM_VARARGS("Entity list loaded, found %d entities\n", s_mapents.get_entlist().size()), QMMLOG_DEBUG, "STRIPPER");
+
+	// modents starts as a copy of mapents
+	s_modents = s_mapents;
 
 	// load global config
 	QMM_WRITEQMMLOG("Loading global config\n", QMMLOG_DEBUG, "STRIPPER");
-	g_modents.apply_config("qmmaddons/stripper/global.ini");
+	s_modents.apply_config("qmmaddons/stripper/global.ini");
 
 	// load map-specific config
-	QMM_WRITEQMMLOG(QMM_VARARGS("Loading map-specific config: %s\n", QMM_GETSTRCVAR("mapname")), QMMLOG_DEBUG, "STRIPPER");
-	g_modents.apply_config(QMM_VARARGS("qmmaddons/stripper/maps/%s.ini", QMM_GETSTRCVAR("mapname")));
+	const char* mapname = QMM_GETSTRCVAR("mapname");
+	QMM_WRITEQMMLOG(QMM_VARARGS("Loading map-specific config: %s\n", mapname), QMMLOG_DEBUG, "STRIPPER");
+	s_modents.apply_config(QMM_VARARGS("qmmaddons/stripper/maps/%s.ini", mapname));
+
+	QMM_WRITEQMMLOG(QMM_VARARGS("Completed parsing entity list, passing %d entities to mod\n", s_modents.get_entlist().size()), QMMLOG_INFO, "STRIPPER");
 
 	return true;
 }

@@ -23,6 +23,7 @@ struct Ent {
 	std::map<std::string, std::string> keyvals;
 };
 
+// typedefs for common types used in MapEntities
 typedef std::vector<std::string> TokenList;
 typedef std::vector<Ent> EntList;
 typedef std::string EntString;
@@ -30,6 +31,13 @@ typedef std::string EntString;
 // this represents a map's worth of entities
 struct MapEntities {
     public:
+        // need constructors to handle re-initialization of iterator member
+        MapEntities();
+        MapEntities(const MapEntities& other);
+        MapEntities& operator=(const MapEntities& other);
+        MapEntities(MapEntities&& other) noexcept;
+        MapEntities& operator=(MapEntities&& other) noexcept;
+
         // populate MapEntities from entstring
         void make_from_entstring(EntString entstring);
         // populate MapEntities from engine tokens
@@ -37,8 +45,7 @@ struct MapEntities {
 
         // load and parse config file and apply to ents
         void apply_config(std::string file);
-
-        // add keyval to entities
+        // add keyval to all entities
         void add_keyval(std::string key, std::string val);
 
         // return the next token
@@ -46,15 +53,15 @@ struct MapEntities {
 
         // return tokenlist
         const TokenList& get_tokenlist();
-
         // return entlist
         const EntList& get_entlist();
-
         // return entstring
         const EntString& get_entstring();
 
-        // dump to file
-        void dump_to_file(std::string file, bool append=false);
+        // dump entlist to file
+        void dump_to_file(std::string file, bool append = false);
+        // dump tokenlist to file (should match exactly) 
+        void dump_tokens_to_file(std::string file, bool append = false);
 
     private:
         TokenList tokenlist;
@@ -85,12 +92,4 @@ struct MapEntities {
         // generate an entstring from entlist
         static EntString entstring_from_entlist(EntList entlist);
 };
-
-// this stores all the ents loaded from the map
-// we save this so we can dump them to file if needed
-extern MapEntities g_mapents;
-
-// this stores all the ents that should be passed to the mod (g_mapents +/- modifications)
-extern MapEntities g_modents;
-
 #endif // __STRIPPER_QMM_ENT_H__
