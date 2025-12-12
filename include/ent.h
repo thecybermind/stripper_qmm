@@ -18,38 +18,79 @@ Created By:
 #include <string>
 
 // this represents a single entity
-struct ent_t {
+struct Ent {
 	std::string classname; // classname is stored when encountered for easier retrieval
 	std::map<std::string, std::string> keyvals;
 };
 
+typedef std::vector<std::string> TokenList;
+typedef std::vector<Ent> EntList;
+typedef std::string EntString;
+
+// this represents a map's worth of entities
+struct MapEntities {
+    public:
+        // populate MapEntities from entstring
+        void make_from_entstring(EntString entstring);
+        // populate MapEntities from engine tokens
+        void make_from_engine();
+
+        // load and parse config file and apply to ents
+        void apply_config(std::string file);
+
+        // add keyval to entities
+        void add_keyval(std::string key, std::string val);
+
+        // return the next token
+        intptr_t get_next_token(char* buf, intptr_t len);
+
+        // return tokenlist
+        const TokenList& get_tokenlist();
+
+        // return entlist
+        const EntList& get_entlist();
+
+        // return entstring
+        const EntString& get_entstring();
+
+        // dump to file
+        void dump_to_file(std::string file, bool append=false);
+
+    private:
+        TokenList tokenlist;
+        EntList entlist;
+        EntString entstring;
+
+        TokenList::iterator tokeniter;
+
+        // returns true if "test" has all the same keyvals that "contains" has
+        static bool is_ent_match(Ent& test, Ent& contains);
+        // removes all matching entities from list
+        void filter_ents(Ent& filterent);
+        // adds an entity to list (puts worldspawn at the beginning)
+        void add_ent(Ent& addent);
+        // finds all entities in list matching all stored replaceents and replaces with a withent
+        void replace_ents(EntList replace_entlist, Ent& withent);
+        // replaces all applicable keyvals on an ent
+        static void replace_ent(Ent& replaceent, Ent& withent);
+
+        // generate a tokenlist from entstring
+        static TokenList tokenlist_from_entstring(EntString entstring);
+        // generate a tokenlist from engine tokens
+        static TokenList tokenlist_from_engine();
+        // generate a tokenlist from entlist
+        static TokenList tokenlist_from_entlist(EntList entlist);
+        // generate an entlist from engine tokens
+        static EntList entlist_from_tokenlist(TokenList tokenlist);
+        // generate an entstring from entlist
+        static EntString entstring_from_entlist(EntList entlist);
+};
+
 // this stores all the ents loaded from the map
 // we save this so we can dump them to file if needed
-extern std::vector<ent_t> g_mapents;
+extern MapEntities g_mapents;
 
 // this stores all the ents that should be passed to the mod (g_mapents +/- modifications)
-extern std::vector<ent_t> g_modents;
-
-#if defined(GAME_HAS_SPAWNENTS)
-// generate an entstring to pass to the mod
-const char* ents_generate_entstring(std::vector<ent_t>& list);
-#else
-// passes the next entity token to the mod
-intptr_t ent_next_token(std::vector<ent_t>& list, char* buf, intptr_t len);
-#endif 
-
-// gets all the entity tokens from the engine
-void ents_load_tokens(std::vector<ent_t>& list, std::vector<std::string> entstring_tokens = {});
-
-// outputs ent list to a file
-void ents_dump_to_file(std::vector<ent_t>& list, std::string file);
-
-// load and parse config file
-void ent_load_config(std::vector<ent_t>& list, std::string file);
-
-#if defined(GAME_JASP)
-// tokenize an entstring into a vector of strings 
-std::vector<std::string> ent_parse_entstring(std::string entstring);
-#endif // GAME_JASP
+extern MapEntities g_modents;
 
 #endif // __STRIPPER_QMM_ENT_H__
