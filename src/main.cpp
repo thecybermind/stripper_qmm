@@ -87,8 +87,18 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 #endif
 		QMM_ARGV(argn, buf, sizeof(buf));
 		if (str_striequal(buf, "stripper_dump")) {
-			g_mapents.dump_to_file(QMM_VARARGS("qmmaddons/stripper/dumps/%s.txt", QMM_GETSTRCVAR("mapname")));
-			g_modents.dump_to_file(QMM_VARARGS("qmmaddons/stripper/dumps/%s_modents.txt", QMM_GETSTRCVAR("mapname")));
+			const char* mapfile = QMM_VARARGS("qmmaddons/stripper/dumps/%s.txt", QMM_GETSTRCVAR("mapname"));
+			const char* modfile = QMM_VARARGS("qmmaddons/stripper/dumps/%s_modents.txt", QMM_GETSTRCVAR("mapname"));
+			g_mapents.dump_to_file(mapfile);
+			g_modents.dump_to_file(modfile);
+
+#if defined(GAME_JAMP) || defined(GAME_JASP)
+			// we also need to print out the subbsp lists (true = append)
+			for (auto& subbsp : s_subbsp_mapents)
+				subbsp.second.dump_to_file(mapfile, true);
+			for (auto& subbsp : s_subbsp_modents)
+				subbsp.second.dump_to_file(modfile, true);
+#endif
 			// don't pass this to mod since we handled the command
 			QMM_RET_SUPERCEDE(1);
 		}
@@ -142,7 +152,7 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 		char* entity = (char*)args[0];
 		intptr_t length = args[1];
 		MapEntities& entlist = 
-#ifdef GAME_JAMP
+#if defined(GAME_JAMP)
 			(subbsp_index >= 0) ? s_subbsp_modents[subbsp_index] :
 #endif
 			g_modents;
@@ -177,13 +187,13 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 		MapEntities mapents;
 		// since we will supercede this call, we need to call the engine function ourselves
 		const char* ret = (const char*)g_syscall(G_SET_ACTIVE_SUBBSP, subbsp_index);
-#ifdef GAME_JAMP
+#if defined(GAME_JAMP)
 		// load entities from G_GET_ENTITY_TOKEN
 		mapents.make_from_engine();
-#else
+#elif defined(GAME_JASP)
 		// load entities from entstring returned from engine
 		mapents.make_from_entstring(ret);
-#endif
+#endif // GAME_JAMP / GAME_JASP
 
 		// check for valid entity list
 		if (mapents.get_entlist().empty()) {
