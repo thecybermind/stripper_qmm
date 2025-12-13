@@ -53,7 +53,7 @@ MapEntities s_mapents;
 MapEntities s_modents;
 
 
-// handle retrieving map entities, loading stripper configs, and modifying entities
+// handle retrieving map entities, loading stripper configs, and modifying entities for normal Init/SpawnEntities mod loading
 static bool s_load_and_modify_ents();
 
 // these next vars are for JASP/JAMP, but leaving them available to all games makes code a bit cleaner in some places
@@ -100,11 +100,13 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 			s_mapents.dump_to_file(mapfile);
 			s_modents.dump_to_file(modfile);
 
+#if defined(GAME_HAS_SUBBSP)
 			// we also need to print out the subbsp lists (true = append)
 			for (auto& subbsp : s_subbsp_mapents)
 				subbsp.second.dump_to_file(mapfile, true);
 			for (auto& subbsp : s_subbsp_modents)
 				subbsp.second.dump_to_file(modfile, true);
+#endif // GAME_HAS_SUBBSP
 
 			// don't pass this to mod since we handled the command
 			QMM_RET_SUPERCEDE(1);
@@ -162,16 +164,18 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 		intptr_t ret = entlist.get_next_token(entity, length);
 
 		if (ret && s_subbsp_index >= 0)
-			QMM_WRITEQMMLOG(QMM_VARARGS("Passing SubBSP %d entity to mod: \"%s\"\n", s_subbsp_index, entity), QMMLOG_TRACE, "STRIPPER");
+			QMM_WRITEQMMLOG(QMM_VARARGS("G_GET_ENTITY_TOKEN: Passing SubBSP %d entity to mod: \"%s\"\n", s_subbsp_index, entity), QMMLOG_TRACE, "STRIPPER");
 		else if (ret)
-			QMM_WRITEQMMLOG(QMM_VARARGS("Passing entity token to mod: \"%s\"\n", entity), QMMLOG_TRACE, "STRIPPER");
+			QMM_WRITEQMMLOG(QMM_VARARGS("G_GET_ENTITY_TOKEN: Passing entity token to mod: \"%s\"\n", entity), QMMLOG_TRACE, "STRIPPER");
+		else
+			QMM_WRITEQMMLOG("G_GET_ENTITY_TOKEN: No more entities to pass to mod\n", QMMLOG_TRACE, "STRIPPER");
 
 		// don't pass this to engine since we already pulled all entities from the engine
 		QMM_RET_SUPERCEDE(ret);
 	}
 #endif // !GAME_HAS_SPAWNENTS
 
-#if defined(GAME_JAMP) || defined(GAME_JASP)
+#if defined(GAME_HAS_SUBBSP)
 	/* Jedi Academy has a feature that allows a "misc_bsp" entity in a map to basically cause another map to be
 	   loaded in-place. When a mod encounters the misc_bsp entity, it should call the engine's SetActiveSubBSP
 	   function with a unique ID that is part of the entity. This lets the engine give the mod the SubBSP's entity
@@ -181,8 +185,9 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 	   In singleplayer (JASP), this call will return the SubBSP entity info as an entstring (like in Init).
 	   In both, once the mod has loaded all the new SubBSP entities, the mod calls SetActiveSubBSP(-1).
 	   
-	   Here, we store the given index (exit if it's -1), then we get the entity info, apply configs,
-	   and save for later processing/dumping.
+	   Here, we store the given index (exit if it's -1), then we get the entity info, apply configs, and save for
+	   later processing/dumping. The G_GET_ENTITY_TOKEN hook will check the stored index and load the appropriate
+	   subbsp MapEntities object for passing to the mod.
 	*/
 	if (cmd == G_SET_ACTIVE_SUBBSP) {
 		s_subbsp_index = args[0];
@@ -190,7 +195,7 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 		// we will just let this pass through directly to the engine
 		if (s_subbsp_index < 0)
 			QMM_RET_IGNORED(0);
-		QMM_WRITEQMMLOG(QMM_VARARGS("Parsing SubBSP entity list %d\n", s_subbsp_index), QMMLOG_INFO, "STRIPPER");
+		QMM_WRITEQMMLOG(QMM_VARARGS("Parsing SubBSP entity list %d\n", s_subbsp_index), QMMLOG_DEBUG, "STRIPPER");
 
 		// get the entities from the engine and save to mapents
 		MapEntities mapents;
@@ -202,7 +207,9 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 #elif defined(GAME_JASP)
 		// load entities from entstring returned from engine
 		mapents.make_from_entstring(ret);
-#endif // GAME_JAMP / GAME_JASP
+#else
+		// ?
+#endif
 
 		// check for valid entity list
 		if (mapents.get_entlist().empty()) {
@@ -229,7 +236,7 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 		s_subbsp_mapents[s_subbsp_index] = mapents;
 		s_subbsp_modents[s_subbsp_index] = modents;
 		
-		QMM_WRITEQMMLOG(QMM_VARARGS("Completed parsing SubBSP entity list %d, passing %d entities to mod\n", s_subbsp_index, modents.get_entlist().size()), QMMLOG_INFO, "STRIPPER");
+		QMM_WRITEQMMLOG(QMM_VARARGS("Completed parsing SubBSP entity list %d, passing %d entities to mod\n", s_subbsp_index, modents.get_entlist().size()), QMMLOG_DEBUG, "STRIPPER");
 
 		// generate new entstring from modents to pass to mod
 		// this is fine even in JAMP since trap_SetActiveSubBSP is void so return value is ignored
@@ -237,7 +244,7 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 		entstring = modents.get_entstring().c_str();
 		QMM_RET_SUPERCEDE((intptr_t)entstring.c_str());
 	}
-#endif // GAME_JAMP || GAME_JASP
+#endif // GAME_HAS_SUBBSP
 
 	QMM_RET_IGNORED(1);
 }
@@ -245,6 +252,7 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 
 C_DLLEXPORT intptr_t QMM_vmMain_Post(intptr_t cmd, intptr_t* args) {
 
+#if defined(GAME_HAS_SUBBSP)
 	// mod init is done, tag all the subbsp lists for stripper_dump
 	if (cmd == GAME_INIT) {
 		// add "_subbsp_index=index" keyval to each entity in mapents and modents to provide
@@ -259,6 +267,7 @@ C_DLLEXPORT intptr_t QMM_vmMain_Post(intptr_t cmd, intptr_t* args) {
 			list.second.add_keyval("_subbsp_index", strindex);
 		}
 	}
+#endif // GAME_HAS_SUBBSP
 
 	return 0;
 }
@@ -271,11 +280,15 @@ C_DLLEXPORT intptr_t QMM_syscall_Post(intptr_t cmd, intptr_t* args) {
 
 // handle retrieving map entities, loading stripper configs, and modifying entities
 static bool s_load_and_modify_ents() {
-	// some games can load new maps without unloading the mod DLL
+	// some games can load new maps without unloading the mod DLL, so start fresh
 	s_mapents = {};
+	s_subbsp_mapents.clear();
+	s_subbsp_modents.clear();
 
 	// get all the entity tokens from the engine and save to s_mapents
 	QMM_WRITEQMMLOG("Parsing entity list\n", QMMLOG_DEBUG, "STRIPPER");
+	// QMM has a polyfill for G_GET_ENTITY_TOKEN in games where an entstring is passed to Init/SpawnEntities,
+	// so we can just use it for all games. subbsp stuff will be handled specially.
 	s_mapents.make_from_engine();
 
 	// check for valid entity list
