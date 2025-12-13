@@ -93,9 +93,9 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 #endif
 		QMM_ARGV(argn, buf, sizeof(buf));
 		if (str_striequal(buf, "stripper_dump")) {
-			const char* mapname = QMM_GETSTRCVAR("mapname");
-			const char* mapfile = QMM_VARARGS("qmmaddons/stripper/dumps/%s.txt", mapname);
-			const char* modfile = QMM_VARARGS("qmmaddons/stripper/dumps/%s_modents.txt", mapname);
+			std::string mapname = QMM_GETSTRCVAR("mapname");
+			std::string mapfile = QMM_VARARGS("qmmaddons/stripper/dumps/%s.txt", mapname.c_str());
+			std::string modfile = QMM_VARARGS("qmmaddons/stripper/dumps/%s_modents.txt", mapname.c_str());
 
 			s_mapents.dump_to_file(mapfile);
 			s_modents.dump_to_file(modfile);
@@ -228,9 +228,9 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 		modents.apply_config("qmmaddons/stripper/global.ini");
 
 		// load map-specific config
-		const char* mapname = QMM_GETSTRCVAR("mapname");
-		QMM_WRITEQMMLOG(QMM_VARARGS("Loading map-specific config for SubBSP entity list %d: %s\n", s_subbsp_index, mapname), QMMLOG_DEBUG, "STRIPPER");
-		modents.apply_config(QMM_VARARGS("qmmaddons/stripper/maps/%s.ini", mapname));
+		std::string mapname = QMM_GETSTRCVAR("mapname");
+		QMM_WRITEQMMLOG(QMM_VARARGS("Loading map-specific config for SubBSP entity list %d: %s\n", s_subbsp_index, mapname.c_str()), QMMLOG_DEBUG, "STRIPPER");
+		modents.apply_config(QMM_VARARGS("qmmaddons/stripper/maps/%s.ini", mapname.c_str()));
 
 		// store these ent lists in subbsp tables
 		s_subbsp_mapents[s_subbsp_index] = mapents;
@@ -307,9 +307,9 @@ static bool s_load_and_modify_ents() {
 	s_modents.apply_config("qmmaddons/stripper/global.ini");
 
 	// load map-specific config
-	const char* mapname = QMM_GETSTRCVAR("mapname");
-	QMM_WRITEQMMLOG(QMM_VARARGS("Loading map-specific config: %s\n", mapname), QMMLOG_DEBUG, "STRIPPER");
-	s_modents.apply_config(QMM_VARARGS("qmmaddons/stripper/maps/%s.ini", mapname));
+	std::string mapname = QMM_GETSTRCVAR("mapname");
+	QMM_WRITEQMMLOG(QMM_VARARGS("Loading map-specific config: %s\n", mapname.c_str()), QMMLOG_DEBUG, "STRIPPER");
+	s_modents.apply_config(QMM_VARARGS("qmmaddons/stripper/maps/%s.ini", mapname.c_str()));
 
 	QMM_WRITEQMMLOG(QMM_VARARGS("Completed parsing entity list, passing %d entities to mod\n", s_modents.get_entlist().size()), QMMLOG_INFO, "STRIPPER");
 

@@ -60,8 +60,6 @@ struct MapEntities {
 
         // dump entlist to file
         void dump_to_file(std::string file, bool append = false);
-        // dump tokenlist to file (should match exactly) 
-        void dump_tokens_to_file(std::string file, bool append = false);
 
     private:
         TokenList tokenlist;

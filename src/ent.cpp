@@ -279,37 +279,6 @@ void MapEntities::dump_to_file(std::string file, bool append) {
 }
 
 
-void MapEntities::dump_tokens_to_file(std::string file, bool append) {
-	fileHandle_t f;
-	if (g_syscall(G_FS_FOPEN_FILE, file.c_str(), &f, append ? FS_APPEND : FS_WRITE) < 0) {
-		QMM_WRITEQMMLOG(QMM_VARARGS("Unable to write token dump to %s\n", file.c_str()), QMMLOG_INFO, "STRIPPER");
-		return;
-	}
-	bool is_key = false;
-	std::string s;
-	for (auto& token : this->tokenlist) {
-		if (token == "{") {
-			s = token + "\n";
-			is_key = true;
-		}
-		else if (token == "}") {
-			s = token + "\n";
-		}
-		else if (is_key) {
-			s = "\t" + token + "=";
-			is_key = false;
-		}
-		else {
-			s = token + "\n";
-			is_key = true;
-		}
-		g_syscall(G_FS_WRITE, s.c_str(), s.size(), f);
-	}
-	g_syscall(G_FS_FCLOSE_FILE, f);
-	QMM_WRITEQMMLOG(QMM_VARARGS("Token dump written to %s\n", file.c_str()), QMMLOG_INFO, "STRIPPER");
-}
-
-
 // MapEntities private functions
 // =============================
 
