@@ -190,7 +190,7 @@ def gen_vcxproj(name, sourcefiles, headerfiles):
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableUAC>false</EnableUAC>
-	</Link>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="$(Configuration.StartsWith('Debug-'))==true">
     <ClCompile>
@@ -271,7 +271,7 @@ def gen_vcxproj_filters(name, sourcefiles, headerfiles):
         f.write(
             f"""  </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="{name}.rc">
+    <ResourceCompile Include="resource.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
