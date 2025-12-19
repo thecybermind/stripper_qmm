@@ -24,6 +24,7 @@ plugininfo_t g_plugininfo = {
 	"Change map entities during load",				// description of plugin
 	STRIPPER_QMM_BUILDER,							// author of plugin
 	"https://github.com/thecybermind/stripper_qmm", // website of plugin
+	"STRIPPER",										// log tag
 };
 eng_syscall_t g_syscall = nullptr;
 mod_vmMain_t g_vmMain = nullptr;
@@ -67,7 +68,7 @@ static int s_subbsp_index = -1;
 C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 	if (cmd == GAME_INIT) {
 		// init msg
-		QMM_WRITEQMMLOG(QMM_VARARGS("Stripper v" STRIPPER_QMM_VERSION " (%s) by " STRIPPER_QMM_BUILDER " is loaded\n", QMM_GETGAMEENGINE()), QMMLOG_NOTICE, "STRIPPER");
+		QMM_WRITEQMMLOG(PLID, QMM_VARARGS(PLID, "Stripper v" STRIPPER_QMM_VERSION " (%s) by " STRIPPER_QMM_BUILDER " is loaded\n", QMM_GETGAMEENGINE(PLID)), QMMLOG_NOTICE);
 		// register cvar
 		g_syscall(G_CVAR_REGISTER, nullptr, "stripper_version", STRIPPER_QMM_VERSION, CVAR_ROM | CVAR_SERVERINFO | CVAR_NORESTART);
 		g_syscall(G_CVAR_SET, "stripper_version", STRIPPER_QMM_VERSION);
@@ -78,7 +79,7 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 
 		s_load_and_modify_ents();
 
-		QMM_WRITEQMMLOG("Stripper loading complete.\n", QMMLOG_NOTICE, "STRIPPER");
+		QMM_WRITEQMMLOG(PLID, "Stripper loading complete.\n", QMMLOG_NOTICE);
 #endif // !GAME_HAS_SPAWNENTS
 
 	}
@@ -91,11 +92,11 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 #else
 		int argn = 0;
 #endif
-		QMM_ARGV(argn, buf, sizeof(buf));
+		QMM_ARGV(PLID, argn, buf, sizeof(buf));
 		if (str_striequal(buf, "stripper_dump")) {
-			std::string mapname = QMM_GETSTRCVAR("mapname");
-			std::string mapfile = QMM_VARARGS("qmmaddons/stripper/dumps/%s.txt", mapname.c_str());
-			std::string modfile = QMM_VARARGS("qmmaddons/stripper/dumps/%s_modents.txt", mapname.c_str());
+			std::string mapname = QMM_GETSTRCVAR(PLID, "mapname");
+			std::string mapfile = QMM_VARARGS(PLID, "qmmaddons/stripper/dumps/%s.txt", mapname.c_str());
+			std::string modfile = QMM_VARARGS(PLID, "qmmaddons/stripper/dumps/%s_modents.txt", mapname.c_str());
 
 			s_mapents.dump_to_file(mapfile);
 			s_modents.dump_to_file(modfile);
@@ -145,7 +146,7 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 			args[entarg] = (intptr_t)entstring;
 		}
 
-		QMM_WRITEQMMLOG("Stripper loading complete.\n", QMMLOG_NOTICE, "STRIPPER");
+		QMM_WRITEQMMLOG(PLID, "Stripper loading complete.\n", QMMLOG_NOTICE);
 	}
 #endif
 
@@ -164,11 +165,11 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 		intptr_t ret = entlist.get_next_token(entity, length);
 
 		if (ret && s_subbsp_index >= 0)
-			QMM_WRITEQMMLOG(QMM_VARARGS("G_GET_ENTITY_TOKEN: Passing SubBSP %d entity to mod: \"%s\"\n", s_subbsp_index, entity), QMMLOG_TRACE, "STRIPPER");
+			QMM_WRITEQMMLOG(PLID, QMM_VARARGS(PLID, "G_GET_ENTITY_TOKEN: Passing SubBSP %d entity to mod: \"%s\"\n", s_subbsp_index, entity), QMMLOG_TRACE);
 		else if (ret)
-			QMM_WRITEQMMLOG(QMM_VARARGS("G_GET_ENTITY_TOKEN: Passing entity token to mod: \"%s\"\n", entity), QMMLOG_TRACE, "STRIPPER");
+			QMM_WRITEQMMLOG(PLID, QMM_VARARGS(PLID, "G_GET_ENTITY_TOKEN: Passing entity token to mod: \"%s\"\n", entity), QMMLOG_TRACE);
 		else
-			QMM_WRITEQMMLOG("G_GET_ENTITY_TOKEN: No more entities to pass to mod\n", QMMLOG_TRACE, "STRIPPER");
+			QMM_WRITEQMMLOG(PLID, "G_GET_ENTITY_TOKEN: No more entities to pass to mod\n", QMMLOG_TRACE);
 
 		// don't pass this to engine since we already pulled all entities from the engine
 		QMM_RET_SUPERCEDE(ret);
@@ -195,7 +196,7 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 		// we will just let this pass through directly to the engine
 		if (s_subbsp_index < 0)
 			QMM_RET_IGNORED(0);
-		QMM_WRITEQMMLOG(QMM_VARARGS("Parsing SubBSP entity list %d\n", s_subbsp_index), QMMLOG_DEBUG, "STRIPPER");
+		QMM_WRITEQMMLOG(PLID, QMM_VARARGS(PLID, "Parsing SubBSP entity list %d\n", s_subbsp_index), QMMLOG_DEBUG);
 
 		// get the entities from the engine and save to mapents
 		MapEntities mapents;
@@ -213,30 +214,30 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 
 		// check for valid entity list
 		if (mapents.get_entlist().empty()) {
-			QMM_WRITEQMMLOG(QMM_VARARGS("Empty SubBSP entity list %d from engine\n", s_subbsp_index), QMMLOG_DEBUG, "STRIPPER");
+			QMM_WRITEQMMLOG(PLID, QMM_VARARGS(PLID, "Empty SubBSP entity list %d from engine\n", s_subbsp_index), QMMLOG_DEBUG);
 			// return whatever the engine did (void in JAMP, so irrelevant)
 			QMM_RET_SUPERCEDE((intptr_t)ret);
 		}
 
-		QMM_WRITEQMMLOG(QMM_VARARGS("SubBSP entity list %d loaded, found %d entities\n", s_subbsp_index, mapents.get_entlist().size()), QMMLOG_DEBUG, "STRIPPER");
+		QMM_WRITEQMMLOG(PLID, QMM_VARARGS(PLID, "SubBSP entity list %d loaded, found %d entities\n", s_subbsp_index, mapents.get_entlist().size()), QMMLOG_DEBUG);
 
 		// modents starts as a copy of mapents
 		MapEntities modents = mapents;
 
 		// load global config
-		QMM_WRITEQMMLOG(QMM_VARARGS("Loading global config for SubBSP entity list %d\n", s_subbsp_index), QMMLOG_DEBUG, "STRIPPER");
+		QMM_WRITEQMMLOG(PLID, QMM_VARARGS(PLID, "Loading global config for SubBSP entity list %d\n", s_subbsp_index), QMMLOG_DEBUG);
 		modents.apply_config("qmmaddons/stripper/global.ini");
 
 		// load map-specific config
-		std::string mapname = QMM_GETSTRCVAR("mapname");
-		QMM_WRITEQMMLOG(QMM_VARARGS("Loading map-specific config for SubBSP entity list %d: %s\n", s_subbsp_index, mapname.c_str()), QMMLOG_DEBUG, "STRIPPER");
-		modents.apply_config(QMM_VARARGS("qmmaddons/stripper/maps/%s.ini", mapname.c_str()));
+		std::string mapname = QMM_GETSTRCVAR(PLID, "mapname");
+		QMM_WRITEQMMLOG(PLID, QMM_VARARGS(PLID, "Loading map-specific config for SubBSP entity list %d: %s\n", s_subbsp_index, mapname.c_str()), QMMLOG_DEBUG);
+		modents.apply_config(QMM_VARARGS(PLID, "qmmaddons/stripper/maps/%s.ini", mapname.c_str()));
 
 		// store these ent lists in subbsp tables
 		s_subbsp_mapents[s_subbsp_index] = mapents;
 		s_subbsp_modents[s_subbsp_index] = modents;
 		
-		QMM_WRITEQMMLOG(QMM_VARARGS("Completed parsing SubBSP entity list %d, passing %d entities to mod\n", s_subbsp_index, modents.get_entlist().size()), QMMLOG_DEBUG, "STRIPPER");
+		QMM_WRITEQMMLOG(PLID, QMM_VARARGS(PLID, "Completed parsing SubBSP entity list %d, passing %d entities to mod\n", s_subbsp_index, modents.get_entlist().size()), QMMLOG_DEBUG);
 
 		// generate new entstring from modents to pass to mod
 		// this is fine even in JAMP since trap_SetActiveSubBSP is void so return value is ignored
@@ -286,32 +287,32 @@ static bool s_load_and_modify_ents() {
 	s_subbsp_modents.clear();
 
 	// get all the entity tokens from the engine and save to s_mapents
-	QMM_WRITEQMMLOG("Parsing entity list\n", QMMLOG_DEBUG, "STRIPPER");
+	QMM_WRITEQMMLOG(PLID, "Parsing entity list\n", QMMLOG_DEBUG);
 	// QMM has a polyfill for G_GET_ENTITY_TOKEN in games where an entstring is passed to Init/SpawnEntities,
 	// so we can just use it for all games. subbsp stuff will be handled specially.
 	s_mapents.make_from_engine();
 
 	// check for valid entity list
 	if (s_mapents.get_entlist().empty()) {
-		QMM_WRITEQMMLOG("Empty entity list from engine - possibly a trailer/menu?\n", QMMLOG_DEBUG, "STRIPPER");
+		QMM_WRITEQMMLOG(PLID, "Empty entity list from engine - possibly a trailer/menu?\n", QMMLOG_DEBUG);
 		return false;
 	}
 
-	QMM_WRITEQMMLOG(QMM_VARARGS("Entity list loaded, found %d entities\n", s_mapents.get_entlist().size()), QMMLOG_DEBUG, "STRIPPER");
+	QMM_WRITEQMMLOG(PLID, QMM_VARARGS(PLID, "Entity list loaded, found %d entities\n", s_mapents.get_entlist().size()), QMMLOG_DEBUG);
 
 	// modents starts as a copy of mapents
 	s_modents = s_mapents;
 
 	// load global config
-	QMM_WRITEQMMLOG("Loading global config\n", QMMLOG_DEBUG, "STRIPPER");
+	QMM_WRITEQMMLOG(PLID, "Loading global config\n", QMMLOG_DEBUG);
 	s_modents.apply_config("qmmaddons/stripper/global.ini");
 
 	// load map-specific config
-	std::string mapname = QMM_GETSTRCVAR("mapname");
-	QMM_WRITEQMMLOG(QMM_VARARGS("Loading map-specific config: %s\n", mapname.c_str()), QMMLOG_DEBUG, "STRIPPER");
-	s_modents.apply_config(QMM_VARARGS("qmmaddons/stripper/maps/%s.ini", mapname.c_str()));
+	std::string mapname = QMM_GETSTRCVAR(PLID, "mapname");
+	QMM_WRITEQMMLOG(PLID, QMM_VARARGS(PLID, "Loading map-specific config: %s\n", mapname.c_str()), QMMLOG_DEBUG);
+	s_modents.apply_config(QMM_VARARGS(PLID, "qmmaddons/stripper/maps/%s.ini", mapname.c_str()));
 
-	QMM_WRITEQMMLOG(QMM_VARARGS("Completed parsing entity list, passing %d entities to mod\n", s_modents.get_entlist().size()), QMMLOG_INFO, "STRIPPER");
+	QMM_WRITEQMMLOG(PLID, QMM_VARARGS(PLID, "Completed parsing entity list, passing %d entities to mod\n", s_modents.get_entlist().size()), QMMLOG_INFO);
 
 	return true;
 }
