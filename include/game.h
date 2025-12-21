@@ -48,6 +48,7 @@ Created By:
     #define GAME_HAS_SPAWNENTS
 #elif defined(GAME_SOF2MP)
     #include <sof2mp/game/g_local.h>
+    #define GAME_HAS_SUBBSP
 #elif defined(GAME_STEF2)
     #include <stef2/game/g_local.h>
     #include <game_stef2.h>
