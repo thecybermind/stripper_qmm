@@ -7,22 +7,23 @@ rem copy ..\q3dm1.ini .\
 rem copy ..\global.ini .\
 
 for %%x in (
-        Q3A
-        RTCWMP
-		RTCWSP
-		WET
-		JAMP
+        JAMP
 		JASP
 		JK2MP
 		JK2SP
-		SOF2MP
-		STVOYHM
-		STVOYSP
-		STEF2
 		MOHAA
 		MOHBT
 		MOHSH
 		QUAKE2
+		Q3A
+		RTCWMP
+		RTCWSP
+		SIN
+		SOF2MP
+		STEF2
+		STVOYHM
+		STVOYSP
+		WET
        ) do (
          copy ..\bin\Release-%%x\x86\stripper_qmm_%%x.dll .\
          copy ..\bin\Release-%%x\x64\stripper_qmm_x86_64_%%x.dll .\         

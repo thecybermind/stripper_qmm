@@ -29,12 +29,12 @@
       <Configuration>Debug-MOHSH</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug-Q3A|Win32">
-      <Configuration>Debug-Q3A</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug-QUAKE2|Win32">
       <Configuration>Debug-QUAKE2</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug-Q3A|Win32">
+      <Configuration>Debug-Q3A</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Debug-RTCWMP|Win32">
@@ -43,6 +43,10 @@
     </ProjectConfiguration>
     <ProjectConfiguration Include="Debug-RTCWSP|Win32">
       <Configuration>Debug-RTCWSP</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug-SIN|Win32">
+      <Configuration>Debug-SIN</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Debug-SOF2MP|Win32">
@@ -93,6 +97,10 @@
       <Configuration>Debug-MOHSH</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug-QUAKE2|x64">
+      <Configuration>Debug-QUAKE2</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug-Q2R|x64">
       <Configuration>Debug-Q2R</Configuration>
       <Platform>x64</Platform>
@@ -101,16 +109,16 @@
       <Configuration>Debug-Q3A</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug-QUAKE2|x64">
-      <Configuration>Debug-QUAKE2</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug-RTCWMP|x64">
       <Configuration>Debug-RTCWMP</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Debug-RTCWSP|x64">
       <Configuration>Debug-RTCWSP</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug-SIN|x64">
+      <Configuration>Debug-SIN</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Debug-SOF2MP|x64">
@@ -161,12 +169,12 @@
       <Configuration>Release-MOHSH</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Release-Q3A|Win32">
-      <Configuration>Release-Q3A</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Release-QUAKE2|Win32">
       <Configuration>Release-QUAKE2</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release-Q3A|Win32">
+      <Configuration>Release-Q3A</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release-RTCWMP|Win32">
@@ -175,6 +183,10 @@
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release-RTCWSP|Win32">
       <Configuration>Release-RTCWSP</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release-SIN|Win32">
+      <Configuration>Release-SIN</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release-SOF2MP|Win32">
@@ -225,6 +237,10 @@
       <Configuration>Release-MOHSH</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Release-QUAKE2|x64">
+      <Configuration>Release-QUAKE2</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release-Q2R|x64">
       <Configuration>Release-Q2R</Configuration>
       <Platform>x64</Platform>
@@ -233,16 +249,16 @@
       <Configuration>Release-Q3A</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Release-QUAKE2|x64">
-      <Configuration>Release-QUAKE2</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Release-RTCWMP|x64">
       <Configuration>Release-RTCWMP</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release-RTCWSP|x64">
       <Configuration>Release-RTCWSP</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release-SIN|x64">
+      <Configuration>Release-SIN</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release-SOF2MP|x64">
@@ -339,17 +355,20 @@
   <PropertyGroup Condition="$(Platform)=='Win32' And $(Configuration.EndsWith('-MOHSH'))==true">
     <TargetName>$(ProjectName)_MOHSH</TargetName>
   </PropertyGroup>
-  <PropertyGroup Condition="$(Platform)=='Win32' And $(Configuration.EndsWith('-Q3A'))==true">
-    <TargetName>$(ProjectName)_Q3A</TargetName>
-  </PropertyGroup>
   <PropertyGroup Condition="$(Platform)=='Win32' And $(Configuration.EndsWith('-QUAKE2'))==true">
     <TargetName>$(ProjectName)_QUAKE2</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(Platform)=='Win32' And $(Configuration.EndsWith('-Q3A'))==true">
+    <TargetName>$(ProjectName)_Q3A</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="$(Platform)=='Win32' And $(Configuration.EndsWith('-RTCWMP'))==true">
     <TargetName>$(ProjectName)_RTCWMP</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="$(Platform)=='Win32' And $(Configuration.EndsWith('-RTCWSP'))==true">
     <TargetName>$(ProjectName)_RTCWSP</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(Platform)=='Win32' And $(Configuration.EndsWith('-SIN'))==true">
+    <TargetName>$(ProjectName)_SIN</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="$(Platform)=='Win32' And $(Configuration.EndsWith('-SOF2MP'))==true">
     <TargetName>$(ProjectName)_SOF2MP</TargetName>
@@ -387,20 +406,23 @@
   <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-MOHSH'))==true">
     <TargetName>$(ProjectName)_x86_64_MOHSH</TargetName>
   </PropertyGroup>
+  <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-QUAKE2'))==true">
+    <TargetName>$(ProjectName)_x86_64_QUAKE2</TargetName>
+  </PropertyGroup>
   <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-Q2R'))==true">
     <TargetName>$(ProjectName)_x86_64_Q2R</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-Q3A'))==true">
     <TargetName>$(ProjectName)_x86_64_Q3A</TargetName>
   </PropertyGroup>
-  <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-QUAKE2'))==true">
-    <TargetName>$(ProjectName)_x86_64_QUAKE2</TargetName>
-  </PropertyGroup>
   <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-RTCWMP'))==true">
     <TargetName>$(ProjectName)_x86_64_RTCWMP</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-RTCWSP'))==true">
     <TargetName>$(ProjectName)_x86_64_RTCWSP</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-SIN'))==true">
+    <TargetName>$(ProjectName)_x86_64_SIN</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-SOF2MP'))==true">
     <TargetName>$(ProjectName)_x86_64_SOF2MP</TargetName>
@@ -434,7 +456,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableUAC>false</EnableUAC>
-	</Link>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="$(Configuration.StartsWith('Debug-'))==true">
     <ClCompile>
@@ -491,6 +513,11 @@
       <PreprocessorDefinitions>%(PreprocessorDefinitions);GAME_MOHSH</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="$(Configuration.EndsWith('-QUAKE2'))==true">
+    <ClCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);GAME_QUAKE2</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="$(Configuration.EndsWith('-Q2R'))==true">
     <ClCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);GAME_Q2R</PreprocessorDefinitions>
@@ -501,11 +528,6 @@
       <PreprocessorDefinitions>%(PreprocessorDefinitions);GAME_Q3A</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="$(Configuration.EndsWith('-QUAKE2'))==true">
-    <ClCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);GAME_QUAKE2</PreprocessorDefinitions>
-    </ClCompile>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="$(Configuration.EndsWith('-RTCWMP'))==true">
     <ClCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);GAME_RTCWMP</PreprocessorDefinitions>
@@ -514,6 +536,11 @@
   <ItemDefinitionGroup Condition="$(Configuration.EndsWith('-RTCWSP'))==true">
     <ClCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);GAME_RTCWSP</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="$(Configuration.EndsWith('-SIN'))==true">
+    <ClCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);GAME_SIN</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="$(Configuration.EndsWith('-SOF2MP'))==true">

@@ -12,21 +12,7 @@ Created By:
 #ifndef __STRIPPER_QMM_GAME_H__
 #define __STRIPPER_QMM_GAME_H__
 
-#if defined(GAME_Q3A)
-    #include <q3a/game/g_local.h>
-#elif defined(GAME_RTCWMP)
-    #include <rtcwmp/game/g_local.h>
-#elif defined(GAME_RTCWSP)
-    #include <rtcwsp/game/g_local.h>
-#elif defined(GAME_JK2MP)
-    #include <jk2mp/game/g_local.h>
-#elif defined(GAME_JK2SP)
-    #include <jk2sp/game/q_shared.h>
-    #include <jk2sp/game/g_local.h>
-    #include <jk2sp/game/bg_public.h>
-    #include <game_jk2sp.h>
-    #define GAME_HAS_SPAWNENTS
-#elif defined(GAME_JAMP)
+#if defined(GAME_JAMP)
     #include <jamp/game/g_local.h>
     #define GAME_HAS_SUBBSP
 #elif defined(GAME_JASP)
@@ -36,34 +22,28 @@ Created By:
     #include <game_jasp.h>
     #define GAME_HAS_SPAWNENTS
     #define GAME_HAS_SUBBSP
-#elif defined(GAME_WET)
-    #include <wet/game/g_local.h>
-#elif defined(GAME_STVOYHM)
-    #include <stvoyhm/game/g_local.h>
-#elif defined(GAME_STVOYSP)
-    #include <stvoysp/game/q_shared.h>
-    #include <stvoysp/game/g_local.h>
-    #include <stvoysp/game/bg_public.h>
-    #include <game_stvoysp.h>
-    #define GAME_HAS_SPAWNENTS
-#elif defined(GAME_SOF2MP)
-    #include <sof2mp/game/g_local.h>
-    #define GAME_HAS_SUBBSP
-#elif defined(GAME_STEF2)
-    #include <stef2/game/g_local.h>
-    #include <game_stef2.h>
+#elif defined(GAME_JK2MP)
+    #include <jk2mp/game/g_local.h>
+#elif defined(GAME_JK2SP)
+    #include <jk2sp/game/q_shared.h>
+    #include <jk2sp/game/g_local.h>
+    #include <jk2sp/game/bg_public.h>
+    #include <game_jk2sp.h>
     #define GAME_HAS_SPAWNENTS
 #elif defined(GAME_MOHAA)
     #include <mohaa/fgame/g_local.h>
+    #include <mohaa/fgame/bg_public.h>
     #include <game_mohaa.h>
-    #define GAME_HAS_SPAWNENTS
-#elif defined(GAME_MOHSH)
-    #include <mohsh/fgame/g_local.h>
-    #include <game_mohsh.h>
     #define GAME_HAS_SPAWNENTS
 #elif defined(GAME_MOHBT)
     #include <mohaa/fgame/g_local.h>
+    #include <mohaa/fgame/bg_public.h>
     #include <game_mohbt.h>
+    #define GAME_HAS_SPAWNENTS
+#elif defined(GAME_MOHSH)
+    #include <mohsh/fgame/g_local.h>
+    #include <mohsh/fgame/bg_public.h>
+    #include <game_mohsh.h>
     #define GAME_HAS_SPAWNENTS
 #elif defined(GAME_QUAKE2)
     #include <quake2/game/g_local.h>
@@ -75,6 +55,35 @@ Created By:
     #include <game_q2r.h>
     #define GAME_HAS_SPAWNENTS
     #define CVAR_NORESTART 0
+#elif defined(GAME_Q3A)
+    #include <q3a/game/g_local.h>
+#elif defined(GAME_RTCWMP)
+    #include <rtcwmp/game/g_local.h>
+#elif defined(GAME_RTCWSP)
+    #include <rtcwsp/game/g_local.h>
+#elif defined(GAME_SIN)
+    #include <sin/game/g_local.h>
+    #include <game_sin.h>
+    #define GAME_HAS_SPAWNENTS
+    #define CVAR_NORESTART 0
+#elif defined(GAME_SOF2MP)
+    #include <sof2mp/game/g_local.h>
+    #define GAME_HAS_SUBBSP
+#elif defined(GAME_STEF2)
+    #include <stef2/game/g_local.h>
+    #include <stef2/game/bg_public.h>
+    #include <game_stef2.h>
+    #define GAME_HAS_SPAWNENTS
+#elif defined(GAME_STVOYHM)
+    #include <stvoyhm/game/g_local.h>
+#elif defined(GAME_STVOYSP)
+    #include <stvoysp/game/q_shared.h>
+    #include <stvoysp/game/g_local.h>
+    #include <stvoysp/game/bg_public.h>
+    #include <game_stvoysp.h>
+    #define GAME_HAS_SPAWNENTS
+#elif defined(GAME_WET)
+    #include <wet/game/g_local.h>
 #endif
 
 #endif // __STRIPPER_QMM_GAME_H__

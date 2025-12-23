@@ -1,20 +1,21 @@
 for %%x in (
-        Q3A
-        RTCWMP
-		RTCWSP
-		WET
-		JAMP
+        JAMP
 		JASP
 		JK2MP
 		JK2SP
-		SOF2MP
-		STVOYHM
-		STVOYSP
-		STEF2
 		MOHAA
 		MOHBT
 		MOHSH
 		QUAKE2
+		Q3A
+		RTCWMP
+		RTCWSP
+		SIN
+		SOF2MP
+		STEF2
+		STVOYHM
+		STVOYSP
+		WET
        ) do (
          msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-%%x /p:Platform=x86
          msbuild .\msvc\stripper_qmm.vcxproj /p:Configuration=Debug-%%x /p:Platform=x64
