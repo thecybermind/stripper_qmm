@@ -87,7 +87,7 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 	else if (cmd == GAME_CONSOLE_COMMAND) {
 		char buf[20];
 // Quake 2 and Quake 2 Remastered use 1-based command arguments (presumably the 0th arg is "sv"?)
-#if defined(GAME_Q2R) || defined(GAME_QUAKE2)
+#if defined(GAME_Q2R) || defined(GAME_QUAKE2) || defined(GAME_SIN)
 		int argn = 1;
 #else
 		int argn = 0;
