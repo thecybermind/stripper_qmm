@@ -155,8 +155,10 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 
 C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 
-//#if !defined(GAME_HAS_SPAWNENTS)	
-	// loop through the ent list and return a single token
+	// this section won't actually trigger in GAME_HAS_SPAWNENTS games
+	// but we leave it to handle warnings for unused 's_subbsp_index'
+
+	// return next entity token back to the game
 	if (cmd == G_GET_ENTITY_TOKEN) {
 		char* entity = (char*)args[0];
 		intptr_t length = args[1];
@@ -173,7 +175,6 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 		// don't pass this to engine since we already pulled all entities from the engine
 		QMM_RET_SUPERCEDE(ret);
 	}
-//#endif // !GAME_HAS_SPAWNENTS
 
 #if defined(GAME_HAS_SUBBSP)
 	/* Jedi Academy has a feature that allows a "misc_bsp" entity in a map to basically cause another map to be
