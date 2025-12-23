@@ -101,13 +101,11 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 			s_mapents.dump_to_file(mapfile);
 			s_modents.dump_to_file(modfile);
 
-#if defined(GAME_HAS_SUBBSP)
 			// we also need to print out the subbsp lists (true = append)
 			for (auto& subbsp : s_subbsp_mapents)
 				subbsp.second.dump_to_file(mapfile, true);
 			for (auto& subbsp : s_subbsp_modents)
 				subbsp.second.dump_to_file(modfile, true);
-#endif // GAME_HAS_SUBBSP
 
 			// don't pass this to mod since we handled the command
 			QMM_RET_SUPERCEDE(1);
@@ -123,12 +121,13 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 	if (cmd == GAME_SPAWN_ENTITIES) {
 		// moh??:   void (*SpawnEntities)(char *entstring, int levelTime);
 		// stef2:   void (*SpawnEntities)(const char *mapname, const char *entstring, int levelTime);
+		// sin:		void (*SpawnEntities)(const char *mapname, const char *entstring, const char *spawnpoint);
 		// quake2:  void (*SpawnEntities)(const char *mapname, const char *entstring, const char *spawnpoint);
 		// q2r:     void (*SpawnEntities)(const char *mapname, const char *entstring, const char *spawnpoint);
 		// jk2sp:   void (*Init)(const char *mapname, const char *spawntarget, int checkSum, const char *entstring, int levelTime, int randomSeed, int globalTime, SavedGameJustLoaded_e eSavedGameJustLoaded, qboolean qbLoadTransition);
 		// jasp:    void (*Init)(const char *mapname, const char *spawntarget, int checkSum, const char *entstring, int levelTime, int randomSeed, int globalTime, SavedGameJustLoaded_e eSavedGameJustLoaded, qboolean qbLoadTransition);
 		// stvoysp: void (*Init)(const char *mapname, const char *spawntarget, int checkSum, const char *entstring, int levelTime, int randomSeed, int globalTime, SavedGameJustLoaded_e eSavedGameJustLoaded, qboolean qbLoadTransition);
-#if defined(GAME_STEF2) || defined(GAME_Q2R) || defined(GAME_QUAKE2)
+#if defined(GAME_STEF2) || defined(GAME_Q2R) || defined(GAME_QUAKE2) || defined(GAME_SIN)
 		int entarg = 1;
 #elif defined(GAME_JK2SP) || defined(GAME_JASP) || defined(GAME_STVOYSP)
 		int entarg = 3;
@@ -156,7 +155,7 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 
 C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 
-#if !defined(GAME_HAS_SPAWNENTS)	
+//#if !defined(GAME_HAS_SPAWNENTS)	
 	// loop through the ent list and return a single token
 	if (cmd == G_GET_ENTITY_TOKEN) {
 		char* entity = (char*)args[0];
@@ -174,7 +173,7 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 		// don't pass this to engine since we already pulled all entities from the engine
 		QMM_RET_SUPERCEDE(ret);
 	}
-#endif // !GAME_HAS_SPAWNENTS
+//#endif // !GAME_HAS_SPAWNENTS
 
 #if defined(GAME_HAS_SUBBSP)
 	/* Jedi Academy has a feature that allows a "misc_bsp" entity in a map to basically cause another map to be
@@ -189,6 +188,8 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 	   Here, we store the given index (exit if it's -1), then we get the entity info, apply configs, and save for
 	   later processing/dumping. The G_GET_ENTITY_TOKEN hook will check the stored index and load the appropriate
 	   subbsp MapEntities object for passing to the mod.
+
+	   Edit: SOF2MP also supports SubBSPs in the same manner as JAMP
 	*/
 	if (cmd == G_SET_ACTIVE_SUBBSP) {
 		s_subbsp_index = args[0];
@@ -202,7 +203,7 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 		MapEntities mapents;
 		// since we will supercede this call, we need to call the engine function ourselves
 		const char* ret = (const char*)g_syscall(G_SET_ACTIVE_SUBBSP, s_subbsp_index);
-#if defined(GAME_JAMP)
+#if defined(GAME_JAMP) || defined(SOF2MP)
 		// load entities from G_GET_ENTITY_TOKEN
 		mapents.make_from_engine();
 #elif defined(GAME_JASP)
