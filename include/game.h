@@ -12,7 +12,13 @@ Created By:
 #ifndef __STRIPPER_QMM_GAME_H__
 #define __STRIPPER_QMM_GAME_H__
 
-#if defined(GAME_JAMP)
+#if defined(GAME_COD11MP)
+    #include <game_cod11mp.h>
+#elif defined(GAME_CODMP)
+    #include <game_codmp.h>
+#elif defined(GAME_CODUOMP)
+    #include <game_coduomp.h>
+#elif defined(GAME_JAMP)
     #include <jamp/game/g_local.h>
     #define GAME_HAS_SUBBSP
 #elif defined(GAME_JASP)

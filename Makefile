@@ -1,14 +1,12 @@
-# STRIPPER_QMM - Dynamic Map Entity Modification
+# STUB_QMM - Example QMM Plugin
 # Copyright 2004-2025
 # https://github.com/thecybermind/stub_qmm/
 # 3-clause BSD license: https://opensource.org/license/bsd-3-clause
-# Created By: Kevin Masterson < cybermind@gmail.com >
+# Created By: Kevin Masterson < k.m.masterson@gmail.com >
 
 BIN_32 := stripper_qmm
 BIN_64 := stripper_qmm_x86_64
-GAMES := JAMP JASP JK2MP JK2SP MOHAA MOHBT MOHSH QUAKE2 Q3A RTCWMP RTCWSP SIN SOF2MP STEF2 STVOYHM STVOYSP WET
-
-
+GAMES := COD11MP CODMP CODUOMP JAMP JASP JK2MP JK2SP MOHAA MOHBT MOHSH Q3A QUAKE2 RTCWMP RTCWSP SIN SOF2MP STEF2 STVOYHM STVOYSP WET
 
 CC := g++
 
@@ -56,7 +54,7 @@ help:
 	@echo release64-[GAME]: [64-bit release build for GAME]
 	@echo debug32-[GAME]: [32-bit debug build for GAME]
 	@echo debug64-[GAME]: [64-bit release build for GAME]
-	
+
 all: release debug
 release: release32 release64
 release32: $(addprefix release32-,$(GAMES))
