@@ -5,7 +5,7 @@ https://github.com/thecybermind/stripper_qmm/
 3-clause BSD license: https://opensource.org/license/bsd-3-clause
 
 Created By:
-    Kevin Masterson < cybermind@gmail.com >
+    Kevin Masterson < k.m.masterson@gmail.com >
 
 */
 
@@ -15,15 +15,15 @@ Created By:
 #if defined(GAME_COD11MP)
     #include <cod11mp/bgame/bg_local.h>
     #include <cod11mp/bgame/bg_public.h>
-    #include <game_cod11mp.h>
+    #include <cod11mp/game/g_public.h>
 #elif defined(GAME_CODMP)
     #include <codmp/bgame/bg_local.h>
     #include <codmp/bgame/bg_public.h>
-    #include <game_codmp.h>
+    #include <codmp/game/g_public.h>
 #elif defined(GAME_CODUOMP)
     #include <coduomp/bgame/bg_local.h>
     #include <coduomp/bgame/bg_public.h>
-    #include <game_coduomp.h>
+    #include <coduomp/game/g_public.h>
 #elif defined(GAME_JAMP)
     #include <jamp/game/g_local.h>
     #define GAME_HAS_SUBBSP
