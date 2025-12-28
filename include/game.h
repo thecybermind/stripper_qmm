@@ -13,10 +13,16 @@ Created By:
 #define __STRIPPER_QMM_GAME_H__
 
 #if defined(GAME_COD11MP)
+    #include <cod11mp/bgame/bg_local.h>
+    #include <cod11mp/bgame/bg_public.h>
     #include <game_cod11mp.h>
 #elif defined(GAME_CODMP)
+    #include <codmp/bgame/bg_local.h>
+    #include <codmp/bgame/bg_public.h>
     #include <game_codmp.h>
 #elif defined(GAME_CODUOMP)
+    #include <coduomp/bgame/bg_local.h>
+    #include <coduomp/bgame/bg_public.h>
     #include <game_coduomp.h>
 #elif defined(GAME_JAMP)
     #include <jamp/game/g_local.h>
