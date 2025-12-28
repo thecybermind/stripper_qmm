@@ -86,13 +86,13 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 	// handle stripper_dump command
 	else if (cmd == GAME_CONSOLE_COMMAND) {
 		char buf[20];
-// Quake 2 and Quake 2 Remastered use 1-based command arguments (presumably the 0th arg is "sv"?)
-#if defined(GAME_Q2R) || defined(GAME_QUAKE2) || defined(GAME_SIN)
-		int argn = 1;
-#else
-		int argn = 0;
-#endif
-		QMM_ARGV(PLID, argn, buf, sizeof(buf));
+
+		QMM_ARGV(PLID, 0, buf, sizeof(buf));
+		
+		// if command is "sv", then check the next arg
+		if (str_striequal(buf, "sv"))
+			QMM_ARGV(PLID, 1, buf, sizeof(buf));
+
 		if (str_striequal(buf, "stripper_dump")) {
 			std::string mapname = QMM_GETSTRCVAR(PLID, "mapname");
 			std::string mapfile = QMM_VARARGS(PLID, "qmmaddons/stripper/dumps/%s.txt", mapname.c_str());
