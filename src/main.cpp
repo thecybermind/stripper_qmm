@@ -122,8 +122,8 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 		// moh??:   void (*SpawnEntities)(char *entstring, int levelTime);
 		// stef2:   void (*SpawnEntities)(const char *mapname, const char *entstring, int levelTime);
 		// sin:		void (*SpawnEntities)(const char *mapname, const char *entstring, const char *spawnpoint);
-		// quake2:  void (*SpawnEntities)(const char *mapname, const char *entstring, const char *spawnpoint);
-		// q2r:     void (*SpawnEntities)(const char *mapname, const char *entstring, const char *spawnpoint);
+		// quake2:  void (*SpawnEntities)(char* mapname, char* entstring, char* spawnpoint);
+		// q2r:     void (*SpawnEntities)(char* mapname, char* entstring, char* spawnpoint);
 		// jk2sp:   void (*Init)(const char *mapname, const char *spawntarget, int checkSum, const char *entstring, int levelTime, int randomSeed, int globalTime, SavedGameJustLoaded_e eSavedGameJustLoaded, qboolean qbLoadTransition);
 		// jasp:    void (*Init)(const char *mapname, const char *spawntarget, int checkSum, const char *entstring, int levelTime, int randomSeed, int globalTime, SavedGameJustLoaded_e eSavedGameJustLoaded, qboolean qbLoadTransition);
 		// stvoysp: void (*Init)(const char *mapname, const char *spawntarget, int checkSum, const char *entstring, int levelTime, int randomSeed, int globalTime, SavedGameJustLoaded_e eSavedGameJustLoaded, qboolean qbLoadTransition);
@@ -149,7 +149,7 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 	}
 #endif
 
-	QMM_RET_IGNORED(1);
+	QMM_RET_IGNORED(0);
 }
 
 
@@ -244,12 +244,12 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 		// generate new entstring from modents to pass to mod
 		// this is fine even in JAMP since trap_SetActiveSubBSP is void so return value is ignored
 		static EntString entstring;
-		entstring = modents.get_entstring().c_str();
+		entstring = modents.get_entstring();
 		QMM_RET_SUPERCEDE((intptr_t)entstring.c_str());
 	}
 #endif // GAME_HAS_SUBBSP
 
-	QMM_RET_IGNORED(1);
+	QMM_RET_IGNORED(0);
 }
 
 
@@ -272,12 +272,12 @@ C_DLLEXPORT intptr_t QMM_vmMain_Post(intptr_t cmd, intptr_t* args) {
 	}
 #endif // GAME_HAS_SUBBSP
 
-	return 0;
+	QMM_RET_IGNORED(0);
 }
 
 
 C_DLLEXPORT intptr_t QMM_syscall_Post(intptr_t cmd, intptr_t* args) {
-	return 0;
+	QMM_RET_IGNORED(0);
 }
 
 
