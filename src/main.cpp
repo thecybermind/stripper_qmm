@@ -47,6 +47,9 @@ C_DLLEXPORT void QMM_Detach() {
 }
 
 
+// flag to disable if another stripper plugin is loaded for some reason
+bool s_disabled = false;
+
 // this stores all the ents loaded from the map
 // we save this so we can dump them to file if needed
 MapEntities s_mapents;
@@ -66,9 +69,18 @@ static int s_subbsp_index = -1;
 
 
 C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
+	if (s_disabled)
+		QMM_RET_IGNORED(0);
+
 	if (cmd == GAME_INIT) {
+		// broadcast our version so other stripper plugins may disable themselves
+		QMM_PLUGIN_BROADCAST(PLID, STRIPPER_QMM_BROADCAST_STR, nullptr, STRIPPER_QMM_VERSION_INT);
+		// if this resulted in us being disabled, cancel init
+		if (s_disabled)
+			QMM_RET_IGNORED(0);
+
 		// init msg
-		QMM_WRITEQMMLOG(PLID, QMM_VARARGS(PLID, "Stripper v" STRIPPER_QMM_VERSION " (%s) by " STRIPPER_QMM_BUILDER " is loaded\n", QMM_GETGAMEENGINE(PLID)), QMMLOG_NOTICE);
+		QMM_WRITEQMMLOG(PLID, QMM_VARARGS(PLID, "Stripper v" STRIPPER_QMM_VERSION " (%s) by " STRIPPER_QMM_BUILDER " is loaded (%p)\n", QMM_GETGAMEENGINE(PLID), &g_plugininfo), QMMLOG_NOTICE);
 		// register cvar
 		g_syscall(G_CVAR_REGISTER, nullptr, "stripper_version", STRIPPER_QMM_VERSION, CVAR_ROM | CVAR_SERVERINFO | CVAR_NORESTART);
 		g_syscall(G_CVAR_SET, "stripper_version", STRIPPER_QMM_VERSION);
@@ -154,6 +166,8 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 
 
 C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
+	if (s_disabled)
+		QMM_RET_IGNORED(0);
 
 	// this section won't actually trigger in GAME_HAS_SPAWN_ENTITIES games
 	// but we leave it to handle warnings for unused 's_subbsp_index'
@@ -254,6 +268,8 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 
 
 C_DLLEXPORT intptr_t QMM_vmMain_Post(intptr_t cmd, intptr_t* args) {
+	if (s_disabled)
+		QMM_RET_IGNORED(0);
 
 #if defined(GAME_HAS_SUBBSP)
 	// mod init is done, tag all the subbsp lists for stripper_dump
@@ -278,6 +294,26 @@ C_DLLEXPORT intptr_t QMM_vmMain_Post(intptr_t cmd, intptr_t* args) {
 
 C_DLLEXPORT intptr_t QMM_syscall_Post(intptr_t cmd, intptr_t* args) {
 	QMM_RET_IGNORED(0);
+}
+
+
+C_DLLEXPORT void QMM_PluginMessage(plid_t from_plid, const char* message, void* buf, intptr_t buflen) {
+	if (s_disabled)
+		return;
+
+	// if this is a message from another stripper plugin
+	if (!strcmp(message, STRIPPER_QMM_BROADCAST_STR) && !buf) {
+		// if the passed version is greater or equal to ours, disable ourselves
+		if (buflen >= STRIPPER_QMM_VERSION_INT) {
+			QMM_WRITEQMMLOG(PLID, QMM_VARARGS(PLID, "Another stripper_qmm with version %X detected, our version is %X. This plugin is disabling itself.", buflen, STRIPPER_QMM_VERSION_INT), QMMLOG_WARNING);
+			s_disabled = true;
+		}
+		// we have a higher version, so broadcast out our version and the other one will disable itself
+		else {
+			QMM_WRITEQMMLOG(PLID, QMM_VARARGS(PLID, "Another stripper_qmm with version %X detected, our version is %X. Broadcasting our version.", buflen, STRIPPER_QMM_VERSION_INT), QMMLOG_INFO);
+			QMM_PLUGIN_BROADCAST(PLID, STRIPPER_QMM_BROADCAST_STR, nullptr, STRIPPER_QMM_VERSION_INT);
+		}
+	}
 }
 
 
