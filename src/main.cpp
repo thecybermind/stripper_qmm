@@ -80,7 +80,7 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 			QMM_RET_IGNORED(0);
 
 		// init msg
-		QMM_WRITEQMMLOG(PLID, QMM_VARARGS(PLID, "Stripper v" STRIPPER_QMM_VERSION " (%s) by " STRIPPER_QMM_BUILDER " is loaded (%p)\n", QMM_GETGAMEENGINE(PLID), &g_plugininfo), QMMLOG_NOTICE);
+		QMM_WRITEQMMLOG(PLID, QMM_VARARGS(PLID, "Stripper v" STRIPPER_QMM_VERSION " (%s) by " STRIPPER_QMM_BUILDER " is loaded\n", QMM_GETGAMEENGINE(PLID)), QMMLOG_NOTICE);
 		// register cvar
 		g_syscall(G_CVAR_REGISTER, nullptr, "stripper_version", STRIPPER_QMM_VERSION, CVAR_ROM | CVAR_SERVERINFO | CVAR_NORESTART);
 		g_syscall(G_CVAR_SET, "stripper_version", STRIPPER_QMM_VERSION);
