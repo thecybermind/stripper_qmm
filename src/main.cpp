@@ -73,14 +73,14 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 		g_syscall(G_CVAR_REGISTER, nullptr, "stripper_version", STRIPPER_QMM_VERSION, CVAR_ROM | CVAR_SERVERINFO | CVAR_NORESTART);
 		g_syscall(G_CVAR_SET, "stripper_version", STRIPPER_QMM_VERSION);
 
-#if !defined(GAME_HAS_SPAWNENTS)
+#if !defined(GAME_HAS_SPAWN_ENTITIES)
 		// games without a GAME_SPAWN_ENTITIES msg get entities and load configs here during QMM_vmMain(GAME_INIT).
 		// entities are passed to the mod with the QMM_syscall(G_GET_ENTITY_TOKEN) hook
 
 		s_load_and_modify_ents();
 
 		QMM_WRITEQMMLOG(PLID, "Stripper loading complete.\n", QMMLOG_NOTICE);
-#endif // !GAME_HAS_SPAWNENTS
+#endif // !GAME_HAS_SPAWN_ENTITIES
 
 	}
 	// handle stripper_dump command
@@ -112,7 +112,7 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 		}
 	}
 
-#if defined(GAME_HAS_SPAWNENTS)
+#if defined(GAME_HAS_SPAWN_ENTITIES)
 
 	// games with a GAME_SPAWN_ENTITIES msg load configs here during QMM_vmMain(GAME_SPAWN_ENTITIES).
 	// entities are passed to the mod by changing the entstring parameter.
@@ -155,7 +155,7 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 
 C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 
-	// this section won't actually trigger in GAME_HAS_SPAWNENTS games
+	// this section won't actually trigger in GAME_HAS_SPAWN_ENTITIES games
 	// but we leave it to handle warnings for unused 's_subbsp_index'
 
 	// return next entity token back to the game
