@@ -14,12 +14,12 @@ Created By: Kevin Masterson < k.m.masterson@gmail.com >
 
 ## Setup:
 ### Server Commands:
-* stripper_dump - Dumps the current maps' default entity list to qmmaddons/stripper/dumps/<mapname>.txt
+* stripper_dump - Dumps the current maps' default entity list to `qmmaddons/stripper/dumps/{mapname}.txt` and the modified entity list to `qmmaddons/stripper/dumps/{mapname}_modent.txt`
 
 ### Configuration Files:
 There are 2 files loaded per map. One is the global configuration file that is loaded for every map, and the other is specific to the current map.
 
-The global configuration file is located at qmmaddons/stripper/global.ini and the map-specific file is located at qmmaddons/stripper/maps/[mapname].ini. A sample global.ini and q3dm1.ini are provided in the release.
+The global configuration file is located at `qmmaddons/stripper/global.ini` and the map-specific file is located at `qmmaddons/stripper/maps/{mapname}.ini`. A sample global.ini and q3dm1.ini are provided in the release.
 
 Configuration files have the following format:
 
