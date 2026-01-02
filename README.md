@@ -21,6 +21,8 @@ There are 2 files loaded per map. One is the global configuration file that is l
 
 The global configuration file is located at `qmmaddons/stripper/global.ini` and the map-specific file is located at `qmmaddons/stripper/maps/{mapname}.ini`. A sample global.ini and q3dm1.ini are provided in the release.
 
+#### Syntax
+
 Configuration files have the following format:
 
     ;this line is a comment
@@ -50,11 +52,26 @@ Configuration files have the following format:
        key=val
     }
     
+#### Sections
 - A "`filter`" section specifies entity masks for entities that should be removed from the map. If an entity has all the keys provided in a mask, and the values associated with them match, the entity is removed.
 - An "`add`" section specifies complete entity information to add to the map. Entities are added with only the keys and values provided in the block.
 - A "`replace`" section specifies entity masks for entities that should be replaced or modified. If an entity has all the keys provided in a mask, and the values associated with them match, the entity will be replaced or modified.
 - A "`with`" section specifies what keys and values should be replaced on any associated "`replace`" masks. Only the keys provided in the "`with`" block will be replaced. A "`with`" section will affect all "`replace`" masks created after the previous "`with`" block (or the start of the file if none).
 
+#### Regex
+As of v2.4.2, "`filter`" and "`replace`" matches now support regex matching (using C++11 <regex>). Simply surround the match with "`/`" to trigger regex matching:
+
+    # replace all weapons with railguns
+    replace:
+    {
+       classname=/weapon_.*/
+    }
+    with:
+    {
+       classname=weapon_railgun
+    }
+
+#### Notes
 "`filter`", "`add`", and "`with`"/"`replace`" modify the entity list in the order they appear. For example, the following will result in no new entities being added, since the second "filter" section will cause the added item to be removed:
 
     filter:
