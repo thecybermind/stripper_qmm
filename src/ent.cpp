@@ -193,6 +193,7 @@ void MapEntities::apply_config(std::string file) {
 				// with mode, don't accept empty entity
 				else if (mode == mode_with && !ent.keyvals.empty()) {
 					replace_ents(replace_entlist, ent);
+					replace_entlist.clear();
 				}
 			}
 			// it's a key/val pair line or something else
@@ -339,7 +340,7 @@ void MapEntities::add_ent(Ent& addent) {
 
 
 // finds all entities in list matching all stored replaceents and replaces with a withent
-void MapEntities::replace_ents(EntList replace_entlist, Ent& withent) {
+void MapEntities::replace_ents(EntList& replace_entlist, Ent& withent) {
 	// go through all replaceents
 	for (auto& repent : replace_entlist) {
 		// find any matching ents in given list
@@ -378,11 +379,11 @@ TokenList MapEntities::tokenlist_from_entstring(EntString entstring) {
 		// skip whitespace outside strings
 		else if (std::isspace(c) && !buildstr)
 			continue;
-		// handle opening braces
-		else if (c == '{')
+		// handle opening braces outside strings
+		else if (c == '{' && !buildstr)
 			tokenlist.push_back("{");
-		// handle closing braces
-		else if (c == '}')
+		// handle closing braces outside strings
+		else if (c == '}' && !buildstr)
 			tokenlist.push_back("}");
 		// handle quote, start of a key or value
 		else if (c == '"' && !buildstr) {
