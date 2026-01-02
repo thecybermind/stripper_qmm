@@ -74,7 +74,7 @@ struct MapEntities {
         // adds an entity to list (puts worldspawn at the beginning)
         void add_ent(Ent& addent);
         // finds all entities in list matching all stored replaceents and replaces with a withent
-        void replace_ents(EntList replace_entlist, Ent& withent);
+        void replace_ents(EntList& replace_entlist, Ent& withent);
         // replaces all applicable keyvals on an ent
         static void replace_ent(Ent& replaceent, Ent& withent);
 
