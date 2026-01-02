@@ -15,6 +15,11 @@ Created By:
 #include <string.h>
 #include <ctype.h>
 
+#include <vector>
+#include <map>
+#include <string>
+#include <regex>
+
 #include "game.h"
 #include "ent.h"
 #include "util.h"
@@ -285,11 +290,27 @@ void MapEntities::dump_to_file(std::string file, bool append) {
 
 // returns true if "test" has at least all the same keyvals that "contains" has
 bool MapEntities::is_ent_match(Ent& test, Ent& contains) {
-	for (auto& matchkeyval : contains.keyvals) {
+	for (auto& containskeyval : contains.keyvals) {
+		// containskeyval.first is the key
+		// containskeyval.second is the val
+
 		// look up match key in test ent
-		auto iter = test.keyvals.find(matchkeyval.first);
-		// if key doesn't exist on test, or val doesn't match
-		if (iter == test.keyvals.end() || iter->second != matchkeyval.second)
+		auto iter = test.keyvals.find(containskeyval.first);
+		// if key doesn't exist on test
+		if (iter == test.keyvals.end())
+			return false;
+
+		// first check val for leading and trailing "/" to do a regex match
+		std::string match = containskeyval.second;
+		if (match[0] == '/' && match[match.size() - 1] == '/') {
+			// generate a regex pattern using the val with leading and trailing "/" removed
+			std::regex re(match.substr(1, match.size() - 2));
+			// doesn't match
+			if (!std::regex_match(iter->second, re))
+				return false;
+		}
+		// no regex, val doesn't match
+		else if (iter->second != match)
 			return false;
 	}
 	return true;

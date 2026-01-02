@@ -12,7 +12,6 @@ Created By:
 #ifndef __STRIPPER_QMM_ENT_H__
 #define __STRIPPER_QMM_ENT_H__
 
-#include "game.h"
 #include <vector>
 #include <map>
 #include <string>
