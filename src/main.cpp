@@ -32,6 +32,9 @@ pluginfuncs_t* g_pluginfuncs = nullptr;
 pluginvars_t* g_pluginvars = nullptr;
 
 
+std::string mapname;
+
+
 C_DLLEXPORT void QMM_Query(plugininfo_t** pinfo) {
 	QMM_GIVE_PINFO();
 }
@@ -85,6 +88,8 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 		g_syscall(G_CVAR_REGISTER, nullptr, "stripper_version", STRIPPER_QMM_VERSION, CVAR_ROM | CVAR_SERVERINFO | CVAR_NORESTART);
 		g_syscall(G_CVAR_SET, "stripper_version", STRIPPER_QMM_VERSION);
 
+		mapname = QMM_GETSTRCVAR(PLID, "mapname");
+
 #if !defined(GAME_HAS_SPAWN_ENTITIES)
 		// games without a GAME_SPAWN_ENTITIES msg get entities and load configs here during QMM_vmMain(GAME_INIT).
 		// entities are passed to the mod with the QMM_syscall(G_GET_ENTITY_TOKEN) hook
@@ -106,7 +111,6 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 			QMM_ARGV(PLID, 1, buf, sizeof(buf));
 
 		if (str_striequal(buf, "stripper_dump")) {
-			std::string mapname = QMM_GETSTRCVAR(PLID, "mapname");
 			std::string mapfile = QMM_VARARGS(PLID, "qmmaddons/stripper/dumps/%s.txt", mapname.c_str());
 			std::string modfile = QMM_VARARGS(PLID, "qmmaddons/stripper/dumps/%s_modents.txt", mapname.c_str());
 
@@ -141,8 +145,10 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 		// stvoysp: void (*Init)(const char *mapname, const char *spawntarget, int checkSum, const char *entstring, int levelTime, int randomSeed, int globalTime, SavedGameJustLoaded_e eSavedGameJustLoaded, qboolean qbLoadTransition);
 #if defined(GAME_STEF2) || defined(GAME_Q2R) || defined(GAME_QUAKE2) || defined(GAME_SIN)
 		int entarg = 1;
+		mapname = (char*)args[0];
 #elif defined(GAME_JK2SP) || defined(GAME_JASP) || defined(GAME_STVOYSP)
 		int entarg = 3;
+		mapname = (char*)args[0];
 #elif defined(GAME_MOHAA) || defined(GAME_MOHSH) || defined(GAME_MOHBT)
 		int entarg = 0;
 #else
@@ -245,7 +251,6 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 		modents.apply_config("qmmaddons/stripper/global.ini");
 
 		// load map-specific config
-		std::string mapname = QMM_GETSTRCVAR(PLID, "mapname");
 		QMM_WRITEQMMLOG(PLID, QMM_VARARGS(PLID, "Loading map-specific config for SubBSP entity list %d: %s\n", s_subbsp_index, mapname.c_str()), QMMLOG_DEBUG);
 		modents.apply_config(QMM_VARARGS(PLID, "qmmaddons/stripper/maps/%s.ini", mapname.c_str()));
 
@@ -346,7 +351,6 @@ static bool s_load_and_modify_ents() {
 	s_modents.apply_config("qmmaddons/stripper/global.ini");
 
 	// load map-specific config
-	std::string mapname = QMM_GETSTRCVAR(PLID, "mapname");
 	QMM_WRITEQMMLOG(PLID, QMM_VARARGS(PLID, "Loading map-specific config: %s\n", mapname.c_str()), QMMLOG_DEBUG);
 	s_modents.apply_config(QMM_VARARGS(PLID, "qmmaddons/stripper/maps/%s.ini", mapname.c_str()));
 
