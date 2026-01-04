@@ -12,7 +12,7 @@ Created By:
 #ifndef __STRIPPER_QMM_UTIL_H__
 #define __STRIPPER_QMM_UTIL_H__
 
-#include <stdio.h>
+#include <string>
 
 std::string str_tolower(std::string str);
 int str_stristr(std::string haystack, std::string needle);
