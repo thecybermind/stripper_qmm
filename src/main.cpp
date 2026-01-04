@@ -10,7 +10,6 @@ Created By:
 */
 
 #include "version.h"
-#include <cstring>
 #include <qmmapi.h>
 #include "game.h"
 #include "ent.h"
@@ -310,7 +309,7 @@ C_DLLEXPORT void QMM_PluginMessage(plid_t from_plid, const char* message, void* 
 		return;
 
 	// if this is a message from another stripper plugin
-	if (!strcmp(message, STRIPPER_QMM_BROADCAST_STR) && !buf) {
+	if (str_striequal(message, STRIPPER_QMM_BROADCAST_STR) && !buf) {
 		// if the passed version is greater or equal to ours, disable ourselves
 		if (buflen >= STRIPPER_QMM_VERSION_INT) {
 			QMM_WRITEQMMLOG(PLID, QMM_VARARGS(PLID, "Another stripper_qmm with version %X detected, our version is %X. This plugin is disabling itself.", buflen, STRIPPER_QMM_VERSION_INT), QMMLOG_WARNING);

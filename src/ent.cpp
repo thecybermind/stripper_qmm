@@ -34,10 +34,12 @@ MapEntities::MapEntities(const MapEntities& other) {
 
 
 MapEntities& MapEntities::operator=(const MapEntities& other) {
+	// grab other's data
 	this->entlist = other.entlist;
 	this->tokenlist = other.tokenlist;
 	this->entstring = other.entstring;
 
+	// calculate other's tokeniter offset to set ours to point to the same entity
 	auto other_offset = other.tokeniter - other.tokenlist.begin();
 	this->tokeniter = this->tokenlist.begin() + other_offset;
 
@@ -51,13 +53,16 @@ MapEntities::MapEntities(MapEntities&& other) noexcept {
 
 
 MapEntities& MapEntities::operator=(MapEntities&& other) noexcept {
+	// grab other's data
 	this->entlist = other.entlist;
 	this->tokenlist = other.tokenlist;
 	this->entstring = other.entstring;
 
+	// calculate other's tokeniter offset to set ours to point to the same entity
 	auto other_offset = other.tokeniter - other.tokenlist.begin();
 	this->tokeniter = this->tokenlist.begin() + other_offset;
 
+	// clear other's data
 	other.entlist.clear();
 	other.tokenlist.clear();
 	other.entstring.clear();
@@ -70,9 +75,10 @@ MapEntities& MapEntities::operator=(MapEntities&& other) noexcept {
 // populate MapEntities from entstring
 void MapEntities::make_from_entstring(EntString entstring) {
 	TokenList tokenlist = tokenlist_from_entstring(entstring);
-	this->entlist = entlist_from_tokenlist(tokenlist);
 
 	// entlist should be the definitive source that the other fields are generated from
+	this->entlist = entlist_from_tokenlist(tokenlist);
+
 	this->tokenlist = tokenlist_from_entlist(this->entlist);
 	this->tokeniter = this->tokenlist.begin();
 
@@ -83,9 +89,10 @@ void MapEntities::make_from_entstring(EntString entstring) {
 // populate MapEntities from engine tokens
 void MapEntities::make_from_engine() {
 	TokenList tokenlist = tokenlist_from_engine();
-	this->entlist = entlist_from_tokenlist(tokenlist);
 
 	// entlist should be the definitive source that the other fields are generated from
+	this->entlist = entlist_from_tokenlist(tokenlist);
+
 	this->tokenlist = tokenlist_from_entlist(this->entlist);
 	this->tokeniter = this->tokenlist.begin();
 
@@ -170,12 +177,12 @@ void MapEntities::apply_config(std::string file) {
 
 				// filter mode, don't accept empty entity
 				if (mode == mode_filter && !ent.keyvals.empty()) {
-					filter_ents(ent);
+					this->filter_ents(ent);
 					++num_filtered;
 				}
 				// add mode, don't accept empty entity or one without a classname
 				else if (mode == mode_add && !ent.keyvals.empty() && !ent.classname.empty()) {
-					add_ent(ent);
+					this->add_ent(ent);
 					++num_added;
 				}
 				// replace mode, accept empty entity to match all
@@ -185,7 +192,7 @@ void MapEntities::apply_config(std::string file) {
 				}
 				// with mode, don't accept empty entity
 				else if (mode == mode_with && !ent.keyvals.empty()) {
-					replace_ents(replace_entlist, ent);
+					this->replace_ents(replace_entlist, ent);
 					replace_entlist.clear();
 				}
 			}
@@ -208,7 +215,7 @@ void MapEntities::apply_config(std::string file) {
 
 	g_syscall(G_FS_FCLOSE_FILE, f);
 
-	this->tokenlist = this->tokenlist_from_entlist(this->entlist);
+	this->tokenlist = tokenlist_from_entlist(this->entlist);
 	this->tokeniter = this->tokenlist.begin();
 	this->entstring = entstring_from_entlist(this->entlist);
 
@@ -221,7 +228,7 @@ void MapEntities::add_keyval(std::string key, std::string val) {
 	for (auto& ent : this->entlist)
 		ent.keyvals[key] = val;
 
-	this->tokenlist = this->tokenlist_from_entlist(this->entlist);
+	this->tokenlist = tokenlist_from_entlist(this->entlist);
 	this->tokeniter = this->tokenlist.begin();
 	this->entstring = entstring_from_entlist(this->entlist);
 }
@@ -265,6 +272,7 @@ void MapEntities::dump_to_file(std::string file, bool append) {
 		QMM_WRITEQMMLOG(PLID, QMM_VARARGS(PLID, "Unable to write ent dump to %s\n", file.c_str()), QMMLOG_INFO);
 		return;
 	}
+	// output entities in our config file format: {} on separate lines, tabbed indents, and = between key and val
 	for (auto& ent : this->entlist) {
 		g_syscall(G_FS_WRITE, "{\n", 2, f);
 		for (auto& keyval : ent.keyvals) {
@@ -285,33 +293,32 @@ void MapEntities::dump_to_file(std::string file, bool append) {
 // returns true if "test" has at least all the same keyvals that "contains" has
 bool MapEntities::is_ent_match(Ent& test, Ent& contains) {
 	for (auto& containskeyval : contains.keyvals) {
-		// containskeyval.first is the key
-		// containskeyval.second is the val
+		const std::string& key = containskeyval.first;
+		std::string& val = containskeyval.second;
 
 		// look up match key in test ent
-		auto iter = test.keyvals.find(containskeyval.first);
+		auto iter = test.keyvals.find(key);
 		// if key doesn't exist on test
 		if (iter == test.keyvals.end())
 			return false;
 
 		// first check val for leading and trailing "/" to do a regex match
-		std::string match = containskeyval.second;
-		if (match[0] == '/' && match[match.size() - 1] == '/') {
+		if (val[0] == '/' && val[val.size() - 1] == '/') {
 			// generate a regex pattern using the val with leading and trailing "/" removed
-			std::regex re(match.substr(1, match.size() - 2));
+			std::regex re(val.substr(1, val.size() - 2));
 			// doesn't match
 			if (!std::regex_match(iter->second, re))
 				return false;
 		}
 		// no regex, val doesn't match
-		else if (iter->second != match)
+		else if (iter->second != val)
 			return false;
 	}
 	return true;
 }
 
 
-// removes all matching entities from list
+// removes all matching entities from internal list
 void MapEntities::filter_ents(Ent& filterent) {
 	auto it = this->entlist.begin();
 	while (it != this->entlist.end()) {
@@ -323,7 +330,7 @@ void MapEntities::filter_ents(Ent& filterent) {
 }
 
 
-// adds an entity to list (puts worldspawn at the beginning)
+// adds an entity to internal list (puts worldspawn at the beginning)
 void MapEntities::add_ent(Ent& addent) {
 	if (addent.classname == "worldspawn")
 		this->entlist.insert(this->entlist.begin(), addent);
@@ -332,13 +339,13 @@ void MapEntities::add_ent(Ent& addent) {
 }
 
 
-// finds all entities in list matching all stored replaceents and replaces with a withent
+// finds all entities in internal list matching all stored replaceents and replaces with a withent
 void MapEntities::replace_ents(EntList& replace_entlist, Ent& withent) {
-	// go through all replaceents
+	// go through all replace_ents
 	for (auto& repent : replace_entlist) {
-		// find any matching ents in given list
+		// go through all ents in internal list
 		for (auto& ent : this->entlist) {
-			// empty repent matches all
+			// find any matching ent; empty repent matches all
 			if (repent.keyvals.empty() || is_ent_match(ent, repent))
 				// replace with withent
 				replace_ent(ent, withent);
@@ -349,7 +356,7 @@ void MapEntities::replace_ents(EntList& replace_entlist, Ent& withent) {
 }
 
 
-// replaces all applicable keyvals on an ent
+// adds all keyvals from withent into replaceent (replacing the val if a key already exists)
 void MapEntities::replace_ent(Ent& replaceent, Ent& withent) {
 	// go through all keyvals on withent
 	for (auto& withkeyval : withent.keyvals) {
@@ -403,7 +410,7 @@ TokenList MapEntities::tokenlist_from_engine() {
 	TokenList tokenlist;
 	char buf[MAX_TOKEN_CHARS];
 
-	// get token from engine/QMM
+	// get tokens from engine/QMM and add to tokenlist
 	while (g_syscall(G_GET_ENTITY_TOKEN, buf, sizeof(buf))) {
 		buf[sizeof(buf) - 1] = '\0';
 		tokenlist.push_back(buf);
@@ -417,6 +424,7 @@ TokenList MapEntities::tokenlist_from_engine() {
 TokenList MapEntities::tokenlist_from_entlist(EntList entlist) {
 	TokenList tokenlist;
 
+	// for every entity, add a "{", all the keyvals, and "}"
 	for (auto& ent : entlist) {
 		tokenlist.push_back("{");
 		for (auto& keyval : ent.keyvals) {
@@ -502,9 +510,9 @@ EntList MapEntities::entlist_from_tokenlist(TokenList tokenlist) {
 
 // generate an entstring from entlist
 EntString MapEntities::entstring_from_entlist(EntList entlist) {
-	static EntString entstring;
-	entstring = "";
+	EntString entstring;
 
+	// for every entity, add a "{", all the keyvals, and "}" 
 	for (auto& ent : entlist) {
 		entstring += "{\n";
 		for (auto& keyval : ent.keyvals) {
