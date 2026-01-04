@@ -151,8 +151,10 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 		mapname = (char*)args[0];
 #elif defined(GAME_MOHAA) || defined(GAME_MOHSH) || defined(GAME_MOHBT)
 		int entarg = 0;
+		mapname = QMM_GETSTRCVAR(PLID, "mapname");
 #else
 		int entarg = 0;
+		mapname = QMM_GETSTRCVAR(PLID, "mapname");
 #endif
 
 		if (s_load_and_modify_ents()) {
@@ -347,14 +349,15 @@ static bool s_load_and_modify_ents() {
 	s_modents = s_mapents;
 
 	// load global config
-	QMM_WRITEQMMLOG(PLID, "Loading global config\n", QMMLOG_DEBUG);
+	QMM_WRITEQMMLOG(PLID, "Loading global config\n", QMMLOG_INFO);
 	s_modents.apply_config("qmmaddons/stripper/global.ini");
 
 	// load map-specific config
-	QMM_WRITEQMMLOG(PLID, QMM_VARARGS(PLID, "Loading map-specific config: %s\n", mapname.c_str()), QMMLOG_DEBUG);
+	QMM_WRITEQMMLOG(PLID, QMM_VARARGS(PLID, "Loading map-specific config: %s\n", mapname.c_str()), QMMLOG_INFO);
 	s_modents.apply_config(QMM_VARARGS(PLID, "qmmaddons/stripper/maps/%s.ini", mapname.c_str()));
+		
 
-	QMM_WRITEQMMLOG(PLID, QMM_VARARGS(PLID, "Completed parsing entity list, passing %d entities to mod\n", s_modents.get_entlist().size()), QMMLOG_INFO);
+	QMM_WRITEQMMLOG(PLID, QMM_VARARGS(PLID, "Completed parsing entity list, passing %d entities to mod\n", s_modents.get_entlist().size()), QMMLOG_NOTICE);
 
 	return true;
 }

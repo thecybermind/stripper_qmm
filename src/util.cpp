@@ -51,12 +51,8 @@ char* strncpyz(char* dest, const char* src, std::size_t count) {
 // read a single line from a file handle. store in out string, return false if eof
 bool read_line(fileHandle_t f, std::string& out) {
 	char buf = -1;
-#if defined(GAME_MOHAA)
-	int cmdread = G_FS_READ_QMM;
-#else
-	int cmdread = G_FS_READ;
-#endif
-	g_syscall(cmdread, &buf, 1, f);
+
+	g_syscall(G_FS_READ, &buf, 1, f);
 	if (buf == -1)
 		return false;
 
@@ -69,7 +65,7 @@ bool read_line(fileHandle_t f, std::string& out) {
 			break;
 
 		buf = -1;
-		g_syscall(cmdread, &buf, 1, f);
+		g_syscall(G_FS_READ, &buf, 1, f);
 	}
 
 	// ltrim

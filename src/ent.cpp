@@ -96,14 +96,7 @@ void MapEntities::make_from_engine() {
 // load and parse config file
 void MapEntities::apply_config(std::string file) {
 	fileHandle_t f;
-#if defined(GAME_MOHAA)
-	int cmdopen = G_FS_FOPEN_FILE_QMM;
-	int cmdclose = G_FS_FCLOSE_FILE_QMM;
-#else
-	int cmdopen = G_FS_FOPEN_FILE;
-	int cmdclose = G_FS_FCLOSE_FILE;
-#endif
-	if (g_syscall(cmdopen, file.c_str(), &f, FS_READ) < 0)
+	if (g_syscall(G_FS_FOPEN_FILE, file.c_str(), &f, FS_READ) < 0)
 		return;
 
 	// the current ent
@@ -213,7 +206,7 @@ void MapEntities::apply_config(std::string file) {
 		}
 	} // while(1) - go through every line
 
-	g_syscall(cmdclose, f);
+	g_syscall(G_FS_FCLOSE_FILE, f);
 
 	this->tokenlist = this->tokenlist_from_entlist(this->entlist);
 	this->tokeniter = this->tokenlist.begin();
