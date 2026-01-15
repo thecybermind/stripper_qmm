@@ -1,6 +1,6 @@
 /*
 Stripper - Dynamic Map Entity Modification
-Copyright 2004-2024
+Copyright 2004-2026
 https://github.com/thecybermind/stripper_qmm/
 3-clause BSD license: https://opensource.org/license/bsd-3-clause
 

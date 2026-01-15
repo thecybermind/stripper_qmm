@@ -83,7 +83,7 @@ BEGIN
             VALUE "FileDescription", "stripper_qmm " STRIPPER_QMM_OS " " STRIPPER_QMM_ARCH "\0"
             VALUE "FileVersion", STRIPPER_QMM_VERSION "\0"
             VALUE "InternalName", "stripper_qmm\0"
-            VALUE "LegalCopyright", "Copyright 2004-2025\0"
+            VALUE "LegalCopyright", "Copyright 2004-2026\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "stripper_qmm.dll\0"
             VALUE "ProductName", "stripper_qmm\0"
