@@ -42,6 +42,11 @@ C_DLLEXPORT void QMM_Query(plugininfo_t** pinfo) {
 
 C_DLLEXPORT int QMM_Attach(eng_syscall_t engfunc, mod_vmMain_t modfunc, pluginres_t* presult, pluginfuncs_t* pluginfuncs, pluginvars_t* pluginvars) {
 	QMM_SAVE_VARS();
+
+	// make sure this DLL is loaded only in the right engine
+	if (strcmp(QMM_GETGAMEENGINE(PLID), GAME_STR) != 0)
+		return 0;
+
 	return 1;
 }
 
