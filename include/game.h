@@ -9,8 +9,8 @@ Created By:
 
 */
 
-#ifndef __STRIPPER_QMM_GAME_H__
-#define __STRIPPER_QMM_GAME_H__
+#ifndef STRIPPER_QMM_GAME_H
+#define STRIPPER_QMM_GAME_H
 
 #if defined(GAME_COD11MP)
     #include <cod11mp/bgame/bg_local.h>
@@ -121,4 +121,4 @@ Created By:
 	#error Unknown engine!
 #endif
 
-#endif // __STRIPPER_QMM_GAME_H__
+#endif // STRIPPER_QMM_GAME_H

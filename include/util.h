@@ -9,8 +9,8 @@ Created By:
 
 */
 
-#ifndef __STRIPPER_QMM_UTIL_H__
-#define __STRIPPER_QMM_UTIL_H__
+#ifndef STRIPPER_QMM_UTIL_H
+#define STRIPPER_QMM_UTIL_H
 
 #include <string>
 
@@ -25,4 +25,4 @@ char* strncpyz(char* dest, const char* src, std::size_t count);
 // read a single line from a file handle. store in "out" string, return true if eof
 bool read_line(fileHandle_t f, std::string& out);
 
-#endif // __STRIPPER_QMM_UTIL_H__
+#endif // STRIPPER_QMM_UTIL_H

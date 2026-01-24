@@ -9,8 +9,8 @@ Created By:
 
 */
 
-#ifndef __STRIPPER_QMM_ENT_H__
-#define __STRIPPER_QMM_ENT_H__
+#ifndef STRIPPER_QMM_ENT_H
+#define STRIPPER_QMM_ENT_H
 
 #include <vector>
 #include <map>
@@ -89,4 +89,4 @@ struct MapEntities {
         // generate an entstring from entlist
         static EntString entstring_from_entlist(EntList entlist);
 };
-#endif // __STRIPPER_QMM_ENT_H__
+#endif // STRIPPER_QMM_ENT_H
