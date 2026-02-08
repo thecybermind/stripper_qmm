@@ -551,8 +551,10 @@ def gen_github_build_windows_release(name):
     with open(".github/build/windows/release.bat", "w", encoding="utf-8") as f:
         f.write(
             f"""for %%x in ({" ".join(games)}) do (
-    msbuild .\\msvc\\{name}.vcxproj /p:Configuration=Release-%%x /p:Platform=x86
+    if [%%G] NEQ [Q2R] msbuild .\\msvc\\{name}.vcxproj /p:Configuration=Release-%%x /p:Platform=x86
+    if errorlevel 1 exit /b errorlevel
     msbuild .\\msvc\\{name}.vcxproj /p:Configuration=Release-%%x /p:Platform=x64
+    if errorlevel 1 exit /b errorlevel
 )
 """
         )
@@ -562,8 +564,10 @@ def gen_github_build_windows_debug(name):
     with open(".github/build/windows/debug.bat", "w", encoding="utf-8") as f:
         f.write(
             f"""for %%x in ({" ".join(games)}) do (
-    msbuild .\\msvc\\{name}.vcxproj /p:Configuration=Debug-%%x /p:Platform=x86
+    if [%%G] NEQ [Q2R] msbuild .\\msvc\\{name}.vcxproj /p:Configuration=Debug-%%x /p:Platform=x86
+    if errorlevel 1 exit /b errorlevel
     msbuild .\\msvc\\{name}.vcxproj /p:Configuration=Debug-%%x /p:Platform=x64
+    if errorlevel 1 exit /b errorlevel
 )
 """
         )
