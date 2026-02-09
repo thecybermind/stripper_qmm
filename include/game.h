@@ -99,7 +99,7 @@ Created By:
     #define GAME_HAS_SUBBSP
     #define GAME_STR "SOF2MP"
 #elif defined(GAME_SOF2SP)
-    // #include <sof2mp/game/g_local.h>
+    #include <sof2sp/g_public.h>
     #include <game_sof2sp.h>
     #define GAME_STR "SOF2SP"
 #elif defined(GAME_STEF2)
