@@ -230,7 +230,7 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 		MapEntities mapents;
 		// since we will supercede this call, we need to call the engine function ourselves
 		const char* ret = (const char*)g_syscall(G_SET_ACTIVE_SUBBSP, s_subbsp_index);
-#if defined(GAME_JAMP) || defined(SOF2MP)
+#if defined(GAME_JAMP) || defined(GAME_SOF2MP) || defined(GAME_SOF2SP)
 		// load entities from G_GET_ENTITY_TOKEN
 		mapents.make_from_engine();
 #elif defined(GAME_JASP)
