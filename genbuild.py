@@ -538,9 +538,9 @@ del /q *
 rem copy ..\\README.md .\\
 rem copy ..\\LICENSE .\\
 
-for %%x in ({" ".join(games)}) do (
-    copy ..\\bin\\Release-%%x\\x86\\{name}_%%x.dll .\\
-    copy ..\\bin\\Release-%%x\\x64\\{name}_x86_64_%%x.dll .\\     
+for %%G in ({" ".join(games)}) do (
+    copy ..\\bin\\Release-%%G\\x86\\{name}_%%G.dll .\\
+    copy ..\\bin\\Release-%%G\\x64\\{name}_x86_64_%%G.dll .\\     
 )
 popd
 """
@@ -550,9 +550,9 @@ popd
 def gen_github_build_windows_release(name):
     with open(".github/build/windows/release.bat", "w", encoding="utf-8") as f:
         f.write(
-            f"""for %%x in ({" ".join(games)}) do (
-    msbuild .\\msvc\\{name}.vcxproj /p:Configuration=Release-%%x /p:Platform=x86
-    msbuild .\\msvc\\{name}.vcxproj /p:Configuration=Release-%%x /p:Platform=x64
+            f"""for %%G in ({" ".join(games)}) do (
+    msbuild .\\msvc\\{name}.vcxproj /p:Configuration=Release-%%G /p:Platform=x86
+    msbuild .\\msvc\\{name}.vcxproj /p:Configuration=Release-%%G /p:Platform=x64
 )
 """
         )
@@ -561,9 +561,9 @@ def gen_github_build_windows_release(name):
 def gen_github_build_windows_debug(name):
     with open(".github/build/windows/debug.bat", "w", encoding="utf-8") as f:
         f.write(
-            f"""for %%x in ({" ".join(games)}) do (
-    msbuild .\\msvc\\{name}.vcxproj /p:Configuration=Debug-%%x /p:Platform=x86
-    msbuild .\\msvc\\{name}.vcxproj /p:Configuration=Debug-%%x /p:Platform=x64
+            f"""for %%G in ({" ".join(games)}) do (
+    msbuild .\\msvc\\{name}.vcxproj /p:Configuration=Debug-%%G /p:Platform=x86
+    msbuild .\\msvc\\{name}.vcxproj /p:Configuration=Debug-%%G /p:Platform=x64
 )
 """
         )
