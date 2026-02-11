@@ -11,6 +11,7 @@ Created By:
 
 #include "version.h"
 #include <qmmapi.h>
+#include <cstring>
 #include "game.h"
 #include "ent.h"
 #include "util.h"
@@ -230,7 +231,7 @@ C_DLLEXPORT intptr_t QMM_syscall(intptr_t cmd, intptr_t* args) {
 		MapEntities mapents;
 		// since we will supercede this call, we need to call the engine function ourselves
 		const char* ret = (const char*)g_syscall(G_SET_ACTIVE_SUBBSP, s_subbsp_index);
-#if defined(GAME_JAMP) || defined(SOF2MP)
+#if defined(GAME_JAMP) || defined(GAME_SOF2MP) || defined(GAME_SOF2SP)
 		// load entities from G_GET_ENTITY_TOKEN
 		mapents.make_from_engine();
 #elif defined(GAME_JASP)
@@ -308,7 +309,7 @@ C_DLLEXPORT intptr_t QMM_syscall_Post(intptr_t cmd, intptr_t* args) {
 }
 
 
-C_DLLEXPORT void QMM_PluginMessage(plid_t from_plid, const char* message, void* buf, intptr_t buflen) {
+C_DLLEXPORT void QMM_PluginMessage(plid_t from_plid, const char* message, void* buf, intptr_t buflen, int is_broadcast) {
 	if (s_disabled)
 		return;
 

@@ -65,6 +65,10 @@
       <Configuration>Debug-SOF2MP</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug-SOF2SP|Win32">
+      <Configuration>Debug-SOF2SP</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug-STEF2|Win32">
       <Configuration>Debug-STEF2</Configuration>
       <Platform>Win32</Platform>
@@ -149,6 +153,10 @@
       <Configuration>Debug-SOF2MP</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug-SOF2SP|x64">
+      <Configuration>Debug-SOF2SP</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug-STEF2|x64">
       <Configuration>Debug-STEF2</Configuration>
       <Platform>x64</Platform>
@@ -227,6 +235,10 @@
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release-SOF2MP|Win32">
       <Configuration>Release-SOF2MP</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release-SOF2SP|Win32">
+      <Configuration>Release-SOF2SP</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release-STEF2|Win32">
@@ -311,6 +323,10 @@
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release-SOF2MP|x64">
       <Configuration>Release-SOF2MP</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release-SOF2SP|x64">
+      <Configuration>Release-SOF2SP</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release-STEF2|x64">
@@ -430,6 +446,9 @@
   <PropertyGroup Condition="$(Platform)=='Win32' And $(Configuration.EndsWith('-SOF2MP'))==true">
     <TargetName>$(ProjectName)_SOF2MP</TargetName>
   </PropertyGroup>
+  <PropertyGroup Condition="$(Platform)=='Win32' And $(Configuration.EndsWith('-SOF2SP'))==true">
+    <TargetName>$(ProjectName)_SOF2SP</TargetName>
+  </PropertyGroup>
   <PropertyGroup Condition="$(Platform)=='Win32' And $(Configuration.EndsWith('-STEF2'))==true">
     <TargetName>$(ProjectName)_STEF2</TargetName>
   </PropertyGroup>
@@ -492,6 +511,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-SOF2MP'))==true">
     <TargetName>$(ProjectName)_x86_64_SOF2MP</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-SOF2SP'))==true">
+    <TargetName>$(ProjectName)_x86_64_SOF2SP</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-STEF2'))==true">
     <TargetName>$(ProjectName)_x86_64_STEF2</TargetName>
@@ -627,6 +649,11 @@
   <ItemDefinitionGroup Condition="$(Configuration.EndsWith('-SOF2MP'))==true">
     <ClCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);GAME_SOF2MP</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="$(Configuration.EndsWith('-SOF2SP'))==true">
+    <ClCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);GAME_SOF2SP</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="$(Configuration.EndsWith('-STEF2'))==true">
