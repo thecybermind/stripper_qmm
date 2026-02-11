@@ -10,8 +10,8 @@ Created By:
 */
 
 #include "version.h"
-#include <cstring>
 #include <qmmapi.h>
+#include <cstring>
 #include "game.h"
 #include "ent.h"
 #include "util.h"
