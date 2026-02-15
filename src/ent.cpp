@@ -219,7 +219,7 @@ void MapEntities::apply_config(std::string file) {
 	this->tokeniter = this->tokenlist.begin();
 	this->entstring = entstring_from_entlist(this->entlist);
 
-	QMM_WRITEQMMLOG(PLID, QMM_VARARGS(PLID, "Loaded %d filters, %d adds, and %d replaces from %s\n", num_filtered, num_added, num_replaced, file.c_str()), QMMLOG_INFO);
+	QMM_WRITEQMMLOG(QMM_VARARGS("Loaded %d filters, %d adds, and %d replaces from %s\n", num_filtered, num_added, num_replaced, file.c_str()), QMMLOG_INFO);
 }
 
 
@@ -269,7 +269,7 @@ const EntString& MapEntities::get_entstring() {
 void MapEntities::dump_to_file(std::string file, bool append) {
 	fileHandle_t f;
 	if (g_syscall(G_FS_FOPEN_FILE, file.c_str(), &f, append ? FS_APPEND : FS_WRITE) < 0) {
-		QMM_WRITEQMMLOG(PLID, QMM_VARARGS(PLID, "Unable to write ent dump to %s\n", file.c_str()), QMMLOG_INFO);
+		QMM_WRITEQMMLOG(QMM_VARARGS("Unable to write ent dump to %s\n", file.c_str()), QMMLOG_INFO);
 		return;
 	}
 	// output entities in our config file format: {} on separate lines, tabbed indents, and = between key and val
@@ -282,7 +282,7 @@ void MapEntities::dump_to_file(std::string file, bool append) {
 		g_syscall(G_FS_WRITE, "}\n", 2, f);
 	}
 	g_syscall(G_FS_FCLOSE_FILE, f);
-	QMM_WRITEQMMLOG(PLID, QMM_VARARGS(PLID, "Ent dump written to %s\n", file.c_str()), QMMLOG_INFO);
+	QMM_WRITEQMMLOG(QMM_VARARGS("Ent dump written to %s\n", file.c_str()), QMMLOG_INFO);
 }
 
 
