@@ -107,15 +107,13 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 	}
 	// handle stripper_dump command
 	else if (cmd == GAME_CONSOLE_COMMAND) {
-		char buf[20];
-
-		QMM_ARGV(0, buf, sizeof(buf));
+		const char* arg = QMM_ARGV2(0);
 		
 		// if command is "sv", then check the next arg
-		if (str_striequal(buf, "sv"))
-			QMM_ARGV(1, buf, sizeof(buf));
+		if (str_striequal(arg, "sv"))
+			arg = QMM_ARGV2(1);
 
-		if (str_striequal(buf, "stripper_dump")) {
+		if (str_striequal(arg, "stripper_dump")) {
 			std::string mapfile = QMM_VARARGS("qmmaddons/stripper/dumps/%s.txt", mapname.c_str());
 			std::string modfile = QMM_VARARGS("qmmaddons/stripper/dumps/%s_modents.txt", mapname.c_str());
 
