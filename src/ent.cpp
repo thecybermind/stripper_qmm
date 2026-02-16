@@ -203,9 +203,15 @@ void MapEntities::apply_config(std::string file) {
 				if (eq == std::string::npos)
 					continue;
 
-				// store key=val
+				// extract key and val from line
 				std::string key = line.substr(0, eq);
+				// don't allow an empty key
+				if (key.empty())
+					continue;
 				std::string val = line.substr(eq + 1);
+				// don't allow an empty val in add mode
+				if (val.empty() && mode == mode_add)
+					continue;
 				ent.keyvals[key] = val;
 				if (key == "classname")
 					ent.classname = val;
@@ -293,25 +299,32 @@ void MapEntities::dump_to_file(std::string file, bool append) {
 // returns true if "test" has at least all the same keyvals that "contains" has
 bool MapEntities::is_ent_match(Ent& test, Ent& contains) {
 	for (auto& containskeyval : contains.keyvals) {
-		const std::string& key = containskeyval.first;
-		std::string& val = containskeyval.second;
+		const std::string& matchkey = containskeyval.first;
+		const std::string& matchval = containskeyval.second;
 
-		// look up match key in test ent
-		auto iter = test.keyvals.find(key);
-		// if key doesn't exist on test
-		if (iter == test.keyvals.end())
+		// look up matchkey in test ent
+		auto iter = test.keyvals.find(matchkey);
+		// if matchkey doesn't exist in test
+		if (iter == test.keyvals.end()) {
+			// an empty matchval means test should NOT have the matchkey, so continue to the next match keyval
+			if (matchval.empty())
+				continue;
+			// matchkey missing, test ent doesn't match
 			return false;
+		}
 
-		// first check val for leading and trailing "/" to do a regex match
-		if (val[0] == '/' && val[val.size() - 1] == '/') {
-			// generate a regex pattern using the val with leading and trailing "/" removed
-			std::regex re(val.substr(1, val.size() - 2));
-			// doesn't match
-			if (!std::regex_match(iter->second, re))
+		const std::string& testval = iter->second;
+
+		// check matchval for leading and trailing "/" to do a regex match
+		if (matchval[0] == '/' && matchval[matchval.size() - 1] == '/') {
+			// generate a regex pattern using the matchval with leading and trailing "/" removed
+			std::regex pattern(matchval.substr(1, matchval.size() - 2));
+			// testval doesn't match
+			if (!std::regex_match(testval, pattern))
 				return false;
 		}
 		// no regex, val doesn't match
-		else if (iter->second != val)
+		else if (testval != matchval)
 			return false;
 	}
 	return true;
@@ -360,8 +373,12 @@ void MapEntities::replace_ents(EntList& replace_entlist, Ent& withent) {
 void MapEntities::replace_ent(Ent& replaceent, Ent& withent) {
 	// go through all keyvals on withent
 	for (auto& withkeyval : withent.keyvals) {
+		// empty val means to remove key if it exists
+		if (withkeyval.second.empty())
+			replaceent.keyvals.erase(withkeyval.first);
 		// add/replace val on replaceent
-		replaceent.keyvals[withkeyval.first] = withkeyval.second;
+		else
+			replaceent.keyvals[withkeyval.first] = withkeyval.second;
 	}
 }
 
