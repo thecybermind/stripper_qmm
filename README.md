@@ -22,57 +22,56 @@ There are 2 files loaded per map. One is the global configuration file that is l
 The global configuration file is located at `qmmaddons/stripper/global.ini` and the map-specific file is located at `qmmaddons/stripper/maps/{mapname}.ini`. A sample global.ini and q3dm1.ini are provided in the release.
 
 #### Syntax
+In Stripper v2.5.0, the configuration format changed to match the entity token format used in the engine (with the addition of the "type:" tokens). The old "key=val" format will no longer work, and comments are no longer supported.
 
 Configuration files have the following format:
 
-    ;this line is a comment
-    #this line is a comment
-    //this line is a comment
-    
     filter:
     {
-       key=val
-       key2=val2
+       "key" "val"
+       "key2" "val2"
     }
     {
-       key=val
+       "key3" "val3"
     }
     add:
     {
-       key=val
+       "key" "val"
     }
     replace:
     {
-       key=val
+       "key" "val"
     }
     {
-       key=val
+       "key" "val2"
     }
     with:
     {
-       key=val
+       "key" "val3"
     }
     
 #### Sections
+A section affects all entities after it, until the next section is encountered. The section token must be used outside of an entity (i.e. not inside braces {}).
+
 - `filter`:  
     This section specifies entity masks for entities that should be removed from the map.
 
     If an entity has all the keys provided in a mask\*, and the values associated with them match, the entity is removed.
 	
-    \* A key with an empty value matches if the key does not exist on the entity.
+    \* A `filter` key with an empty value matches if the key does *not* exist on the entity.
 	
     For example, this would remove all entities with an `angle` of `90` and without a `spawnflags` key:
 
     ```C
     filter:
     {
-	spawnflags=
-	angle=90
+	"spawnflags" ""
+	"angle" "90"
     }
 	```
 
 - `add`:  
-    This section specifies complete entities to add to the map. Entities are added with only the keys and values provided in the block.
+    This section specifies complete entities to add to the map. Entities are added with only the exact keys and values provided in the block.
     
     You must provide at least a `classname` key. Values cannot be empty.
 
@@ -83,18 +82,18 @@ Configuration files have the following format:
     
     If an entity has all the keys provided in a mask\*, and the values associated with them match, the entity will be replaced.
 
-    \* A key with an empty value matches if the key does not exist on the entity.
+    \* A `replace` key with an empty value matches if the key does *not* exist on the entity.
 
     For example, this will set the `gametype` of `ffa` on all entities that don't already have a `gametype` key:
 
     ```C
     replace:
     {
-    gametype=
+      "gametype" ""
     }
     with:
     {
-    gametype=ffa
+      "gametype" "ffa"
     }
     ```
 
@@ -105,10 +104,11 @@ Configuration files have the following format:
     ```C
     replace:
     {
+	
     }
     with:
     {
-    gametype=ffa
+      "gametype" "ffa"
     }
     ``` 
 
@@ -126,14 +126,14 @@ Configuration files have the following format:
     ```C
     replace:
     {
-    classname=info_player_deathmatch:
+     "classname" "info_player_deathmatch"
     }
     {
-    classname=light
+     "classname" "light"
     }
     with:
     {
-    spawnflags=
+     "spawnflags" ""
     }
     ```
 
@@ -143,11 +143,11 @@ As of v2.4.2, `filter` and `replace` value matches now support regex matching (u
     # replace all weapons with railguns
     replace:
     {
-       classname=/weapon_.*/
+       "classname" "/weapon_.*/"
     }
     with:
     {
-       classname=weapon_railgun
+       "classname" "weapon_railgun"
     }
 
 Note that Stripper will test the regex against the entire value string. 
@@ -157,14 +157,14 @@ Note that Stripper will test the regex against the entire value string.
 
     filter:
     {
-       classname=item_health
+       "classname" "item_health"
     }
     add:
     {
-       classname=item_health
-       origin=100 100 10
+       "classname" "item_health"
+       "origin" "100 100 10"
     }
     filter:
     {
-       classname=item_health
+       "classname" "item_health"
     }

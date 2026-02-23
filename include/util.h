@@ -22,7 +22,4 @@ int str_striequal(std::string s1, std::string s2);
 // "safe" strncpy that always null-terminates
 char* strncpyz(char* dest, const char* src, std::size_t count); 
 
-// read a single line from a file handle. store in "out" string, return true if eof
-bool read_line(fileHandle_t f, std::string& out);
-
 #endif // STRIPPER_QMM_UTIL_H

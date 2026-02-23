@@ -70,23 +70,23 @@ struct MapEntities {
         // returns true if "test" has all the same keyvals that "contains" has
         static bool is_ent_match(Ent& test, Ent& contains);
         // removes all matching entities from list
-        void filter_ents(Ent& filterent);
+        int filter_ents(Ent& filterent);
         // adds an entity to list (puts worldspawn at the beginning)
-        void add_ent(Ent& addent);
+        int add_ent(Ent& addent);
         // finds all entities in list matching all stored replaceents and replaces with a withent
-        void replace_ents(EntList& replace_entlist, Ent& withent);
+        int replace_ents(EntList& replace_entlist, Ent& withent);
         // replaces all applicable keyvals on an ent
         static void replace_ent(Ent& replaceent, Ent& withent);
 
         // generate a tokenlist from entstring
-        static TokenList tokenlist_from_entstring(EntString entstring);
+        static TokenList tokenlist_from_entstring(const EntString& entstring);
         // generate a tokenlist from engine tokens
         static TokenList tokenlist_from_engine();
         // generate a tokenlist from entlist
-        static TokenList tokenlist_from_entlist(EntList entlist);
+        static TokenList tokenlist_from_entlist(const EntList& entlist);
         // generate an entlist from engine tokens
-        static EntList entlist_from_tokenlist(TokenList tokenlist);
+        static EntList entlist_from_tokenlist(const TokenList& tokenlist);
         // generate an entstring from entlist
-        static EntString entstring_from_entlist(EntList entlist);
+        static EntString entstring_from_entlist(const EntList& entlist);
 };
 #endif // STRIPPER_QMM_ENT_H

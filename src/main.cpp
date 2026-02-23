@@ -336,6 +336,7 @@ static bool s_load_and_modify_ents() {
 
 	// get all the entity tokens from the engine and save to s_mapents
 	QMM_WRITEQMMLOG("Parsing entity list\n", QMMLOG_DEBUG);
+
 	// QMM has a polyfill for G_GET_ENTITY_TOKEN in games where an entstring is passed to Init/SpawnEntities,
 	// so we can just use it for all games. subbsp stuff will be handled specially.
 	s_mapents.make_from_engine();
@@ -346,7 +347,7 @@ static bool s_load_and_modify_ents() {
 		return false;
 	}
 
-	QMM_WRITEQMMLOG(QMM_VARARGS("Entity list loaded, found %d entities\n", s_mapents.get_entlist().size()), QMMLOG_DEBUG);
+	QMM_WRITEQMMLOG(QMM_VARARGS("Entity list loaded, found %d entities\n", s_mapents.get_entlist().size()), QMMLOG_INFO);
 
 	// modents starts as a copy of mapents
 	s_modents = s_mapents;

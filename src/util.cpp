@@ -47,39 +47,3 @@ char* strncpyz(char* dest, const char* src, std::size_t count) {
 	dest[count - 1] = '\0';
 	return ret;
 }
-
-
-// read a single line from a file handle. store in out string, return false if eof
-bool read_line(fileHandle_t f, std::string& out) {
-	char buf = -1;
-
-	g_syscall(G_FS_READ, &buf, 1, f);
-	if (buf == -1)
-		return false;
-
-	// read text until we hit the end of the file
-	while (buf != -1) {
-		out += buf;
-
-		// exit on newline (in the case of "\r\n", the "\n" will be ltrimmed from the next line)
-		if (buf == '\r' || buf == '\n')
-			break;
-
-		buf = -1;
-		g_syscall(G_FS_READ, &buf, 1, f);
-	}
-
-	// ltrim
-	unsigned int li = 0;
-	while (li < out.size() && std::isspace(out[li]))
-		++li;
-	out = out.substr(li);
-
-	// rtrim
-	int ri = (int)out.size() - 1;
-	while (ri >= 0 && std::isspace(out[ri]))
-		ri--;
-	out = out.substr(0, ri + 1);
-
-	return true;
-}
