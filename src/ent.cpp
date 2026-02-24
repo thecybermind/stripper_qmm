@@ -454,7 +454,6 @@ void MapEntities::replace_ent(Ent& replaceent, Ent& withent) {
 TokenList MapEntities::tokenlist_from_entstring(const EntString& entstring) {
 	TokenList tokenlist;
 	std::string build;
-	bool buildstr = false;
 
 	for (size_t i = 0; i < entstring.size(); i++) {
 		auto& c = entstring[i];
