@@ -28,7 +28,7 @@ Configuration files have the following format:
 
     filter:
     {
-       "key" "val"
+       "key"  "val"
        "key2" "val2"
     }
     {
@@ -42,129 +42,151 @@ Configuration files have the following format:
     {
        "key" "val"
     }
-    {
-       "key" "val2"
-    }
     with:
     {
        "key" "val3"
     }
     
+    replace:
+    {
+       "key" "val2"
+    }
+    with:
+    {
+       "key" "val4"
+    }
+
+Keys cannot be empty strings.
+
 #### Sections
-A section affects all entities after it, until the next section is encountered. The section token must be used outside of an entity (i.e. not inside braces {}).
+A section affects all entity blocks after it, until the next section token is encountered. The section token must be used outside of an entity (i.e. not inside braces {}). Sections can be repeated and can generally be in any order.
 
-- `filter`:  
-    This section specifies entity masks for entities that should be removed from the map.
+##### filter:  
+This section specifies entity masks for map entities that should be removed from the map.
 
-    If an entity has all the keys provided in a mask\*, and the values associated with them match, the entity is removed.
-	
-    \* A `filter` key with an empty value matches if the key does *not* exist on the entity.
-	
-    For example, this would remove all entities with an `angle` of `90` and without a `spawnflags` key:
+If a map entity has all the keys provided in a mask\*, and the values associated with them match, the entity is removed.
 
-    ```C
-    filter:
-    {
-	"spawnflags" ""
-	"angle" "90"
-    }
-	```
+\* A `filter` key with an empty value matches if the key does *not* exist on the entity.
 
-- `add`:  
-    This section specifies complete entities to add to the map. Entities are added with only the exact keys and values provided in the block.
-    
-    You must provide at least a `classname` key. Values cannot be empty.
+For example, this would remove all entities with an `angle` of `90` and without a `spawnflags` key:
 
-    If you add an entity with the `classname` of `worldspawn`, it will be added at the start of the entity list. Note: it is unclear what will happen if the mod receives 2 or more `worldspawn` entities; at best it will ignore the extra and at worst the game will exit with an error.
+```C
+filter:
+{
+"spawnflags" ""
+"angle" "90"
+}
+```
 
-- `replace`:  
-    This section specifies entity masks for entities that should be replaced/modified.
-    
-    If an entity has all the keys provided in a mask\*, and the values associated with them match, the entity will be replaced.
+##### add:  
+This section specifies complete entities to add to the map. Entities are added with only the exact keys and values provided in the block.
 
-    \* A `replace` key with an empty value matches if the key does *not* exist on the entity.
+```C
+add:
+{
+	"classname" "item_health_small"
+	"origin" "1120 2092 30"
+}
+```
 
-    For example, this will set the `gametype` of `ffa` on all entities that don't already have a `gametype` key:
+You must provide at least a `classname` key. Values cannot be empty.
 
-    ```C
-    replace:
-    {
-      "gametype" ""
-    }
-    with:
-    {
-      "gametype" "ffa"
-    }
-    ```
+If you add an entity with the `classname` of `worldspawn`, it will be added at the start of the entity list. Note: it is unclear what will happen if the mod receives 2 or more `worldspawn` entities; at best it will ignore the extra and at worst the game will exit with an error.
 
-    \* A `replace` mask with no keys will match with all entities.
+##### replace:  
+This section specifies entity masks for map entities that should be replaced/modified.
 
-    For example, this will set the `gametype` of `ffa` on all entities (even those that already have a `gametype` key):
-    
-    ```C
-    replace:
-    {
-	
-    }
-    with:
-    {
-      "gametype" "ffa"
-    }
-    ``` 
+If a map entity has all the keys provided in a mask\*, and the values associated with them match, the entity will be replaced.
 
-- `with`:  
-    This section specifies what keys and values should be set on any entity that matches a previous `replace` mask.
-    
-    The entity in a `with` section will be associated with all `replace` masks since the previous `with` block (or the start of the file if none). A `with` block should only have 1 entity given, since the first one will have "used up" all the available `replace` masks.
+\* A `replace` key with an empty value matches if the key does *not* exist on the entity.
 
-    Only the keys provided in the `with` block will be affected.
-    
-    A `with` key with an empty value means that key will be removed (if it exists) from an affected entity.
+For example, this will set the `gametype` of `ffa` on all entities that don't already have a `gametype` key:
 
-    For example, this will remove the `spawnflags` key for any entity with a `classname` of either `info_player_deathmatch` or `light`:
+```C
+replace:
+{
+  "gametype" ""
+}
+with:
+{
+  "gametype" "ffa"
+}
+```
 
-    ```C
-    replace:
-    {
-     "classname" "info_player_deathmatch"
-    }
-    {
-     "classname" "light"
-    }
-    with:
-    {
-     "spawnflags" ""
-    }
-    ```
+\* A `replace` mask with no keys will match with all entities.
+
+For example, this will set the `gametype` of `ffa` on all entities (even those that already have a `gametype` key):
+
+```C
+replace:
+{
+}
+with:
+{
+  "gametype" "ffa"
+}
+``` 
+
+##### with:  
+This section specifies what keys and values should be set on any map entity that matches a previous `replace` mask.
+
+The block in a `with` section will be associated with all `replace` masks since the previous `with` block (or the start of the file if none). A `with` section should only have 1 entity block, since the first one will have "used up" all the available `replace` masks.
+
+Only the keys provided in the `with` block will be affected.
+
+A `with` key with an empty value means that key will be removed (if it exists) from an affected entity.
+
+For example, this will remove the `spawnflags` key for any entity with a `classname` of either `info_player_deathmatch` or `light`:
+
+```C
+replace:
+{
+ "classname" "info_player_deathmatch"
+}
+{
+ "classname" "light"
+}
+with:
+{
+ "spawnflags" ""
+}
+```
 
 #### Regex
 As of v2.4.2, `filter` and `replace` value matches now support regex matching (using C++11 <regex>). Simply surround the value with `/` to trigger regex matching:
 
-    # replace all weapons with railguns
-    replace:
-    {
-       "classname" "/weapon_.*/"
-    }
-    with:
-    {
-       "classname" "weapon_railgun"
-    }
+```C
+replace:
+{
+   "classname" "/weapon_.*/"
+}
+with:
+{
+   "classname" "weapon_railgun"
+}
+```
 
-Note that Stripper will test the regex against the entire value string. 
+This example will find all entities that have a `classname` that regex-matches `weapon_.*` and replace the `classname` with `weapon_railgun`.
+
+Note that Stripper will test the regex against the entire value string, so simply using a value of `"/weapon_/"` is not the same. 
 
 #### Notes
-`filter`, `add`, and `with` entities modify the entity list in the order they appear. For example, the following will result in no new entities being added, since the second `filter` section will cause the added health kit to be removed:
+`filter`, `add`, and `with` blocks modify the entity list in the order they appear. For example, the following will result in no new entities being added, since the second `filter` section will cause the added health kit to be removed:
 
-    filter:
-    {
-       "classname" "item_health"
-    }
-    add:
-    {
-       "classname" "item_health"
-       "origin" "100 100 10"
-    }
-    filter:
-    {
-       "classname" "item_health"
-    }
+```C
+filter:
+{
+   "classname" "item_health"
+}
+add:
+{
+   "classname" "item_health"
+   "origin" "100 100 10"
+}
+filter:
+{
+   "classname" "item_health"
+}
+```
+
+Also, the global.ini file will be loaded first, followed by the map-specific .ini file. This means the map-specific config file may overwrite changes made in the global config file.
