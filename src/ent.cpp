@@ -113,18 +113,19 @@ void MapEntities::apply_config(std::string file) {
 	}
 
 	// read entire file
-	char* buf = (char*)malloc(size + 1);
-	g_syscall(G_FS_READ, buf, size, f);
+	std::vector<char> buf;
+	buf.reserve(size + 1);
+	g_syscall(G_FS_READ, buf.data(), size, f);
 	g_syscall(G_FS_FCLOSE_FILE, f);
 	buf[size] = '\0';
 
 	// check for '=' to warn that it likely won't load
-	if (strchr(buf, '='))
+	if (strchr(buf.data(), '='))
 		QMM_WRITEQMMLOG(QMM_VARARGS("Possible old config format detected in \"%s\", likely will fail to load.\n", file.c_str()), QMMLOG_WARNING);
 
 	// tokenize it
-	TokenList tokens = tokenlist_from_entstring(buf);
-	free(buf);
+	TokenList tokens = tokenlist_from_entstring(buf.data());
+	buf.clear();
 
 	// the current ent we are building
 	Ent ent;
@@ -333,8 +334,9 @@ const EntString& MapEntities::get_entstring() {
 
 // dump to file
 void MapEntities::dump_to_file(std::string file, bool append) {
-	fileHandle_t f;
-	if (g_syscall(G_FS_FOPEN_FILE, file.c_str(), &f, append ? FS_APPEND : FS_WRITE) < 0) {
+	fileHandle_t f = 0;
+	int ret = g_syscall(G_FS_FOPEN_FILE, file.c_str(), &f, append ? FS_APPEND : FS_WRITE);
+	if (ret < 0 || !f) {
 		QMM_WRITEQMMLOG(QMM_VARARGS("Unable to write ent dump to %s\n", file.c_str()), QMMLOG_INFO);
 		return;
 	}
