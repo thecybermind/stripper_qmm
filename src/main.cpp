@@ -235,6 +235,9 @@ C_DLLEXPORT intptr_t QMM_vmMain_Post(intptr_t cmd, intptr_t* args) {
 
 
 C_DLLEXPORT intptr_t QMM_syscall_Post(intptr_t cmd, intptr_t* args) {
+	if (s_disabled)
+		QMM_RET_IGNORED(0);
+
 #if defined(GAME_HAS_SUBBSP)
 	/* Jedi Academy has a feature that allows a "misc_bsp" entity in a map to basically cause another map to be
 	   loaded in-place. When a mod encounters the misc_bsp entity, it should call the engine's SetActiveSubBSP
