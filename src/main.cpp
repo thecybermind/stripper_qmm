@@ -112,7 +112,7 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 		if (str_striequal(arg, "sv"))
 			arg = QMM_ARGV2(1);
 
-		if (str_striequal(arg, "stripper_dump")) {
+		if (str_striequal(arg, "stripper_dump") || str_striequal(arg, "/stripper_dump")) {
 			std::string mapfile = QMM_VARARGS("qmmaddons/stripper/dumps/%s.txt", mapname.c_str());
 			std::string modfile = QMM_VARARGS("qmmaddons/stripper/dumps/%s_modents.txt", mapname.c_str());
 
