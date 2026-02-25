@@ -164,7 +164,7 @@ C_DLLEXPORT intptr_t QMM_vmMain(intptr_t cmd, intptr_t* args) {
 
 		if (s_load_and_modify_ents()) {
 			// generate new entstring from s_modents to pass to mod
-			const char* entstring = s_subbsp_modents[s_subbsp_index].get_entstring().c_str();
+			const char* entstring = s_subbsp_modents[-1].get_entstring().c_str();
 
 			// replace entstring arg for passing to mod
 			args[entarg] = (intptr_t)entstring;
