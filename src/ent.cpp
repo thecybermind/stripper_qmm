@@ -114,7 +114,7 @@ void MapEntities::apply_config(std::string file) {
 
 	// read entire file
 	std::vector<char> buf;
-	buf.reserve(size + 1);
+	buf.resize(size + 1);
 	g_syscall(G_FS_READ, buf.data(), size, f);
 	g_syscall(G_FS_FCLOSE_FILE, f);
 	buf[size] = '\0';
