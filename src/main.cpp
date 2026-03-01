@@ -16,8 +16,8 @@ Created By:
 #include "ent.h"
 #include "util.h"
 
-pluginres_t* g_result = nullptr;
-plugininfo_t g_plugininfo = {
+plugin_res* g_result = nullptr;
+plugin_info g_plugininfo = {
 	QMM_PIFV_MAJOR,									// plugin interface version major
 	QMM_PIFV_MINOR,									// plugin interface version minor
 	"Stripper",										// name of plugin
@@ -27,21 +27,21 @@ plugininfo_t g_plugininfo = {
 	"https://github.com/thecybermind/stripper_qmm", // website of plugin
 	"STRIPPER",										// log tag
 };
-eng_syscall_t g_syscall = nullptr;
-mod_vmMain_t g_vmMain = nullptr;
-pluginfuncs_t* g_pluginfuncs = nullptr;
-pluginvars_t* g_pluginvars = nullptr;
+eng_syscall g_syscall = nullptr;
+mod_vmMain g_vmMain = nullptr;
+plugin_funcs* g_pluginfuncs = nullptr;
+plugin_vars* g_pluginvars = nullptr;
 
 
 std::string mapname;
 
 
-C_DLLEXPORT void QMM_Query(plugininfo_t** pinfo) {
+C_DLLEXPORT void QMM_Query(plugin_info** pinfo) {
 	QMM_GIVE_PINFO();
 }
 
 
-C_DLLEXPORT int QMM_Attach(eng_syscall_t engfunc, mod_vmMain_t modfunc, pluginres_t* presult, pluginfuncs_t* pluginfuncs, pluginvars_t* pluginvars) {
+C_DLLEXPORT int QMM_Attach(eng_syscall engfunc, mod_vmMain modfunc, plugin_res* presult, plugin_funcs* pluginfuncs, plugin_vars* pluginvars) {
 	QMM_SAVE_VARS();
 
 	// make sure this DLL is loaded only in the right engine
@@ -306,7 +306,7 @@ C_DLLEXPORT intptr_t QMM_syscall_Post(intptr_t cmd, intptr_t* args) {
 }
 
 
-C_DLLEXPORT void QMM_PluginMessage(plid_t from_plid, const char* message, void* buf, intptr_t buflen, int is_broadcast) {
+C_DLLEXPORT void QMM_PluginMessage(plugin_id from_plid, const char* message, void* buf, intptr_t buflen, int is_broadcast) {
 	if (s_disabled)
 		return;
 
