@@ -108,7 +108,7 @@ void MapEntities::apply_config(std::string file) {
 	if (size <= 0 || !f) {
 		if (f)
 			g_syscall(G_FS_FCLOSE_FILE, f);
-		QMM_WRITEQMMLOG(QMM_VARARGS("Failed to open file \"%s\" for reading.\n", file.c_str()), QMMLOG_WARNING);
+		QMM_WRITEQMMLOG(QMMLOG_WARNING, "Failed to open file \"%s\" for reading.\n", file.c_str());
 		return;
 	}
 
@@ -121,7 +121,7 @@ void MapEntities::apply_config(std::string file) {
 
 	// check for '=' to warn that it likely won't load
 	if (strchr(buf.data(), '='))
-		QMM_WRITEQMMLOG(QMM_VARARGS("Possible old config format detected in \"%s\", likely will fail to load.\n", file.c_str()), QMMLOG_WARNING);
+		QMM_WRITEQMMLOG(QMMLOG_WARNING, "Possible old config format detected in \"%s\", likely will fail to load.\n", file.c_str());
 
 	// tokenize it
 	TokenList tokens = tokenlist_from_entstring(buf.data());
@@ -180,7 +180,7 @@ void MapEntities::apply_config(std::string file) {
 
 			// unknown token
 			else {
-				QMM_WRITEQMMLOG(QMM_VARARGS("Unexpected token \"%s\", expected \"filter:\", \"add:\", \"replace:\", \"with:\", or \"{\"; ignoring.\n", token.c_str()), QMMLOG_WARNING);
+				QMM_WRITEQMMLOG(QMMLOG_WARNING, "Unexpected token \"%s\", expected \"filter:\", \"add:\", \"replace:\", \"with:\", or \"{\"; ignoring.\n", token.c_str());
 			}
 		}
 		// inside an entity. we can either have a key, value, or end the entity
@@ -191,13 +191,13 @@ void MapEntities::apply_config(std::string file) {
 
 				// if entity ended between key and val, print warning
 				if (!is_key) {
-					QMM_WRITEQMMLOG(QMM_VARARGS("Unexpected end of entity with hanging key \"%s\"; ignoring.\n", key.c_str()), QMMLOG_WARNING);
+					QMM_WRITEQMMLOG(QMMLOG_WARNING, "Unexpected end of entity with hanging key \"%s\"; ignoring.\n", key.c_str());
 				}
 
 				// filter mode, don't accept empty entity
 				if (mode == mode_filter) {
 					if (ent.keyvals.empty()) {
-						QMM_WRITEQMMLOG("Empty \"filter\" entity found; ignoring.\n", QMMLOG_WARNING);
+						QMM_WRITEQMMLOG(QMMLOG_WARNING, "Empty \"filter\" entity found; ignoring.\n");
 					}
 					else {
 						num_filters++;
@@ -207,10 +207,10 @@ void MapEntities::apply_config(std::string file) {
 				// add mode, don't accept empty entity or one without a classname
 				else if (mode == mode_add) {
 					if (ent.keyvals.empty()) {
-						QMM_WRITEQMMLOG("Empty \"add\" entity found; ignoring.\n", QMMLOG_WARNING);
+						QMM_WRITEQMMLOG(QMMLOG_WARNING, "Empty \"add\" entity found; ignoring.\n");
 					}
 					else if (ent.classname.empty()) {
-						QMM_WRITEQMMLOG("Found \"add\" entity without \"classname\"; ignoring.\n", QMMLOG_WARNING);
+						QMM_WRITEQMMLOG(QMMLOG_WARNING, "Found \"add\" entity without \"classname\"; ignoring.\n");
 					}
 					else {
 						num_adds++;
@@ -225,7 +225,7 @@ void MapEntities::apply_config(std::string file) {
 				// with mode, don't accept empty entity
 				else if (mode == mode_with) {
 					if (ent.keyvals.empty()) {
-						QMM_WRITEQMMLOG("Empty \"with\" entity found; ignoring.\n", QMMLOG_WARNING);
+						QMM_WRITEQMMLOG(QMMLOG_WARNING, "Empty \"with\" entity found; ignoring.\n");
 					}
 					else {
 						num_withs++;
@@ -244,7 +244,7 @@ void MapEntities::apply_config(std::string file) {
 				|| str_striequal(token, "with:")
 				|| token == "{"
 				) {
-				QMM_WRITEQMMLOG(QMM_VARARGS("Unexpected \"%s\" token found inside an entity; ignoring.\n", token.c_str()), QMMLOG_WARNING);
+				QMM_WRITEQMMLOG(QMMLOG_WARNING, "Unexpected \"%s\" token found inside an entity; ignoring.\n", token.c_str());
 			}
 
 			// it's a key or val
@@ -253,7 +253,7 @@ void MapEntities::apply_config(std::string file) {
 				if (is_key) {
 					// if key is empty, skip it
 					if (token.empty()) {
-						QMM_WRITEQMMLOG("Unexpected empty token found, expected key; ignoring.\n", QMMLOG_WARNING);
+						QMM_WRITEQMMLOG(QMMLOG_WARNING, "Unexpected empty token found, expected key; ignoring.\n");
 					}
 					else {
 						is_key = false;
@@ -266,7 +266,7 @@ void MapEntities::apply_config(std::string file) {
 
 					// don't allow value to be empty in "add:" block
 					if (mode == mode_add && token.empty()) {
-						QMM_WRITEQMMLOG(QMM_VARARGS("Unexpected empty value for key \"%s\" found in \"add\" entity; ignoring.\n", key.c_str()), QMMLOG_WARNING);
+						QMM_WRITEQMMLOG(QMMLOG_WARNING, "Unexpected empty value for key \"%s\" found in \"add\" entity; ignoring.\n", key.c_str());
 					}
 					else {
 						// store keyval in ent
@@ -285,8 +285,8 @@ void MapEntities::apply_config(std::string file) {
 	this->tokeniter = this->tokenlist.begin();
 	this->entstring = entstring_from_entlist(this->entlist);
 
-	QMM_WRITEQMMLOG(QMM_VARARGS("Loaded %d filters, %d adds, %d replace, and %d withs from %s.\n", num_filters, num_adds, num_replaces, num_withs, file.c_str()), QMMLOG_INFO);
-	QMM_WRITEQMMLOG(QMM_VARARGS("Removed %d entities, added %d entities, and replaced %d entities.\n", num_filtered, num_added, num_replaced), QMMLOG_INFO);
+	QMM_WRITEQMMLOG(QMMLOG_INFO, "Loaded %d filters, %d adds, %d replace, and %d withs from %s.\n", num_filters, num_adds, num_replaces, num_withs, file.c_str());
+	QMM_WRITEQMMLOG(QMMLOG_INFO, "Removed %d entities, added %d entities, and replaced %d entities.\n", num_filtered, num_added, num_replaced);
 }
 
 
@@ -337,7 +337,7 @@ void MapEntities::dump_to_file(std::string file, bool append) {
 	fileHandle_t f = 0;
 	int ret = g_syscall(G_FS_FOPEN_FILE, file.c_str(), &f, append ? FS_APPEND : FS_WRITE);
 	if (ret < 0 || !f) {
-		QMM_WRITEQMMLOG(QMM_VARARGS("Unable to write ent dump to %s\n", file.c_str()), QMMLOG_INFO);
+		QMM_WRITEQMMLOG(QMMLOG_INFO, "Unable to write ent dump to %s\n", file.c_str());
 		return;
 	}
 	// output entities in engine entity format: {} on separate lines, tabbed indents, and "" surrounding key and val
@@ -350,7 +350,7 @@ void MapEntities::dump_to_file(std::string file, bool append) {
 		g_syscall(G_FS_WRITE, "}\n", 2, f);
 	}
 	g_syscall(G_FS_FCLOSE_FILE, f);
-	QMM_WRITEQMMLOG(QMM_VARARGS("Ent dump written to %s\n", file.c_str()), QMMLOG_INFO);
+	QMM_WRITEQMMLOG(QMMLOG_INFO, "Ent dump written to %s\n", file.c_str());
 }
 
 
