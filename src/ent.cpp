@@ -29,11 +29,17 @@ MapEntities::MapEntities() : tokeniter(tokenlist.begin()) { }
 
 
 MapEntities::MapEntities(const MapEntities& other) {
+	if (&other == this)
+		return;
+
 	*this = other;
 }
 
 
 MapEntities& MapEntities::operator=(const MapEntities& other) {
+	if (&other == this)
+		return *this;
+
 	// grab other's data
 	this->entlist = other.entlist;
 	this->tokenlist = other.tokenlist;
@@ -48,11 +54,17 @@ MapEntities& MapEntities::operator=(const MapEntities& other) {
 
 
 MapEntities::MapEntities(MapEntities&& other) noexcept {
+	if (&other == this)
+		return;
+
 	*this = other;
 }
 
 
 MapEntities& MapEntities::operator=(MapEntities&& other) noexcept {
+	if (&other == this)
+		return *this;
+
 	// grab other's data
 	this->entlist = other.entlist;
 	this->tokenlist = other.tokenlist;
