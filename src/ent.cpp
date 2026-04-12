@@ -57,7 +57,7 @@ MapEntities::MapEntities(MapEntities&& other) noexcept {
 	if (&other == this)
 		return;
 
-	*this = other;
+	*this = std::move(other);
 }
 
 
@@ -65,20 +65,11 @@ MapEntities& MapEntities::operator=(MapEntities&& other) noexcept {
 	if (&other == this)
 		return *this;
 
-	// grab other's data
-	this->entlist = other.entlist;
-	this->tokenlist = other.tokenlist;
-	this->entstring = other.entstring;
-
-	// calculate other's tokeniter offset to set ours to point to the same entity
-	auto other_offset = other.tokeniter - other.tokenlist.begin();
-	this->tokeniter = this->tokenlist.begin() + other_offset;
-
-	// clear other's data
-	other.entlist.clear();
-	other.tokenlist.clear();
-	other.entstring.clear();
-	other.tokeniter = other.tokenlist.end();
+	// swap data
+	std::swap(this->entlist, other.entlist);
+	std::swap(this->tokenlist, other.tokenlist);
+	std::swap(this->entstring, other.entstring);
+	std::swap(this->tokeniter, other.tokeniter);
 
 	return *this;
 }

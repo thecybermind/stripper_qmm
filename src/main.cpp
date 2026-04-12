@@ -293,8 +293,8 @@ C_DLLEXPORT intptr_t QMM_syscall_Post(intptr_t cmd, intptr_t* args) {
 		entstring = modents.get_entstring();
 
 		// store these ent lists in subbsp tables
-		s_subbsp_mapents[s_subbsp_index] = mapents;
-		s_subbsp_modents[s_subbsp_index] = modents;
+		s_subbsp_mapents[s_subbsp_index] = std::move(mapents);
+		s_subbsp_modents[s_subbsp_index] = std::move(modents);
 
 		// engine has already been called, just change the return value back to the mod
 		// this is fine even in JAMP since trap_SetActiveSubBSP is void so return value is ignored
@@ -365,8 +365,8 @@ static bool s_load_and_modify_ents() {
 	QMM_WRITEQMMLOG(QMMLOG_INFO, "Completed parsing entity list, passing %d entities to mod\n", modents.get_entlist().size());
 
 	// store these ent lists in subbsp tables
-	s_subbsp_mapents[s_subbsp_index] = mapents;
-	s_subbsp_modents[s_subbsp_index] = modents;
+	s_subbsp_mapents[s_subbsp_index] = std::move(mapents);
+	s_subbsp_modents[s_subbsp_index] = std::move(modents);
 
 	return true;
 }
