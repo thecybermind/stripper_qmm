@@ -30,7 +30,7 @@ typedef std::string EntString;
 // this represents a map's worth of entities
 struct MapEntities {
     public:
-        // need constructors to handle re-initialization of iterator member
+        // need constructors/assignment operators to handle re-initialization of iterator member
         MapEntities();
         MapEntities(const MapEntities& other);
         MapEntities& operator=(const MapEntities& other);
