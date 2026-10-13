@@ -18,8 +18,8 @@ Created By:
 
 // this represents a single entity
 struct Ent {
-	std::string classname; // classname is stored when encountered for easier retrieval
-	std::map<std::string, std::string> keyvals;
+    std::string classname; // classname is stored when encountered for easier retrieval
+    std::map<std::string, std::string> keyvals;
 };
 
 // typedefs for common types used in MapEntities

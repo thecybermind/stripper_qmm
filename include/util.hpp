@@ -9,8 +9,8 @@ Created By:
 
 */
 
-#ifndef STRIPPER_QMM_UTIL_H
-#define STRIPPER_QMM_UTIL_H
+#ifndef STRIPPER_QMM_UTIL_HPP
+#define STRIPPER_QMM_UTIL_HPP
 
 #include <string>
 
@@ -22,4 +22,4 @@ int str_striequal(std::string s1, std::string s2);
 // "safe" strncpy that always null-terminates
 char* strncpyz(char* dest, const char* src, std::size_t count); 
 
-#endif // STRIPPER_QMM_UTIL_H
+#endif // STRIPPER_QMM_UTIL_HPP
