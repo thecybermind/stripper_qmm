@@ -9,9 +9,7 @@ Created By:
 
 */
 
-#include "version.h"
 #include <qmmapi.h>
-#include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -154,7 +152,7 @@ void MapEntities::apply_config(std::string file) {
     } mode = mode_filter;
 
     bool inside_ent = false;    // false = between ents, true = inside an ent
-    bool is_key = true;            // true = expecting key, false = expecting val 
+    bool is_key = true;         // true = expecting key, false = expecting val 
 
     // go through every token
     for (const auto& token : tokens) {
@@ -237,7 +235,7 @@ void MapEntities::apply_config(std::string file) {
                         replace_entlist.clear();
                     }
                 }
-            }
+            } // token == '}'
 
             // look for mode tokens or opening brace
             else if (
@@ -279,10 +277,10 @@ void MapEntities::apply_config(std::string file) {
                             ent.classname = token;
                         }
                     }
-                }
-            }
-        }
-    }
+                } // val
+            } // key or val
+        } // inside ent
+    } // for (const auto& token : tokens)
 
     this->tokenlist = tokenlist_from_entlist(this->entlist);
     this->tokeniter = this->tokenlist.begin();
@@ -472,7 +470,7 @@ TokenList MapEntities::tokenlist_from_entstring(const EntString& entstring) {
         else if (c < ' ' || c == 127) {
             continue;
         }
-        // closing braces: end current token
+        // opening braces: end current token
         else if (c == '{') {
             if (!build.empty())
                 tokenlist.push_back(build);
@@ -560,7 +558,7 @@ EntList MapEntities::entlist_from_tokenlist(const TokenList& tokenlist) {
     TokenList::const_iterator iter = tokenlist.begin();
 
     bool inside_ent = false;    // false = between ents, true = inside an ent
-    bool is_key = true;            // true = expecting key, false = expecting val
+    bool is_key = true;         // true = expecting key, false = expecting val
 
     // loop through all tokens from engine
     while (iter != tokenlist.end()) {
