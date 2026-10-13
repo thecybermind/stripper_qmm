@@ -18,14 +18,14 @@ Created By:
 
 plugin_res* g_result = nullptr;
 plugin_info g_plugininfo = {
-    QMM_PIFV_MAJOR,                                    // plugin interface version major
-    QMM_PIFV_MINOR,                                    // plugin interface version minor
-    "Stripper",                                        // name of plugin
-    STRIPPER_QMM_VERSION,                            // version of plugin
-    "Change map entities during load",                // description of plugin
-    STRIPPER_QMM_BUILDER,                            // author of plugin
+    QMM_PIFV_MAJOR,                                 // plugin interface version major
+    QMM_PIFV_MINOR,                                 // plugin interface version minor
+    "Stripper",                                     // name of plugin
+    STRIPPER_QMM_VERSION,                           // version of plugin
+    "Change map entities during load",              // description of plugin
+    STRIPPER_QMM_BUILDER,                           // author of plugin
     "https://github.com/thecybermind/stripper_qmm", // website of plugin
-    "STRIPPER",                                        // log tag
+    "STRIPPER",                                     // log tag
 };
 eng_syscall g_syscall = nullptr;
 eng_syscall_args g_syscall_args = nullptr;
@@ -92,6 +92,12 @@ C_DLLEXPORT intptr_t QMM_vmMain(result_vars* results, intptr_t cmd, intptr_t* ar
         QMM_WRITEQMMLOG(QMMLOG_NOTICE, "Stripper v" STRIPPER_QMM_VERSION " (%s) by " STRIPPER_QMM_BUILDER " is loaded\n", QMM_GETGAMEENGINE());
         // register cvar
         g_syscall(G_CVAR_REGISTER, nullptr, "stripper_version", STRIPPER_QMM_VERSION, CVAR_ROM | CVAR_SERVERINFO | CVAR_NORESTART);
+
+#if defined(GAME_SOF)
+        // register cmd for SOF
+        // void (const char *cmd)
+        g_syscall(G_QMM_REGISTER_CONSOLE_COMMAND, "stripper_dump");
+#endif
 
         // get mapname cvar if it exists
         mapname = QMM_GETSTRCVAR("mapname");
