@@ -12,8 +12,9 @@ Created By:
 #include "version.h"
 #include <qmmapi.h>
 #include <cstring>
+#include <string>
 #include "game.h"
-#include "ent.h"
+#include "ent.hpp"
 #include "util.hpp"
 
 plugin_res* g_result = nullptr;
@@ -33,9 +34,6 @@ mod_vmMain g_vmMain = nullptr;
 mod_vmMain_args g_vmMain_args = nullptr;
 plugin_funcs* g_pluginfuncs = nullptr;
 plugin_vars* g_pluginvars = nullptr;
-
-
-std::string mapname;
 
 
 C_DLLEXPORT void QMM_Query(plugin_info** pinfo) {
@@ -58,22 +56,29 @@ C_DLLEXPORT void QMM_Detach() {
 }
 
 
-// flag to disable if another stripper plugin is loaded for some reason
+// Flag to disable if another stripper plugin is loaded for some reason
 bool s_disabled = false;
 
-// Subbsps are a feature of some games (JAMP, JASP, SOFMP, and SOF2SP right now).
-// They allow for another bsp map to be loaded at a particular position inside another map.
-// Subbsps are identified by an integer index, -1 = no subbsp (main map)
 
-// this stores all the ents loaded from the map (we save this so we can dump them to file with stripper_dump command)
+// Store map name from cvar or Init/SpawnEntities function
+std::string mapname;
+
+
+/*
+ * Subbsps are a feature of some games (JAMP, JASP, SOFMP, and SOF2SP right now).
+ * They allow for another bsp map to be loaded at a particular position inside another map.
+ * Subbsps are identified by an integer index, -1 = no subbsp (main map)
+ */
+
+// This stores all the entities loaded from the map (we save this so we can dump them to file with stripper_dump command)
 static std::map<intptr_t, MapEntities> s_subbsp_mapents;
-// this stores all the ents that should be passed to the mod (s_mapents +/- modifications)
+// This stores all the entities that should be passed to the mod (s_mapents +/- modifications)
 static std::map<intptr_t, MapEntities> s_subbsp_modents;
-// store active subbsp index
+// Store active subbsp index
 static int s_subbsp_index = -1;
 
 
-// handle retrieving map entities, loading stripper configs, and modifying entities for normal Init/SpawnEntities mod loading
+// Handle retrieving map entities, loading stripper configs, and modifying entities for normal Init/SpawnEntities mod loading
 static bool s_load_and_modify_ents();
 
 

@@ -23,7 +23,7 @@ std::string str_tolower(std::string str) {
 }
 
 
-int str_stristr(std::string haystack, std::string needle) {
+bool str_stristr(std::string haystack, std::string needle) {
     return str_tolower(haystack).find(str_tolower(needle)) != std::string::npos;
 }
 
@@ -33,7 +33,7 @@ int str_stricmp(std::string s1, std::string s2) {
 }
 
 
-int str_striequal(std::string s1, std::string s2) {
+bool str_striequal(std::string s1, std::string s2) {
     return str_stricmp(s1, s2) == 0;
 }
 

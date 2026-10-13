@@ -10,8 +10,8 @@ Created By:
 */
 
 #include <qmmapi.h>
-#include <string.h>
-#include <ctype.h>
+#include <cstring>
+#include <cctype>
 
 #include <vector>
 #include <map>
@@ -19,7 +19,7 @@ Created By:
 #include <regex>
 
 #include "game.h"
-#include "ent.h"
+#include "ent.hpp"
 #include "util.hpp"
 
 
@@ -73,8 +73,7 @@ MapEntities& MapEntities::operator=(MapEntities&& other) noexcept {
 }
 
 
-// populate MapEntities from entstring
-void MapEntities::make_from_entstring(EntString entstring) {
+void MapEntities::make_from_entstring(const EntString& entstring) {
     TokenList tokenlist = tokenlist_from_entstring(entstring);
 
     // entlist should be the definitive source that the other fields are generated from
@@ -87,7 +86,6 @@ void MapEntities::make_from_entstring(EntString entstring) {
 }
 
 
-// populate MapEntities from engine tokens
 void MapEntities::make_from_engine() {
     TokenList tokenlist = tokenlist_from_engine();
 
@@ -101,7 +99,6 @@ void MapEntities::make_from_engine() {
 }
 
 
-// load and parse config file
 void MapEntities::apply_config(std::string file) {
     fileHandle_t f = 0;
     intptr_t size = g_syscall(G_FS_FOPEN_FILE, file.c_str(), &f, FS_READ);
@@ -292,7 +289,7 @@ void MapEntities::apply_config(std::string file) {
 
 
 // add keyval to all entities
-void MapEntities::add_keyval(std::string key, std::string val) {
+void MapEntities::add_keyval(const std::string& key, const std::string& val) {
     for (auto& ent : this->entlist)
         ent.keyvals[key] = val;
 
@@ -302,7 +299,6 @@ void MapEntities::add_keyval(std::string key, std::string val) {
 }
 
 
-// return the next token
 intptr_t MapEntities::get_next_token(char* buf, intptr_t len) {
     if (this->tokeniter == this->tokenlist.end())
         return 0;
@@ -315,25 +311,21 @@ intptr_t MapEntities::get_next_token(char* buf, intptr_t len) {
 }
 
 
-// return tokenlist
 const TokenList& MapEntities::get_tokenlist() {
     return this->tokenlist;
 }
 
 
-// return entlist
 const EntList& MapEntities::get_entlist() {
     return this->entlist;
 }
 
 
-// return entstring
 const EntString& MapEntities::get_entstring() {
     return this->entstring;
 }
 
 
-// dump to file
 void MapEntities::dump_to_file(std::string file, bool append) {
     fileHandle_t f = 0;
     int ret = g_syscall(G_FS_FOPEN_FILE, file.c_str(), &f, append ? FS_APPEND : FS_WRITE);
@@ -359,8 +351,7 @@ void MapEntities::dump_to_file(std::string file, bool append) {
 // =============================
 
 
-// returns true if "test" has at least all the same keyvals that "contains" has
-bool MapEntities::is_ent_match(Ent& test, Ent& contains) {
+bool MapEntities::is_ent_match(const Ent& test, const Ent& contains) {
     for (auto& containskeyval : contains.keyvals) {
         const std::string& matchkey = containskeyval.first;
         const std::string& matchval = containskeyval.second;
@@ -394,8 +385,7 @@ bool MapEntities::is_ent_match(Ent& test, Ent& contains) {
 }
 
 
-// removes all matching entities from internal list
-int MapEntities::filter_ents(Ent& filterent) {
+int MapEntities::filter_ents(const Ent& filterent) {
     int total = 0;
     auto it = this->entlist.begin();
     while (it != this->entlist.end()) {
@@ -410,8 +400,7 @@ int MapEntities::filter_ents(Ent& filterent) {
 }
 
 
-// adds an entity to internal list (puts worldspawn at the beginning)
-int MapEntities::add_ent(Ent& addent) {
+int MapEntities::add_ent(const Ent& addent) {
     if (addent.classname == "worldspawn")
         this->entlist.insert(this->entlist.begin(), addent);
     else
@@ -420,8 +409,7 @@ int MapEntities::add_ent(Ent& addent) {
 }
 
 
-// finds all entities in internal list matching all stored replaceents and replaces with a withent
-int MapEntities::replace_ents(EntList& replace_entlist, Ent& withent) {
+int MapEntities::replace_ents(EntList& replace_entlist, const Ent& withent) {
     int total = 0;
     // go through all replace_ents
     for (auto& repent : replace_entlist) {
@@ -439,8 +427,7 @@ int MapEntities::replace_ents(EntList& replace_entlist, Ent& withent) {
 }
 
 
-// adds all keyvals from withent into replaceent (replacing the val if a key already exists)
-void MapEntities::replace_ent(Ent& replaceent, Ent& withent) {
+void MapEntities::replace_ent(Ent& replaceent, const Ent& withent) {
     // go through all keyvals on withent
     for (auto& withkeyval : withent.keyvals) {
         // empty val means to remove key if it exists
@@ -453,7 +440,6 @@ void MapEntities::replace_ent(Ent& replaceent, Ent& withent) {
 }
 
 
-// generate a tokenlist from entstring
 TokenList MapEntities::tokenlist_from_entstring(const EntString& entstring) {
     TokenList tokenlist;
     std::string build;
@@ -511,7 +497,6 @@ TokenList MapEntities::tokenlist_from_entstring(const EntString& entstring) {
 }
 
 
-// generate a tokenlist from engine tokens
 TokenList MapEntities::tokenlist_from_engine() {
     TokenList tokenlist;
     char buf[MAX_TOKEN_CHARS];
@@ -526,7 +511,6 @@ TokenList MapEntities::tokenlist_from_engine() {
 }
 
 
-// generate a tokenlist from entlist
 TokenList MapEntities::tokenlist_from_entlist(const EntList& entlist) {
     TokenList tokenlist;
 
@@ -544,7 +528,6 @@ TokenList MapEntities::tokenlist_from_entlist(const EntList& entlist) {
 }
 
 
-// generate an entlist from engine tokens
 EntList MapEntities::entlist_from_tokenlist(const TokenList& tokenlist) {
     EntList entlist;
 
@@ -614,7 +597,6 @@ EntList MapEntities::entlist_from_tokenlist(const TokenList& tokenlist) {
 }
 
 
-// generate an entstring from entlist
 EntString MapEntities::entstring_from_entlist(const EntList& entlist) {
     EntString entstring;
 

@@ -363,7 +363,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\ent.h" />
+    <ClInclude Include="..\include\ent.hpp" />
     <ClInclude Include="..\include\game.h" />
     <ClInclude Include="..\include\util.hpp" />
     <ClInclude Include="..\include\version.h" />
