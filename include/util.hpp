@@ -9,17 +9,17 @@ Created By:
 
 */
 
-#ifndef STRIPPER_QMM_UTIL_H
-#define STRIPPER_QMM_UTIL_H
+#ifndef STRIPPER_QMM_UTIL_HPP
+#define STRIPPER_QMM_UTIL_HPP
 
 #include <string>
 
 std::string str_tolower(std::string str);
-int str_stristr(std::string haystack, std::string needle);
+bool str_stristr(std::string haystack, std::string needle);
 int str_stricmp(std::string s1, std::string s2);
-int str_striequal(std::string s1, std::string s2);
+bool str_striequal(std::string s1, std::string s2);
 
 // "safe" strncpy that always null-terminates
 char* strncpyz(char* dest, const char* src, std::size_t count); 
 
-#endif // STRIPPER_QMM_UTIL_H
+#endif // STRIPPER_QMM_UTIL_HPP

@@ -191,7 +191,7 @@ def gen_vcxproj(name, sourcefiles, headerfiles):
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
 """
@@ -200,7 +200,7 @@ def gen_vcxproj(name, sourcefiles, headerfiles):
             f.write(
                 f"""  <ItemDefinitionGroup Condition="$(Configuration.EndsWith('-{game}'))==true">
     <ClCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);GAME_{game}</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);GAME_{game};GAME_STR="{game}"</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
 """
@@ -414,11 +414,11 @@ CFLAGS   := -Wall -pipe -fPIC
 LDFLAGS  := -shared -fPIC
 LDLIBS   :=
 
-REL_CPPFLAGS := $(CPPFLAGS) -DNDEBUG -DNDEBUG
+REL_CPPFLAGS := $(CPPFLAGS) -DNDEBUG
 DBG_CPPFLAGS := $(CPPFLAGS) -D_DEBUG
 
-REL_CFLAGS_32 := $(CFLAGS) -m32 -O2 -ffast-math -falign-loops=2 -falign-jumps=2 -falign-functions=2 -fno-strict-aliasing -fstrength-reduce 
-REL_CFLAGS_64 := $(CFLAGS) -O2 -ffast-math -falign-loops=2 -falign-jumps=2 -falign-functions=2 -fno-strict-aliasing -fstrength-reduce 
+REL_CFLAGS_32 := $(CFLAGS) -m32 -O2 -falign-functions=16 -fno-strict-aliasing -fstrength-reduce 
+REL_CFLAGS_64 := $(CFLAGS) -O2 -falign-functions=16 -fno-strict-aliasing -fstrength-reduce 
 DBG_CFLAGS_32 := $(CFLAGS) -m32 -g -pg
 DBG_CFLAGS_64 := $(CFLAGS) -g -pg
 
@@ -481,19 +481,19 @@ $(BIN_DIR)/debug-$(1)/x86_64/$(BIN_64)_$(1).so: $$(addprefix $(OBJ_DIR)/debug-$(
 
 $(OBJ_DIR)/release-$(1)/x86/%.o: $(SRC_DIR)/%.cpp
 	mkdir -p $$(@D)
-	$(CC) $(REL_CPPFLAGS) -DGAME_$(1) $(REL_CFLAGS_32) -c $$< -o $$@
+	$(CC) $(REL_CPPFLAGS) -DGAME_$(1) -DGAME_STR=\\"$(1)\\" $(REL_CFLAGS_32) -c $$< -o $$@
 
 $(OBJ_DIR)/release-$(1)/x86_64/%.o: $(SRC_DIR)/%.cpp
 	mkdir -p $$(@D)
-	$(CC) $(REL_CPPFLAGS) -DGAME_$(1) $(REL_CFLAGS_64) -c $$< -o $$@
+	$(CC) $(REL_CPPFLAGS) -DGAME_$(1) -DGAME_STR=\\"$(1)\\" $(REL_CFLAGS_64) -c $$< -o $$@
 
 $(OBJ_DIR)/debug-$(1)/x86/%.o: $(SRC_DIR)/%.cpp
 	mkdir -p $$(@D)
-	$(CC) $(DBG_CPPFLAGS) -DGAME_$(1) $(DBG_CFLAGS_32) -c $$< -o $$@
+	$(CC) $(DBG_CPPFLAGS) -DGAME_$(1) -DGAME_STR=\\"$(1)\\" $(DBG_CFLAGS_32) -c $$< -o $$@
 
 $(OBJ_DIR)/debug-$(1)/x86_64/%.o: $(SRC_DIR)/%.cpp
 	mkdir -p $$(@D)
-	$(CC) $(DBG_CPPFLAGS) -DGAME_$(1) $(DBG_CFLAGS_64) -c $$< -o $$@
+	$(CC) $(DBG_CPPFLAGS) -DGAME_$(1) -DGAME_STR=\\"$(1)\\" $(DBG_CFLAGS_64) -c $$< -o $$@
 
 -include $$(addprefix $(OBJ_DIR)/release-$(1)/x86/,$(OBJ_FILES:.o=.d))
 -include $$(addprefix $(OBJ_DIR)/release-$(1)/x86_64/,$(OBJ_FILES:.o=.d))
