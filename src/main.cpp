@@ -17,7 +17,6 @@ Created By:
 #include "ent.hpp"
 #include "util.hpp"
 
-plugin_res* g_result = nullptr;
 plugin_info g_plugininfo = {
     QMM_PIFV_MAJOR,                                 // plugin interface version major
     QMM_PIFV_MINOR,                                 // plugin interface version minor
