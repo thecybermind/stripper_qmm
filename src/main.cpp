@@ -27,22 +27,16 @@ plugin_info g_plugininfo = {
     "https://github.com/thecybermind/stripper_qmm", // website of plugin
     "STRIPPER",                                     // log tag
 };
-eng_syscall g_syscall = nullptr;
-eng_syscall_args g_syscall_args = nullptr;
-mod_vmMain g_vmMain = nullptr;
-mod_vmMain_args g_vmMain_args = nullptr;
-plugin_funcs* g_pluginfuncs = nullptr;
-plugin_vars* g_pluginvars = nullptr;
+plugin_funcs g_pluginfuncs;
+plugin_vars g_pluginvars;
 
 
-C_DLLEXPORT void QMM_Query(plugin_info** pinfo) {
+C_DLLEXPORT void QMM_Query(plugin_info** plugininfo, plugin_funcs** pluginfuncs, plugin_vars** pluginvars) {
     QMM_GIVE_PINFO();
 }
 
 
-C_DLLEXPORT int QMM_Attach(eng_syscall engfunc, eng_syscall_args engfunc_args, mod_vmMain modfunc, mod_vmMain_args modfunc_args, plugin_funcs* pluginfuncs, plugin_vars* pluginvars) {
-    QMM_SAVE_VARS();
-
+C_DLLEXPORT int QMM_Attach() {
     // make sure this DLL is loaded only in the right engine
     if (strcmp(QMM_GETGAMEENGINE(), GAME_STR) != 0)
         return 0;
@@ -95,12 +89,12 @@ C_DLLEXPORT intptr_t QMM_vmMain(result_vars* results, intptr_t cmd, intptr_t* ar
         // init msg
         QMM_WRITEQMMLOG(QMMLOG_NOTICE, "Stripper v" STRIPPER_QMM_VERSION " (%s) by " STRIPPER_QMM_BUILDER " is loaded\n", QMM_GETGAMEENGINE());
         // register cvar
-        g_syscall(G_CVAR_REGISTER, nullptr, "stripper_version", STRIPPER_QMM_VERSION, CVAR_ROM | CVAR_SERVERINFO | CVAR_NORESTART);
+        QMM_SYSCALL(G_CVAR_REGISTER, nullptr, "stripper_version", STRIPPER_QMM_VERSION, CVAR_ROM | CVAR_SERVERINFO | CVAR_NORESTART);
 
 #if defined(GAME_SOF)
         // register cmd for SOF
         // void (const char *cmd)
-        g_syscall(G_QMM_REGISTER_CONSOLE_COMMAND, "stripper_dump");
+        QMM_SYSCALL(G_QMM_REGISTER_CONSOLE_COMMAND, "stripper_dump");
 #endif
 
         // get mapname cvar if it exists
