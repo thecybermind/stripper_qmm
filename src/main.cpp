@@ -32,7 +32,7 @@ plugin_vars g_pluginvars;
 
 
 C_DLLEXPORT void QMM_Query(plugin_info** plugininfo, plugin_funcs** pluginfuncs, plugin_vars** pluginvars) {
-    QMM_GIVE_PINFO();
+    QMM_GIVE_PTRS();
 }
 
 
