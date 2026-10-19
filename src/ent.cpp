@@ -101,11 +101,11 @@ void MapEntities::make_from_engine() {
 
 void MapEntities::apply_config(std::string file) {
     fileHandle_t f = 0;
-    intptr_t size = g_syscall(G_FS_FOPEN_FILE, file.c_str(), &f, FS_READ);
+    intptr_t size = QMM_SYSCALL(G_FS_FOPEN_FILE, file.c_str(), &f, FS_READ);
     // file failed to load
     if (size <= 0 || !f) {
         if (f)
-            g_syscall(G_FS_FCLOSE_FILE, f);
+            QMM_SYSCALL(G_FS_FCLOSE_FILE, f);
         QMM_WRITEQMMLOG(QMMLOG_WARNING, "Failed to open file \"%s\" for reading.\n", file.c_str());
         return;
     }
@@ -113,8 +113,8 @@ void MapEntities::apply_config(std::string file) {
     // read entire file
     std::vector<char> buf;
     buf.resize(size + 1);
-    g_syscall(G_FS_READ, buf.data(), size, f);
-    g_syscall(G_FS_FCLOSE_FILE, f);
+    QMM_SYSCALL(G_FS_READ, buf.data(), size, f);
+    QMM_SYSCALL(G_FS_FCLOSE_FILE, f);
     buf[size] = '\0';
 
     // check for '=' to warn that it likely won't load
@@ -328,21 +328,21 @@ const EntString& MapEntities::get_entstring() {
 
 void MapEntities::dump_to_file(std::string file, bool append) {
     fileHandle_t f = 0;
-    int ret = g_syscall(G_FS_FOPEN_FILE, file.c_str(), &f, append ? FS_APPEND : FS_WRITE);
+    int ret = QMM_SYSCALL(G_FS_FOPEN_FILE, file.c_str(), &f, append ? FS_APPEND : FS_WRITE);
     if (ret < 0 || !f) {
         QMM_WRITEQMMLOG(QMMLOG_INFO, "Unable to write ent dump to %s\n", file.c_str());
         return;
     }
     // output entities in engine entity format: {} on separate lines, tabbed indents, and "" surrounding key and val
     for (auto& ent : this->entlist) {
-        g_syscall(G_FS_WRITE, "{\n", 2, f);
+        QMM_SYSCALL(G_FS_WRITE, "{\n", 2, f);
         for (auto& keyval : ent.keyvals) {
             std::string s = "\t\"" + keyval.first + "\" \"" + keyval.second + "\"\n";
-            g_syscall(G_FS_WRITE, s.c_str(), s.size(), f);
+            QMM_SYSCALL(G_FS_WRITE, s.c_str(), s.size(), f);
         }
-        g_syscall(G_FS_WRITE, "}\n", 2, f);
+        QMM_SYSCALL(G_FS_WRITE, "}\n", 2, f);
     }
-    g_syscall(G_FS_FCLOSE_FILE, f);
+    QMM_SYSCALL(G_FS_FCLOSE_FILE, f);
     QMM_WRITEQMMLOG(QMMLOG_INFO, "Ent dump written to %s\n", file.c_str());
 }
 
@@ -502,7 +502,7 @@ TokenList MapEntities::tokenlist_from_engine() {
     char buf[MAX_TOKEN_CHARS];
 
     // get tokens from engine/QMM and add to tokenlist
-    while (g_syscall(G_GET_ENTITY_TOKEN, buf, sizeof(buf))) {
+    while (QMM_SYSCALL(G_GET_ENTITY_TOKEN, buf, sizeof(buf))) {
         buf[sizeof(buf) - 1] = '\0';
         tokenlist.push_back(buf);
     }
