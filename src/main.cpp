@@ -150,12 +150,13 @@ C_DLLEXPORT intptr_t QMM_vmMain(result_vars* results, intptr_t cmd, intptr_t* ar
         // stef2:   void (*SpawnEntities)(const char *mapname, const char *entstring, int levelTime);
         // sin:     void (*SpawnEntities)(const char *mapname, const char *entstring, const char *spawnpoint);
         // sof:     void (*SpawnEntities)(char* mapname, char* entstring, char* spawnpoint);
+        // kingpin: void (*SpawnEntities)(char* mapname, char* entstring, char* spawnpoint);
         // quake2:  void (*SpawnEntities)(char* mapname, char* entstring, char* spawnpoint);
         // q2r:     void (*SpawnEntities)(char* mapname, char* entstring, char* spawnpoint);
         // jk2sp:   void (*Init)(const char *mapname, const char *spawntarget, int checkSum, const char *entstring, int levelTime, int randomSeed, int globalTime, SavedGameJustLoaded_e eSavedGameJustLoaded, qboolean qbLoadTransition);
         // jasp:    void (*Init)(const char *mapname, const char *spawntarget, int checkSum, const char *entstring, int levelTime, int randomSeed, int globalTime, SavedGameJustLoaded_e eSavedGameJustLoaded, qboolean qbLoadTransition);
         // stvoysp: void (*Init)(const char *mapname, const char *spawntarget, int checkSum, const char *entstring, int levelTime, int randomSeed, int globalTime, SavedGameJustLoaded_e eSavedGameJustLoaded, qboolean qbLoadTransition);
-#if defined(GAME_STEF2) || defined(GAME_Q2R) || defined(GAME_QUAKE2) || defined(GAME_SIN) || defined(GAME_SOF)
+#if defined(GAME_STEF2) || defined(GAME_Q2R) || defined(GAME_QUAKE2) || defined(GAME_SIN) || defined(GAME_SOF) || defined(GAME_KINGPIN)
         int entarg = 1;
         mapname = (char*)args[0];
 #elif defined(GAME_JK2SP) || defined(GAME_JASP) || defined(GAME_STVOYSP)

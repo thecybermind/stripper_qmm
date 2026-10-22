@@ -29,6 +29,10 @@
       <Configuration>Debug-JK2SP</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug-KINGPIN|Win32">
+      <Configuration>Debug-KINGPIN</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug-MOHAA|Win32">
       <Configuration>Debug-MOHAA</Configuration>
       <Platform>Win32</Platform>
@@ -89,18 +93,6 @@
       <Configuration>Debug-WET</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug-COD11MP|x64">
-      <Configuration>Debug-COD11MP</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug-CODMP|x64">
-      <Configuration>Debug-CODMP</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug-CODUOMP|x64">
-      <Configuration>Debug-CODUOMP</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug-JAMP|x64">
       <Configuration>Debug-JAMP</Configuration>
       <Platform>x64</Platform>
@@ -115,18 +107,6 @@
     </ProjectConfiguration>
     <ProjectConfiguration Include="Debug-JK2SP|x64">
       <Configuration>Debug-JK2SP</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug-MOHAA|x64">
-      <Configuration>Debug-MOHAA</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug-MOHBT|x64">
-      <Configuration>Debug-MOHBT</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug-MOHSH|x64">
-      <Configuration>Debug-MOHSH</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Debug-Q2R|x64">
@@ -147,34 +127,6 @@
     </ProjectConfiguration>
     <ProjectConfiguration Include="Debug-RTCWSP|x64">
       <Configuration>Debug-RTCWSP</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug-SIN|x64">
-      <Configuration>Debug-SIN</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug-SOF|x64">
-      <Configuration>Debug-SOF</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug-SOF2MP|x64">
-      <Configuration>Debug-SOF2MP</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug-SOF2SP|x64">
-      <Configuration>Debug-SOF2SP</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug-STEF2|x64">
-      <Configuration>Debug-STEF2</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug-STVOYHM|x64">
-      <Configuration>Debug-STVOYHM</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug-STVOYSP|x64">
-      <Configuration>Debug-STVOYSP</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Debug-WET|x64">
@@ -207,6 +159,10 @@
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release-JK2SP|Win32">
       <Configuration>Release-JK2SP</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release-KINGPIN|Win32">
+      <Configuration>Release-KINGPIN</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release-MOHAA|Win32">
@@ -269,18 +225,6 @@
       <Configuration>Release-WET</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Release-COD11MP|x64">
-      <Configuration>Release-COD11MP</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release-CODMP|x64">
-      <Configuration>Release-CODMP</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release-CODUOMP|x64">
-      <Configuration>Release-CODUOMP</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Release-JAMP|x64">
       <Configuration>Release-JAMP</Configuration>
       <Platform>x64</Platform>
@@ -295,18 +239,6 @@
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release-JK2SP|x64">
       <Configuration>Release-JK2SP</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release-MOHAA|x64">
-      <Configuration>Release-MOHAA</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release-MOHBT|x64">
-      <Configuration>Release-MOHBT</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release-MOHSH|x64">
-      <Configuration>Release-MOHSH</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release-Q2R|x64">
@@ -327,34 +259,6 @@
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release-RTCWSP|x64">
       <Configuration>Release-RTCWSP</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release-SIN|x64">
-      <Configuration>Release-SIN</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release-SOF|x64">
-      <Configuration>Release-SOF</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release-SOF2MP|x64">
-      <Configuration>Release-SOF2MP</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release-SOF2SP|x64">
-      <Configuration>Release-SOF2SP</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release-STEF2|x64">
-      <Configuration>Release-STEF2</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release-STVOYHM|x64">
-      <Configuration>Release-STVOYHM</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release-STVOYSP|x64">
-      <Configuration>Release-STVOYSP</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release-WET|x64">
@@ -435,6 +339,9 @@
   <PropertyGroup Condition="$(Platform)=='Win32' And $(Configuration.EndsWith('-JK2SP'))==true">
     <TargetName>$(ProjectName)_JK2SP</TargetName>
   </PropertyGroup>
+  <PropertyGroup Condition="$(Platform)=='Win32' And $(Configuration.EndsWith('-KINGPIN'))==true">
+    <TargetName>$(ProjectName)_KINGPIN</TargetName>
+  </PropertyGroup>
   <PropertyGroup Condition="$(Platform)=='Win32' And $(Configuration.EndsWith('-MOHAA'))==true">
     <TargetName>$(ProjectName)_MOHAA</TargetName>
   </PropertyGroup>
@@ -480,15 +387,6 @@
   <PropertyGroup Condition="$(Platform)=='Win32' And $(Configuration.EndsWith('-WET'))==true">
     <TargetName>$(ProjectName)_WET</TargetName>
   </PropertyGroup>
-  <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-COD11MP'))==true">
-    <TargetName>$(ProjectName)_x86_64_COD11MP</TargetName>
-  </PropertyGroup>
-  <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-CODMP'))==true">
-    <TargetName>$(ProjectName)_x86_64_CODMP</TargetName>
-  </PropertyGroup>
-  <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-CODUOMP'))==true">
-    <TargetName>$(ProjectName)_x86_64_CODUOMP</TargetName>
-  </PropertyGroup>
   <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-JAMP'))==true">
     <TargetName>$(ProjectName)_x86_64_JAMP</TargetName>
   </PropertyGroup>
@@ -500,15 +398,6 @@
   </PropertyGroup>
   <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-JK2SP'))==true">
     <TargetName>$(ProjectName)_x86_64_JK2SP</TargetName>
-  </PropertyGroup>
-  <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-MOHAA'))==true">
-    <TargetName>$(ProjectName)_x86_64_MOHAA</TargetName>
-  </PropertyGroup>
-  <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-MOHBT'))==true">
-    <TargetName>$(ProjectName)_x86_64_MOHBT</TargetName>
-  </PropertyGroup>
-  <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-MOHSH'))==true">
-    <TargetName>$(ProjectName)_x86_64_MOHSH</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-Q2R'))==true">
     <TargetName>$(ProjectName)_x86_64_Q2R</TargetName>
@@ -524,27 +413,6 @@
   </PropertyGroup>
   <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-RTCWSP'))==true">
     <TargetName>$(ProjectName)_x86_64_RTCWSP</TargetName>
-  </PropertyGroup>
-  <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-SIN'))==true">
-    <TargetName>$(ProjectName)_x86_64_SIN</TargetName>
-  </PropertyGroup>
-  <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-SOF'))==true">
-    <TargetName>$(ProjectName)_x86_64_SOF</TargetName>
-  </PropertyGroup>
-  <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-SOF2MP'))==true">
-    <TargetName>$(ProjectName)_x86_64_SOF2MP</TargetName>
-  </PropertyGroup>
-  <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-SOF2SP'))==true">
-    <TargetName>$(ProjectName)_x86_64_SOF2SP</TargetName>
-  </PropertyGroup>
-  <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-STEF2'))==true">
-    <TargetName>$(ProjectName)_x86_64_STEF2</TargetName>
-  </PropertyGroup>
-  <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-STVOYHM'))==true">
-    <TargetName>$(ProjectName)_x86_64_STVOYHM</TargetName>
-  </PropertyGroup>
-  <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-STVOYSP'))==true">
-    <TargetName>$(ProjectName)_x86_64_STVOYSP</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="$(Platform)=='x64' And $(Configuration.EndsWith('-WET'))==true">
     <TargetName>$(ProjectName)_x86_64_WET</TargetName>
@@ -621,6 +489,11 @@
   <ItemDefinitionGroup Condition="$(Configuration.EndsWith('-JK2SP'))==true">
     <ClCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);GAME_JK2SP;GAME_STR="JK2SP"</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="$(Configuration.EndsWith('-KINGPIN'))==true">
+    <ClCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);GAME_KINGPIN;GAME_STR="KINGPIN"</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="$(Configuration.EndsWith('-MOHAA'))==true">

@@ -4,12 +4,36 @@ cd package
 rm -f *
 cp ../README.md ./
 cp ../LICENSE ./
-cp ../global.ini ./
-cp ../q3dm1.ini ./
-
-for f in COD11MP CODMP CODUOMP JAMP JASP JK2MP JK2SP MOHAA MOHBT MOHSH Q3A QUAKE2 RTCWMP RTCWSP SIN SOF SOF2MP SOF2SP STEF2 STVOYHM STVOYSP WET; do
-  cp ../bin/release-$f/x86/stripper_qmm_$f.so ./
-  cp ../bin/release-$f/x86_64/stripper_qmm_x86_64_$f.so ./
-done
-
+cp ../bin/release-COD11MP/x86/stripper_qmm_COD11MP.so ./
+cp ../bin/release-CODMP/x86/stripper_qmm_CODMP.so ./
+cp ../bin/release-CODUOMP/x86/stripper_qmm_CODUOMP.so ./
+cp ../bin/release-JAMP/x86/stripper_qmm_JAMP.so ./
+cp ../bin/release-JAMP/x86_64/stripper_qmm_x86_64_JAMP.so ./
+cp ../bin/release-JASP/x86/stripper_qmm_JASP.so ./
+cp ../bin/release-JASP/x86_64/stripper_qmm_x86_64_JASP.so ./
+cp ../bin/release-JK2MP/x86/stripper_qmm_JK2MP.so ./
+cp ../bin/release-JK2MP/x86_64/stripper_qmm_x86_64_JK2MP.so ./
+cp ../bin/release-JK2SP/x86/stripper_qmm_JK2SP.so ./
+cp ../bin/release-JK2SP/x86_64/stripper_qmm_x86_64_JK2SP.so ./
+cp ../bin/release-KINGPIN/x86/stripper_qmm_KINGPIN.so ./
+cp ../bin/release-MOHAA/x86/stripper_qmm_MOHAA.so ./
+cp ../bin/release-MOHBT/x86/stripper_qmm_MOHBT.so ./
+cp ../bin/release-MOHSH/x86/stripper_qmm_MOHSH.so ./
+cp ../bin/release-Q3A/x86/stripper_qmm_Q3A.so ./
+cp ../bin/release-Q3A/x86_64/stripper_qmm_x86_64_Q3A.so ./
+cp ../bin/release-QUAKE2/x86/stripper_qmm_QUAKE2.so ./
+cp ../bin/release-QUAKE2/x86_64/stripper_qmm_x86_64_QUAKE2.so ./
+cp ../bin/release-RTCWMP/x86/stripper_qmm_RTCWMP.so ./
+cp ../bin/release-RTCWMP/x86_64/stripper_qmm_x86_64_RTCWMP.so ./
+cp ../bin/release-RTCWSP/x86/stripper_qmm_RTCWSP.so ./
+cp ../bin/release-RTCWSP/x86_64/stripper_qmm_x86_64_RTCWSP.so ./
+cp ../bin/release-SIN/x86/stripper_qmm_SIN.so ./
+cp ../bin/release-SOF/x86/stripper_qmm_SOF.so ./
+cp ../bin/release-SOF2MP/x86/stripper_qmm_SOF2MP.so ./
+cp ../bin/release-SOF2SP/x86/stripper_qmm_SOF2SP.so ./
+cp ../bin/release-STEF2/x86/stripper_qmm_STEF2.so ./
+cp ../bin/release-STVOYHM/x86/stripper_qmm_STVOYHM.so ./
+cp ../bin/release-STVOYSP/x86/stripper_qmm_STVOYSP.so ./
+cp ../bin/release-WET/x86/stripper_qmm_WET.so ./
+cp ../bin/release-WET/x86_64/stripper_qmm_x86_64_WET.so ./
 cd ..
