@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 # genbuild.py - generate build, MSVC, and GitHub action files for a QMM plugin
 # Copyright 2004-2026
 # https://github.com/thecybermind/stub_qmm/
@@ -24,6 +25,30 @@ arches = [
     ("x64", "x64"),
 ]
 
+no_x64 = [
+    "STVOYHM",
+    "SOF2MP",
+    "CODMP",
+    "CODUOMP",
+    "COD11MP",
+    "MOHAA",
+    "MOHSH",
+    "MOHBT",
+    "KINGPIN",
+    "STEF2",
+    "SOF2SP",
+    "STVOYSP",
+    "SIN",
+    "SOF",
+]
+
+no_x86 = [
+    "Q2R",
+]
+
+no_linux = [
+    "Q2R",
+]
 
 def gen_sln(name):
     with open(f"msvc/{name}.sln", "w", encoding="utf-8-sig") as f:
@@ -42,6 +67,10 @@ Global
         for build in builds:
             for game in games:
                 for arch, _ in arches:
+                    if arch in ["x86"] and game in no_x86:
+                        continue
+                    if arch in ["x64"] and game in no_x64:
+                        continue
                     f.write(f"		{build}-{game}|{arch} = {build}-{game}|{arch}\n")
         f.write(
             """	EndGlobalSection
@@ -51,8 +80,10 @@ Global
         for build in builds:
             for game in games:
                 for arch, arch2 in arches:
-                    if arch in ["x86"] and game in ["Q2R"]:
+                    if arch in ["x86"] and game in no_x86:
                         arch2 = "x64"
+                    if arch in ["x64"] and game in no_x64:
+                        arch2 = "x86"
                     f.write(
                         f"		{{1D5BE629-82D1-4511-8559-5116BFE4338C}}.{build}-{game}|{arch}.ActiveCfg = {build}-{game}|{arch2}\n"
                     )
@@ -80,7 +111,9 @@ def gen_vcxproj(name, sourcefiles, headerfiles):
         for build in builds:
             for arch, arch2 in arches:
                 for game in games:
-                    if arch in ["x86"] and game in ["Q2R"]:
+                    if arch in ["x86"] and game in no_x86:
+                        continue
+                    if arch in ["x64"] and game in no_x64:
                         continue
                     f.write(
                         f"""    <ProjectConfiguration Include="{build}-{game}|{arch2}">
@@ -146,7 +179,9 @@ def gen_vcxproj(name, sourcefiles, headerfiles):
             else:
                 filearch = "x86_64_"
             for game in games:
-                if arch in ["x86"] and game in ["Q2R"]:
+                if arch in ["x86"] and game in no_x86:
+                    continue
+                if arch in ["x64"] and game in no_x64:
                     continue
                 f.write(
                     f"""  <PropertyGroup Condition="$(Platform)=='{arch2}' And $(Configuration.EndsWith('-{game}'))==true">
@@ -386,18 +421,16 @@ END
 
 
 def gen_makefile(name):
-    games_no_Q2R = [game for game in games if game != "Q2R"]
+    games_no_linux = [game for game in games if game not in no_linux]
     with open(f"Makefile", "w", encoding="utf-8") as f:
         f.write(
-            f"""# STUB_QMM - Example QMM Plugin
-# Copyright 2004-2026
-# https://github.com/thecybermind/stub_qmm/
+            f"""# {name} - QMM Plugin
+# Copyright 2026
 # 3-clause BSD license: https://opensource.org/license/bsd-3-clause
-# Created By: Kevin Masterson < k.m.masterson@gmail.com >
 
 BIN_32 := {name}
 BIN_64 := {name}_x86_64
-GAMES := {" ".join(games_no_Q2R)}
+GAMES := {" ".join(games_no_linux)}
 
 CC := g++
 
@@ -509,7 +542,7 @@ clean:
 
 
 def gen_github_build_linux_package(name):
-    games_no_Q2R = [game for game in games if game != "Q2R"]
+    games_no_linux = [game for game in games if game not in no_linux]
     with open(".github/build/linux/package.sh", "w", encoding="utf-8") as f:
         f.write(
             f"""#!/bin/sh
@@ -518,15 +551,15 @@ cd package
 rm -f *
 cp ../README.md ./
 cp ../LICENSE ./
+""")
 
-for f in {" ".join(games_no_Q2R)}; do
-  cp ../bin/release-$f/x86/{name}_$f.so ./
-  cp ../bin/release-$f/x86_64/{name}_x86_64_$f.so ./
-done
+        for game in games_no_linux:
+            if game not in no_x86:
+                f.write(f"cp ../bin/release-{game}/x86/{name}_{game}.so ./\n")
+            if game not in no_x64:
+                f.write(f"cp ../bin/release-{game}/x86_64/{name}_x86_64_{game}.so ./\n")
 
-cd ..
-"""
-        )
+        f.write("cd ..\n")
 
 
 def gen_github_build_windows_package(name):
@@ -537,40 +570,37 @@ pushd package
 del /q *
 rem copy ..\\README.md .\\
 rem copy ..\\LICENSE .\\
+""")
+        for game in games:
+            if game not in no_x86:
+                f.write(f"copy ..\\bin\\Release-{game}\\x86\\{name}_{game}.dll .\\\n")
+            if game not in no_x64:
+                f.write(f"copy ..\\bin\\Release-{game}\\x64\\{name}_x86_64_{game}.dll .\\\n")
 
-for %%G in ({" ".join(games)}) do (
-    copy ..\\bin\\Release-%%G\\x86\\{name}_%%G.dll .\\
-    copy ..\\bin\\Release-%%G\\x64\\{name}_x86_64_%%G.dll .\\     
-)
-popd
-"""
-        )
+        f.write("popd\n")
 
 
 def gen_github_build_windows_release(name):
     with open(".github/build/windows/release.bat", "w", encoding="utf-8") as f:
-        f.write(
-            f"""for %%G in ({" ".join(games)}) do (
-    if [%%G] NEQ [Q2R] msbuild .\\msvc\\{name}.vcxproj /p:Configuration=Release-%%G /p:Platform=x86
-    if errorlevel 1 exit /b errorlevel
-    msbuild .\\msvc\\{name}.vcxproj /p:Configuration=Release-%%G /p:Platform=x64
-    if errorlevel 1 exit /b errorlevel
-)
-"""
-        )
+        for game in games:
+            if game not in no_x86:
+                f.write(f"msbuild .\\msvc\\{name}.vcxproj /p:Configuration=Release-{game} /p:Platform=x86\n")
+                f.write("if errorlevel 1 exit /b errorlevel\n")
+            if game not in no_x64:
+                f.write(f"msbuild .\\msvc\\{name}.vcxproj /p:Configuration=Release-{game} /p:Platform=x64\n")
+                f.write("if errorlevel 1 exit /b errorlevel\n")
 
 
 def gen_github_build_windows_debug(name):
     with open(".github/build/windows/debug.bat", "w", encoding="utf-8") as f:
-        f.write(
-            f"""for %%G in ({" ".join(games)}) do (
-    if [%%G] NEQ [Q2R] msbuild .\\msvc\\{name}.vcxproj /p:Configuration=Debug-%%G /p:Platform=x86
-    if errorlevel 1 exit /b errorlevel
-    msbuild .\\msvc\\{name}.vcxproj /p:Configuration=Debug-%%G /p:Platform=x64
-    if errorlevel 1 exit /b errorlevel
-)
-"""
-        )
+        for game in games:
+            if game not in no_x86:
+                f.write(f"msbuild .\\msvc\\{name}.vcxproj /p:Configuration=Debug-{game} /p:Platform=x86\n")
+                f.write("if errorlevel 1 exit /b errorlevel\n")
+            if game not in no_x64:
+                f.write(f"msbuild .\\msvc\\{name}.vcxproj /p:Configuration=Debug-{game} /p:Platform=x64\n")
+                f.write("if errorlevel 1 exit /b errorlevel\n")
+
 
 
 def load_games_lst():

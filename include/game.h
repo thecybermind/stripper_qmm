@@ -30,7 +30,7 @@ Created By:
 #elif defined(GAME_JAMP)
     #include <jamp/game/g_local.h>
     #include <game_jamp.h>
-#define GAME_HAS_SUBBSP
+    #define GAME_HAS_SUBBSP
 #elif defined(GAME_JASP)
     #include <jasp/game/q_shared.h>
     #include <jasp/game/g_local.h>
@@ -47,6 +47,12 @@ Created By:
     #include <jk2sp/game/bg_public.h>
     #include <game_jk2sp.h>
     #define GAME_HAS_SPAWN_ENTITIES
+#elif defined(GAME_KINGPIN)
+    #include <kingpin/q_shared.h>
+    #include <kingpin/game.h>
+    #include <game_kingpin.h>
+    #define GAME_HAS_SPAWN_ENTITIES
+    #define CVAR_NORESTART 0
 #elif defined(GAME_MOHAA)
     #include <mohaa/fgame/g_local.h>
     #include <mohaa/fgame/bg_public.h>

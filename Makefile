@@ -1,12 +1,10 @@
-# STUB_QMM - Example QMM Plugin
-# Copyright 2004-2026
-# https://github.com/thecybermind/stub_qmm/
+# stripper_qmm - QMM Plugin
+# Copyright 2026
 # 3-clause BSD license: https://opensource.org/license/bsd-3-clause
-# Created By: Kevin Masterson < k.m.masterson@gmail.com >
 
 BIN_32 := stripper_qmm
 BIN_64 := stripper_qmm_x86_64
-GAMES := COD11MP CODMP CODUOMP JAMP JASP JK2MP JK2SP MOHAA MOHBT MOHSH Q3A QUAKE2 RTCWMP RTCWSP SIN SOF SOF2MP SOF2SP STEF2 STVOYHM STVOYSP WET
+GAMES := COD11MP CODMP CODUOMP JAMP JASP JK2MP JK2SP KINGPIN MOHAA MOHBT MOHSH Q3A QUAKE2 RTCWMP RTCWSP SIN SOF SOF2MP SOF2SP STEF2 STVOYHM STVOYSP WET
 
 CC := g++
 
