@@ -430,7 +430,6 @@ def gen_makefile(name):
 
 BIN_32 := {name}
 BIN_64 := {name}_x86_64
-GAMES := {" ".join(games_no_linux)}
 
 CC := g++
 
@@ -481,64 +480,81 @@ help:
 
 all: release debug
 release: release32 release64
-release32: $(addprefix release32-,$(GAMES))
-release64: $(addprefix release64-,$(GAMES))
+release32: {' '.join(["release32-" + game for game in games_no_linux if game not in no_x86])}
+release64: {' '.join(["release64-" + game for game in games_no_linux if game not in no_x64])}
 debug: debug32 debug64
-debug32: $(addprefix debug32-,$(GAMES))
-debug64: $(addprefix debug64-,$(GAMES))
+debug32: {' '.join(["debug32-" + game for game in games_no_linux if game not in no_x86])}
+debug64: {' '.join(["debug64-" + game for game in games_no_linux if game not in no_x64])}
+""")
 
-define gen_rules
-game-$(1): release-$(1) debug-$(1)
-release-$(1): release32-$(1) release64-$(1)
-debug-$(1): debug32-$(1) debug64-$(1)
-release32-$(1): $(BIN_DIR)/release-$(1)/x86/$(BIN_32)_$(1).so
-release64-$(1): $(BIN_DIR)/release-$(1)/x86_64/$(BIN_64)_$(1).so
-debug32-$(1): $(BIN_DIR)/debug-$(1)/x86/$(BIN_32)_$(1).so
-debug64-$(1): $(BIN_DIR)/debug-$(1)/x86_64/$(BIN_64)_$(1).so
+        for game in games_no_linux:
+            f.write(f"game-{game}: release-{game} debug-{game}\n")
+            if game in no_x86:
+                f.write(f"""release-{game}: release64-{game}
+debug-{game}: debug64-{game}
+""")
+            elif game in no_x64:
+                f.write(f"""release-{game}: release32-{game}
+debug-{game}: debug32-{game}
+""")
+            else:
+                f.write(f"""release-{game}: release32-{game} release64-{game}
+debug-{game}: debug32-{game} debug64-{game}
+""")
 
-$(BIN_DIR)/release-$(1)/x86/$(BIN_32)_$(1).so: $$(addprefix $(OBJ_DIR)/release-$(1)/x86/,$(OBJ_FILES))
-	mkdir -p $$(@D)
-	$(CC) $(REL_LDFLAGS_32) -o $$@ $(LDLIBS) $$^
+            if game not in no_x86:
+                f.write(f"""release32-{game}: $(BIN_DIR)/release-{game}/x86/$(BIN_32)_{game}.so
+debug32-{game}: $(BIN_DIR)/debug-{game}/x86/$(BIN_32)_{game}.so
+
+$(BIN_DIR)/release-{game}/x86/$(BIN_32)_{game}.so: $(addprefix $(OBJ_DIR)/release-{game}/x86/,$(OBJ_FILES))
+	mkdir -p $(@D)
+	$(CC) $(REL_LDFLAGS_32) -o $@ $(LDLIBS) $^
 	
-$(BIN_DIR)/release-$(1)/x86_64/$(BIN_64)_$(1).so: $$(addprefix $(OBJ_DIR)/release-$(1)/x86_64/,$(OBJ_FILES))
-	mkdir -p $$(@D)
-	$(CC) $(REL_LDFLAGS_64) -o $$@ $(LDLIBS) $$^
-	
-$(BIN_DIR)/debug-$(1)/x86/$(BIN_32)_$(1).so: $$(addprefix $(OBJ_DIR)/debug-$(1)/x86/,$(OBJ_FILES))
-	mkdir -p $$(@D)
-	$(CC) $(DBG_LDFLAGS_32) -o $$@ $(LDLIBS) $$^
-	
-$(BIN_DIR)/debug-$(1)/x86_64/$(BIN_64)_$(1).so: $$(addprefix $(OBJ_DIR)/debug-$(1)/x86_64/,$(OBJ_FILES))
-	mkdir -p $$(@D)
-	$(CC) $(DBG_LDFLAGS_64) -o $$@ $(LDLIBS) $$^
+$(BIN_DIR)/debug-{game}/x86/$(BIN_32)_{game}.so: $(addprefix $(OBJ_DIR)/debug-{game}/x86/,$(OBJ_FILES))
+	mkdir -p $(@D)
+	$(CC) $(DBG_LDFLAGS_32) -o $@ $(LDLIBS) $^
 
-$(OBJ_DIR)/release-$(1)/x86/%.o: $(SRC_DIR)/%.cpp
-	mkdir -p $$(@D)
-	$(CC) $(REL_CPPFLAGS) -DGAME_$(1) -DGAME_STR=\\"$(1)\\" $(REL_CFLAGS_32) -c $$< -o $$@
+$(OBJ_DIR)/release-{game}/x86/%.o: $(SRC_DIR)/%.cpp
+	mkdir -p $(@D)
+	$(CC) $(REL_CPPFLAGS) -DGAME_{game} -DGAME_STR=\\"{game}\\" $(REL_CFLAGS_32) -c $< -o $@
 
-$(OBJ_DIR)/release-$(1)/x86_64/%.o: $(SRC_DIR)/%.cpp
-	mkdir -p $$(@D)
-	$(CC) $(REL_CPPFLAGS) -DGAME_$(1) -DGAME_STR=\\"$(1)\\" $(REL_CFLAGS_64) -c $$< -o $$@
+$(OBJ_DIR)/debug-{game}/x86/%.o: $(SRC_DIR)/%.cpp
+	mkdir -p $(@D)
+	$(CC) $(DBG_CPPFLAGS) -DGAME_{game} -DGAME_STR=\\"{game}\\" $(DBG_CFLAGS_32) -c $< -o $@
 
-$(OBJ_DIR)/debug-$(1)/x86/%.o: $(SRC_DIR)/%.cpp
-	mkdir -p $$(@D)
-	$(CC) $(DBG_CPPFLAGS) -DGAME_$(1) -DGAME_STR=\\"$(1)\\" $(DBG_CFLAGS_32) -c $$< -o $$@
+-include $(addprefix $(OBJ_DIR)/release-{game}/x86/,$(OBJ_FILES:.o=.d))
+-include $(addprefix $(OBJ_DIR)/debug-{game}/x86/,$(OBJ_FILES:.o=.d))
 
-$(OBJ_DIR)/debug-$(1)/x86_64/%.o: $(SRC_DIR)/%.cpp
-	mkdir -p $$(@D)
-	$(CC) $(DBG_CPPFLAGS) -DGAME_$(1) -DGAME_STR=\\"$(1)\\" $(DBG_CFLAGS_64) -c $$< -o $$@
+""")
 
--include $$(addprefix $(OBJ_DIR)/release-$(1)/x86/,$(OBJ_FILES:.o=.d))
--include $$(addprefix $(OBJ_DIR)/release-$(1)/x86_64/,$(OBJ_FILES:.o=.d))
--include $$(addprefix $(OBJ_DIR)/debug-$(1)/x86/,$(OBJ_FILES:.o=.d))
--include $$(addprefix $(OBJ_DIR)/debug-$(1)/x86_64/,$(OBJ_FILES:.o=.d))
-endef
-$(foreach game,$(GAMES),$(eval $(call gen_rules,$(game))))
+            if game not in no_x64:
+                f.write(f"""release64-{game}: $(BIN_DIR)/release-{game}/x86_64/$(BIN_64)_{game}.so
+debug64-{game}: $(BIN_DIR)/debug-{game}/x86_64/$(BIN_64)_{game}.so
 
-clean:
+$(BIN_DIR)/release-{game}/x86_64/$(BIN_64)_{game}.so: $(addprefix $(OBJ_DIR)/release-{game}/x86_64/,$(OBJ_FILES))
+	mkdir -p $(@D)
+	$(CC) $(REL_LDFLAGS_64) -o $@ $(LDLIBS) $^	
+
+$(BIN_DIR)/debug-{game}/x86_64/$(BIN_64)_{game}.so: $(addprefix $(OBJ_DIR)/debug-$(1)/x86_64/,$(OBJ_FILES))
+	mkdir -p $(@D)
+	$(CC) $(DBG_LDFLAGS_64) -o $@ $(LDLIBS) $^
+
+$(OBJ_DIR)/release-{game}/x86_64/%.o: $(SRC_DIR)/%.cpp
+	mkdir -p $(@D)
+	$(CC) $(REL_CPPFLAGS) -DGAME_{game} -DGAME_STR=\\"{game}\\" $(REL_CFLAGS_64) -c $< -o $@
+
+$(OBJ_DIR)/debug-{game}/x86_64/%.o: $(SRC_DIR)/%.cpp
+	mkdir -p $(@D)
+	$(CC) $(DBG_CPPFLAGS) -DGAME_{game} -DGAME_STR=\\"{game}\\" $(DBG_CFLAGS_64) -c $< -o $@
+
+-include $(addprefix $(OBJ_DIR)/release-{game}/x86_64/,$(OBJ_FILES:.o=.d))
+-include $(addprefix $(OBJ_DIR)/debug-{game}/x86_64/,$(OBJ_FILES:.o=.d))
+
+""")
+                
+        f.write(f"""clean:
 	@$(RM) -rv $(BIN_DIR) $(OBJ_DIR)
-"""
-        )
+""")
 
 
 def gen_github_build_linux_package(name):
